@@ -333,80 +333,6 @@ static void deleteIndexOD(uint8_t id)
 // End Local Subroutines
 //////////////////////////
 
-// OD Main task
-static void od_main_task(void *pvParameters)
-{
-    TickType_t xLastWakeTime = xTaskGetTickCount();
-
-    while(1)
-    {
-        vTaskDelayUntil(&xLastWakeTime, 1);
-
-        TRACE(8);
-        // Read/Update IOs state
-        extProc();
-#ifdef PLC_USED
-        // Main PLC Task
-        plcProc();
-#endif  // PLC_USED
-
-        // Send Data to Broker
-        switch(MQTTSN_GetStatus())
-        {
-            case MQTTSN_STATUS_PRE_CONNECT:
-                // Register variables
-                if(idxUpdate < OD_MAX_INDEX_LIST)
-                {
-                    if(ListOD[idxUpdate].Index != 0xFFFF)
-                    {
-                        if(MQTTSN_CanSend())
-                            MQTTSN_Send(MQTTSN_MSGTYP_REGISTER,     // Message type
-                                        idxUpdate,                  // Flags
-                                        ListOD[idxUpdate].Index);   // Topic Id
-                    }
-                    else
-                        idxUpdate++;
-                }
-                // Send Subscribe & Publish Device Info
-                else if(idxUpdate == OD_MAX_INDEX_LIST)
-                {
-                    if(MQTTSN_CanSend())
-                        MQTTSN_Send(MQTTSN_MSGTYP_SUBSCRIBE, (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM), 0);
-
-                }
-                break;
-            case MQTTSN_STATUS_CONNECT:
-                if(idxUpdate >= OD_MAX_INDEX_LIST)
-                    idxUpdate = 0;
-
-                while(idxUpdate < OD_MAX_INDEX_LIST)
-                {
-                    if((ListOD[idxUpdate].Index != 0xFFFF) &&
-                       (ListOD[idxUpdate].cbPoll != NULL) &&
-                       (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx, 0))
-                    {
-                        if(MQTTSN_CanSend())
-                        {
-                            MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
-                                        (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
-                                        ListOD[idxUpdate].Index);
-                            idxUpdate++;
-                        }
-
-                        break;
-                    }
-                    idxUpdate++;
-                }
-                break;
-            default:
-                idxUpdate = 0x00;
-                break;
-        }
-        taskYIELD();
-    }
-    vTaskDelete(NULL);
-}
-
 void InitOD(void)
 {
   uint8_t ucTmp;
@@ -503,7 +429,7 @@ void InitOD(void)
   // Configure extensions & PnP devices
 //  extConfig();
 
-  xTaskCreate(od_main_task, "od1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL );
+//  xTaskCreate(od_main_task, "od1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL );
 }
 
 /*
@@ -777,4 +703,66 @@ e_MQTTSN_RETURNS_t WriteODpack(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t 
     Len = len;
 
   return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
+}
+
+// OD Main task
+void OD_Poll(void)
+{
+    // Read/Update IOs state
+    extProc();
+#ifdef PLC_USED
+    // Main PLC Task
+    plcProc();
+#endif  // PLC_USED
+
+    // Send Data to Broker
+    switch(MQTTSN_GetStatus())
+    {
+        case MQTTSN_STATUS_PRE_CONNECT:
+            // Register variables
+            if(idxUpdate < OD_MAX_INDEX_LIST)
+            {
+                if(ListOD[idxUpdate].Index != 0xFFFF)
+                {
+                    if(MQTTSN_CanSend())
+                        MQTTSN_Send(MQTTSN_MSGTYP_REGISTER,     // Message type
+                                    idxUpdate,                  // Flags
+                                    ListOD[idxUpdate].Index);   // Topic Id
+                }
+                else
+                    idxUpdate++;
+            }
+            // Send Subscribe & Publish Device Info
+            else if(idxUpdate == OD_MAX_INDEX_LIST)
+            {
+                if(MQTTSN_CanSend())
+                    MQTTSN_Send(MQTTSN_MSGTYP_SUBSCRIBE, (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM), 0);
+            }
+            break;
+        case MQTTSN_STATUS_CONNECT:
+            if(idxUpdate >= OD_MAX_INDEX_LIST)
+                idxUpdate = 0;
+
+            while(idxUpdate < OD_MAX_INDEX_LIST)
+            {
+                if((ListOD[idxUpdate].Index != 0xFFFF) &&
+                   (ListOD[idxUpdate].cbPoll != NULL) &&
+                   (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx, 0))
+                {
+                    if(MQTTSN_CanSend())
+                    {
+                        MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
+                                   (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
+                                    ListOD[idxUpdate].Index);
+                        idxUpdate++;
+                    }
+                    break;
+                }
+                idxUpdate++;
+            }
+            break;
+        default:
+            idxUpdate = 0x00;
+            break;
+    }
 }

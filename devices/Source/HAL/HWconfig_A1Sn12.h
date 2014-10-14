@@ -10,8 +10,8 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_A1SN11_H
-#define HWCONFIG_A1SN11_H
+#ifndef HWCONFIG_A1SN12_H
+#define HWCONFIG_A1SN12_H
 
 // uNode Version 2.0
 // uc ATMega328p
@@ -98,4 +98,4 @@ See LICENSE file for license details.
 #define eeprom_read(pBuf, Addr, Len)  eeprom_read_block((void *)pBuf, (const void *)Addr, (size_t)Len)
 #define eeprom_write(pBuf, Addr, Len) eeprom_write_block((const void *)pBuf, (void *)Addr, (size_t)Len)
 
-#endif // HWCONFIG_A1SN11_H
+#endif // HWCONFIG_A1SN12_H

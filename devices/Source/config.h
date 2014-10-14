@@ -22,7 +22,6 @@ See LICENSE file for license details.
 
 // MQTT-SN Section
 #define MQTTSN_MSG_SIZE         48                // Size of payload(base for all buffers)
-//#define MQTTSN_USE_DHCP         1
 
 // Object Dictionary
 #define OD_MAX_INDEX_LIST       16                // Size of identificators list
@@ -32,10 +31,11 @@ See LICENSE file for license details.
 
 #define UART_BaudRate           38400
 
-#define RF_BASE_FREQ            868300000UL
-
 #include "HAL/HWconfig_A1Sn12.h"
 
+#define configTICK_RATE_HZ      100
+
+#include "memmang.h"
 #include "mqTypes.h"
 #include "mqttsn.h"
 #include "ObjDict.h"

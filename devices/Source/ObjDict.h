@@ -82,7 +82,7 @@ typedef enum
   objUsrExt   = 'X',  // User extensions
 }eObjPlace_t;
 
-typedef enum eObjTyp
+typedef enum
 {
   objBool     = 'z',  // bool
   objInt8     = 'b',  // int8
@@ -182,4 +182,5 @@ indextable_t * getFreeIdxOD(void);
 e_MQTTSN_RETURNS_t ReadODpack(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf);
 e_MQTTSN_RETURNS_t WriteODpack(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf);
 
+void OD_Poll(void);
 #endif

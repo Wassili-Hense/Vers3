@@ -16,6 +16,8 @@ int main(void)
 {
     // Initialise System Hardware
     INIT_SYSTEM();
+    // Initialise Memory manager
+    MEM_Init();
     // Initialise Object's Dictionary
     InitOD();
     // Initialise PHY Interfaces

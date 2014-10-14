@@ -15,7 +15,7 @@ See LICENSE file for license details.
 #include "../../config.h"
 
 #ifdef UART_PHY
-/*
+
 #if (UART_PHY == 1)
 #define UART_ADDR           phy1addr
 #define UART_ADDR_t         PHY1_ADDR_t
@@ -24,10 +24,11 @@ See LICENSE file for license details.
 #define UART_ADDR_t         PHY2_ADDR_t
 #endif  //  UART_PHY
 
-static QueueHandle_t        uart_in_queue = NULL;
-static QueueHandle_t        uart_out_queue;
-static QueueHandle_t        uart_isr_queue;
+//static QueueHandle_t        uart_in_queue = NULL;
+//static QueueHandle_t        uart_out_queue;
+//static QueueHandle_t        uart_isr_queue;
 
+/*
 static void uart_task(void *pvParameters)
 {
     MQ_t * pMqBuf;
@@ -62,9 +63,11 @@ static void uart_task(void *pvParameters)
     }
     vTaskDelete(NULL);
 }
+*/
 
 void UART_Init(void)
 {
+/*
     if(uart_in_queue == NULL)
     {
         uart_in_queue  = xQueueCreate(8, sizeof(void *));
@@ -73,10 +76,12 @@ void UART_Init(void)
 
         xTaskCreate(uart_task, "uart", configMINIMAL_STACK_SIZE + 16, NULL, tskIDLE_PRIORITY, NULL );
     }
+*/
 }
 
 void UART_Send(void *pBuf)
 {
+/*
     if(xQueueSend(uart_in_queue, &pBuf, 0) != pdTRUE)
         vPortFree(pBuf);
     else if(IS_UART_TX_INT_ENABLED() == 0)
@@ -84,8 +89,10 @@ void UART_Send(void *pBuf)
         hal_uart_send(0xC0);                                // Send End Of Frame - Flush buffers
         UART_TX_ENABLE_INT();                               // Enable the UARTx Transmit interrupt
     }
+*/
 }
 
+/*
 void uart_rx_handler(BaseType_t * pxHigherPriorityTaskWoken, uint8_t data)
 {
     static uint8_t  rx_pos = 0;

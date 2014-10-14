@@ -60,6 +60,8 @@ void mqttsn_parser_phy2(MQ_t * pPHY2outBuf);
 void MQTTSN_Init(void);
 e_MQTTSN_STATUS_t MQTTSN_GetStatus(void);
 
+void MQTTSN_Poll(void);
+
 bool MQTTSN_CanSend(void);
 void MQTTSN_Send(e_MQTTSN_MSGTYPE_t      MsgType,
                  uint8_t                 Flags,

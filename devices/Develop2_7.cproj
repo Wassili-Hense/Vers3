@@ -104,10 +104,25 @@
     <Compile Include="Source\config.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\ext.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\HAL\HWconfig_A1Sn12.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\memmang.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\memmang.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\mqttsn.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\mqttsn.h">
