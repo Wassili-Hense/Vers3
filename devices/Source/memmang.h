@@ -17,9 +17,19 @@ See LICENSE file for license details.
 
 #include <stdlib.h>
 
+typedef struct
+{
+    void * pHead;
+    void * pTail;
+}Queue_t;
+
 void MEM_Init(void);
 void *MEM_Malloc(size_t xWantedSize);
 void MEM_Free(void *pv);
 size_t MEM_GetFreeHeapSize(void);
+
+Queue_t * MEM_Create_Queue(void);
+bool MEM_Enqueue(Queue_t * pQueue, void * pBuf);
+bool MEM_Dequeue(Queue_t * pQueue, void * pBuf);
 
 #endif  //  _MEMMANG_H

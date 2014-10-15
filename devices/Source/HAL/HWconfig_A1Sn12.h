@@ -58,12 +58,8 @@ See LICENSE file for license details.
 #define UART_DDR                    DDRD
 #define UART_RX_PIN                 PD0
 #define UART_TX_PIN                 PD1
-#define UART_RX_DATA                UDR0
-#define UART_TX_DATA                UDR0
 
-#define UART_TX_DISABLE_INT()       UCSR0B &= ~(1<<UDRIE0)
-#define UART_TX_ENABLE_INT()        UCSR0B |= (1<<UDRIE0)
-#define IS_UART_TX_INT_ENABLED()    (UCSR0B & (1<<UDRIE0))
+#define USART_USE_PORT              1
 // End UART Section
 
 #define UART_PHY                    1
@@ -91,6 +87,7 @@ See LICENSE file for license details.
 
 #define PHY1_Init                   UART_Init
 #define PHY1_Send                   UART_Send
+#define PHY1_Get                    UART_Get
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objGateID
 

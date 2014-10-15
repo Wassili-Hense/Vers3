@@ -14,15 +14,13 @@ See LICENSE file for license details.
 #define _UART_PHY_H
 
 // HAL Section
-//void hal_uart_init_hw(void);
-//void hal_uart_send(uint8_t data);
-
-// IRQ handlers
-//void uart_rx_handler(BaseType_t * pxHigherPriorityTaskWoken, uint8_t data);
-//void uart_tx_handler(BaseType_t * pxHigherPriorityTaskWoken);
+void hal_uart_init_hw(void);
+bool hal_uart_send(uint8_t data);
+bool hal_uart_get(uint8_t * pData);
 
 // API Section
 void UART_Init(void);
 void UART_Send(void *pBuf);
+void * UART_Get(void);
 
 #endif  //  _UART_PHY_H

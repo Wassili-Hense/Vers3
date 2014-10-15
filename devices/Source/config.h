@@ -35,6 +35,9 @@ See LICENSE file for license details.
 
 #define configTICK_RATE_HZ      100
 
+#define ENTER_CRITICAL_SECTION()
+#define LEAVE_CRITICAL_SECTION()
+
 #include "memmang.h"
 #include "mqTypes.h"
 #include "mqttsn.h"

@@ -3,14 +3,14 @@
 // AVR Architecture specifics.
 #define portPOINTER_SIZE_TYPE       uintptr_t
 #define portBYTE_ALIGNMENT          1
-#define configTOTAL_HEAP_SIZE       1200    // ATMega328P
+#define configTOTAL_HEAP_SIZE       1024    // ATMega328P
 
 
 // Local defines
 typedef struct S_BLOCK_LINK
 {
-    struct S_BLOCK_LINK *pNextFreeBlock;
-    size_t BlockSize;
+    struct  S_BLOCK_LINK *pNextFreeBlock;
+    size_t  BlockSize;
 } BlockLink_t;
 
 #if (portBYTE_ALIGNMENT == 8)
@@ -33,10 +33,6 @@ static uint8_t mem_heap[configTOTAL_HEAP_SIZE];
 // Create a couple of list links to mark the start and end of the list.
 static BlockLink_t mem_start, mem_end;
 
-/* Keeps track of the number of free bytes remaining, but says nothing about
-fragmentation. */
-static size_t xFreeBytesRemaining = configADJUSTED_HEAP_SIZE;
-
 void MEM_Init(void)
 {
     BlockLink_t * pFirstFreeBlock;
@@ -51,8 +47,8 @@ void MEM_Init(void)
     mem_start.BlockSize = (size_t)0;
 
     /* mem_end is used to mark the end of the list of free blocks. */
-    mem_end.BlockSize = configADJUSTED_HEAP_SIZE;
     mem_end.pNextFreeBlock = NULL;
+    mem_end.BlockSize = configADJUSTED_HEAP_SIZE;
 
     /* To start with there is a single free block that is sized to take up the
     entire heap space. */
@@ -60,12 +56,12 @@ void MEM_Init(void)
     pFirstFreeBlock->BlockSize = configADJUSTED_HEAP_SIZE;
     pFirstFreeBlock->pNextFreeBlock = &mem_end;
 }
-/*-----------------------------------------------------------*/
 
-void *MEM_Malloc(size_t xWantedSize)
+void * MEM_Malloc(size_t xWantedSize)
 {
     BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink;
-    void *pvReturn = NULL;
+    void * pvReturn;
+    pvReturn = NULL;
 
     /* The wanted size is increased so it can contain a BlockLink_t
     structure in addition to the requested amount of bytes. */
@@ -128,7 +124,6 @@ void *MEM_Malloc(size_t xWantedSize)
                 pxIterator->pNextFreeBlock = pxNewBlockLink;
                 }
             }
-            xFreeBytesRemaining -= pxBlock->BlockSize;
         }
     }
     return pvReturn;
@@ -136,11 +131,12 @@ void *MEM_Malloc(size_t xWantedSize)
 
 void MEM_Free(void *pv)
 {
-    uint8_t *puc = (uint8_t *)pv;
     BlockLink_t *pxLink;
 
     if(pv != NULL)
     {
+        uint8_t *puc = (uint8_t *)pv;    
+    
         /* The memory being freed will have an BlockLink_t structure immediately
         before it. */
         puc -= heapSTRUCT_SIZE;
@@ -157,13 +153,76 @@ void MEM_Free(void *pv)
             pxIterator = pxIterator->pNextFreeBlock);
         pxLink->pNextFreeBlock = pxIterator->pNextFreeBlock;
         pxIterator->pNextFreeBlock = pxLink;
-
-        xFreeBytesRemaining += pxLink->BlockSize;
     }
 }
-/*-----------------------------------------------------------*/
 
-size_t MEM_GetFreeHeapSize(void)
+/*
+Queue_t * MEM_Create_Queue(void)
 {
-    return xFreeBytesRemaining;
+    Queue_t * pQueue;
+    pQueue = MEM_Malloc(sizeof(Queue_t));
+    if(pQueue != NULL)
+    {
+        pQueue->pHead = NULL;
+        pQueue->pTail = NULL;
+    }
+
+    return pQueue;
+}
+*/
+
+bool MEM_Enqueue(Queue_t * pQueue, void * pBuf)
+{
+    if((pQueue == NULL) || (pBuf == NULL))
+        return false;
+        
+    ((MQ_t *)pBuf)->pNext = NULL;
+
+    ENTER_CRITICAL_SECTION();
+    
+    if(pQueue->pHead == NULL)       // 1st element
+    {
+        pQueue->pHead = pBuf;
+        pQueue->pTail = pBuf;
+    }
+    else
+    {
+        MQ_t * pTmp;
+        pTmp = pQueue->pHead;
+        pTmp->pNext = pBuf;
+        pQueue->pHead = pBuf;
+    }
+    
+    LEAVE_CRITICAL_SECTION();
+
+    return true;
+}
+
+bool MEM_Dequeue(Queue_t * pQueue, void * pBuf)
+{
+    if((pQueue == NULL) || (pBuf == NULL))
+        return false;
+        
+    bool retval = true;
+        
+    ENTER_CRITICAL_SECTION();
+
+    pBuf = pQueue->pTail;
+    
+    if(pBuf == NULL)
+    {
+        pQueue->pHead = NULL;
+        retval = false;
+    }
+    else
+    {
+        pQueue->pTail = ((MQ_t *)pBuf)->pNext;
+        if(pQueue->pTail == NULL)
+        {
+            pQueue->pHead = NULL;
+        }
+    }
+
+    LEAVE_CRITICAL_SECTION();
+    return retval;
 }
