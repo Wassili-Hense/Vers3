@@ -15,7 +15,8 @@ See LICENSE file for license details.
 
 // HAL Section
 void hal_uart_init_hw(void);
-bool hal_uart_send(uint8_t data);
+bool hal_uart_tx_busy(void);
+void hal_uart_send(uint8_t data);
 bool hal_uart_get(uint8_t * pData);
 
 // API Section

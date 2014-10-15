@@ -35,60 +35,56 @@ static void uart_tx_task(void)
 
     uint8_t data;
 
-uart_tx_task_lbl1:
-    if(tx_pos == 0xFF)
+    while(hal_uart_tx_busy() == 0)
     {
-        if(pTx_buf == NULL)
-            pTx_buf = MEM_Dequeue(&uart_tx_queue);
+        if(tx_pos == 0xFF)
+        {
+            if(pTx_buf == NULL)
+                pTx_buf = MEM_Dequeue(&uart_tx_queue);
         
-        if(pTx_buf == NULL)
-            return;
+            if(pTx_buf == NULL)
+                return;
 
-        // Send Length
-        data = pTx_buf->Length;
-        tx_len = data;
-    }
-    else if(tx_pos < tx_len)
-    {
-        data = pTx_buf->raw[tx_pos];
-    }
-    else
-    {
-        if(pTx_buf != NULL)
-        {
-            MEM_Free(pTx_buf);
-            pTx_buf = NULL;
+            // Send Length
+            data = pTx_buf->Length;
+            tx_len = data;
         }
-
-        if(hal_uart_send(0xC0))
-            tx_pos = 0xFF;
-
-        return;
-    }
-
-    // Convert data from RAW to SLEEP format
-    if((data == 0xC0) || (data == 0xDB))
-    {
-        if(tx_db)
+        else if(tx_pos < tx_len)
         {
-            tx_db = false;
-            data ^= 0x20;
+            data = pTx_buf->raw[tx_pos];
         }
         else
         {
-            if(!hal_uart_send(0xDB))
-                return;
-        
-            tx_db = true;
-            goto uart_tx_task_lbl1;
-        }
-    }
+            if(pTx_buf != NULL)
+            {
+                MEM_Free(pTx_buf);
+                pTx_buf = NULL;
+            }
 
-    if(!hal_uart_send(data))
-        return;
-    
-    tx_pos++;
-    goto uart_tx_task_lbl1;
+            hal_uart_send(0xC0);
+            tx_pos = 0xFF;
+            return;
+        }
+
+        // Convert data from RAW to SLEEP format
+        if((data == 0xC0) || (data == 0xDB))
+        {
+            if(tx_db)
+            {
+                tx_db = false;
+                data ^= 0x20;
+            }
+            else
+            {
+                hal_uart_send(0xDB);
+                tx_db = true;
+                continue;
+            }
+        }
+
+        hal_uart_send(data);
+        tx_pos++;
+    }
 }
 
 void UART_Init(void)

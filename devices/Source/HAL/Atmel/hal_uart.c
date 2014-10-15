@@ -30,6 +30,9 @@ static volatile uint8_t hal_uart_tx_tail;
 
 void hal_uart_init_hw(void)
 {
+    // Debug
+    DDRA |= (1<<PA0) | (1<<PA1);
+
     UART_PORT |= (1<<UART_RX_PIN) | (1<<UART_TX_PIN);
     UART_DDR |= (1<<UART_TX_PIN);
     UART_DDR &= ~(1<<UART_RX_PIN);
@@ -46,25 +49,34 @@ void hal_uart_init_hw(void)
     hal_uart_tx_tail = 0;
 }
 
-bool hal_uart_send(uint8_t data)
+bool hal_uart_tx_busy(void)
+{
+    uint8_t tmp_head = hal_uart_tx_head + 1;
+    if(tmp_head == HAL_SIZEOF_UART_TX_FIFO)
+        tmp_head = 0;
+
+    return (tmp_head == hal_uart_tx_tail);
+}
+
+void hal_uart_send(uint8_t data)
 {
     if(IS_UART_TX_INT_ENABLED() == 0)
     {
         UART_TX_DATA = data;
         UART_TX_ENABLE_INT();
-        return true;
+        PORTA |= (1<<PORTA1);
+        return;
     }
 
     uint8_t tmp_head = hal_uart_tx_head + 1;
     if(tmp_head == HAL_SIZEOF_UART_TX_FIFO)
         tmp_head = 0;
 
-    if(tmp_head == hal_uart_tx_tail)
-        return false;
+    if(tmp_head == hal_uart_tx_tail)        // Overflow
+        return;
 
     hal_uart_tx_fifo[hal_uart_tx_head] = data;
     hal_uart_tx_head = tmp_head;
-    return true;
 }
 
 bool hal_uart_get(uint8_t * pData)
@@ -98,6 +110,7 @@ ISR(USART_UDRE_vect)
 {
     if(hal_uart_tx_head == hal_uart_tx_tail)
     {
+        PORTA &= ~(1<<PORTA1);
         UART_TX_DISABLE_INT();
         return;
     }
