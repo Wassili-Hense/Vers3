@@ -15,6 +15,10 @@ See LICENSE file for license details.
 #ifndef _MEMMANG_H
 #define _MEMMANG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 
 typedef struct
@@ -28,8 +32,12 @@ void *MEM_Malloc(size_t xWantedSize);
 void MEM_Free(void *pv);
 size_t MEM_GetFreeHeapSize(void);
 
-Queue_t * MEM_Create_Queue(void);
+//Queue_t * MEM_Create_Queue(void);
 bool MEM_Enqueue(Queue_t * pQueue, void * pBuf);
-bool MEM_Dequeue(Queue_t * pQueue, void * pBuf);
+void * MEM_Dequeue(Queue_t * pQueue);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  //  _MEMMANG_H

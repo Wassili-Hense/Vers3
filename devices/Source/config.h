@@ -15,32 +15,44 @@ See LICENSE file for license details.
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
 // MQTT-SN Section
-#define MQTTSN_MSG_SIZE         48                // Size of payload(base for all buffers)
+#define MQTTSN_MSG_SIZE         48      // Size of payload(base for all buffers)
+#define MQTTSN_USE_DHCP         1       // Use Automatic address resolution
 
 // Object Dictionary
-#define OD_MAX_INDEX_LIST       16                // Size of identificators list
-#define OD_DEV_SWVERSH          '2'               // Software Version
+#define OD_MAX_INDEX_LIST       16      // Size of identificators list
+#define OD_DEV_SWVERSH          '2'     // Software Version
 #define OD_DEV_SWVERSM          '7'
-#define OD_DEV_SWVERSL          'a'               // Alfa
+#define OD_DEV_SWVERSL          'a'     // Alfa
+
+#define configTICK_RATE_HZ      100     // System Tick Period
 
 #define UART_BaudRate           38400
 
-#include "HAL/HWconfig_A1Sn12.h"
+//Optional modules
+#define EXTDIO_USED             1       // Use DIO
 
-#define configTICK_RATE_HZ      100
-
-#define ENTER_CRITICAL_SECTION()
-#define LEAVE_CRITICAL_SECTION()
+#include "HAL/HWconfig_A3Sn12.h"
 
 #include "memmang.h"
 #include "mqTypes.h"
 #include "mqttsn.h"
 #include "ObjDict.h"
+
+void StartSheduler(void);
+void SystemTick(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  //  _CONFIG_H

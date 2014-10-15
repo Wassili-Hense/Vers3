@@ -684,7 +684,7 @@ void MQTTSN_Poll(void)
                 pMessage->mq.dhcpreq.hlen[Length++] = sizeof(PHY2_ADDR_t);
 #endif  //  PHY2_ADDR_t
 
-            memcpy(pMessage->phy1addr, &dst_addr, sizeof(PHY1_ADDR_t));
+            memcpy(pMessage->phy1addr, &addr1_broad, sizeof(PHY1_ADDR_t));
 
             pMessage->Length = MQTTSN_SIZEOF_MSG_DHCPREQ + Length;
             pMessage->mq.Length = MQTTSN_SIZEOF_MSG_DHCPREQ + Length;

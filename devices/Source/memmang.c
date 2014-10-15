@@ -1,11 +1,5 @@
 #include "config.h"
 
-// AVR Architecture specifics.
-#define portPOINTER_SIZE_TYPE       uintptr_t
-#define portBYTE_ALIGNMENT          1
-#define configTOTAL_HEAP_SIZE       1024    // ATMega328P
-
-
 // Local defines
 typedef struct S_BLOCK_LINK
 {
@@ -198,13 +192,12 @@ bool MEM_Enqueue(Queue_t * pQueue, void * pBuf)
     return true;
 }
 
-bool MEM_Dequeue(Queue_t * pQueue, void * pBuf)
+void * MEM_Dequeue(Queue_t * pQueue)
 {
-    if((pQueue == NULL) || (pBuf == NULL))
+    if(pQueue == NULL)
         return false;
-        
-    bool retval = true;
-        
+    MQ_t * pBuf = NULL;
+    
     ENTER_CRITICAL_SECTION();
 
     pBuf = pQueue->pTail;
@@ -212,11 +205,10 @@ bool MEM_Dequeue(Queue_t * pQueue, void * pBuf)
     if(pBuf == NULL)
     {
         pQueue->pHead = NULL;
-        retval = false;
     }
     else
     {
-        pQueue->pTail = ((MQ_t *)pBuf)->pNext;
+        pQueue->pTail = pBuf->pNext;
         if(pQueue->pTail == NULL)
         {
             pQueue->pHead = NULL;
@@ -224,5 +216,5 @@ bool MEM_Dequeue(Queue_t * pQueue, void * pBuf)
     }
 
     LEAVE_CRITICAL_SECTION();
-    return retval;
+    return pBuf;
 }

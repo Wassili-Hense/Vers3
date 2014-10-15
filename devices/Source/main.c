@@ -14,6 +14,8 @@ See LICENSE file for license details.
 
 #include <avr/interrupt.h>
 
+static volatile uint8_t SystemTickCnt;
+
 int main(void)
 {
     // Initialise System Hardware
@@ -28,16 +30,32 @@ int main(void)
 //    PHY2_Init();
 #endif  //  PHY2_Init
     // Initialize MQTTSN
-//    MQTTSN_Init();
+    MQTTSN_Init();
+    
+    SystemTickCnt = 0;
 
-    sei();
+    StartSheduler();
   
     while(1)
     {
         MQ_t * pBuf;
         pBuf = PHY1_Get();
         if(pBuf != NULL)
-            PHY1_Send(pBuf);
+        {
+            mqttsn_parser_phy1(pBuf);
+        }
+        
+        if(SystemTickCnt)
+        {
+            SystemTickCnt = 0;
+            MQTTSN_Poll();
+            
+            OD_Poll();
+        }
     }
+}
 
+void SystemTick(void)
+{
+    SystemTickCnt = 1;
 }

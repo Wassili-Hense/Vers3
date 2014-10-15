@@ -16,9 +16,6 @@ See LICENSE file for license details.
 
 #ifdef UART_PHY
 
-#define UART_SIZEOF_RX_FIFO     16
-#define UART_SIZEOF_TX_FIFO     16
-
 #if (UART_PHY == 1)
 #define UART_ADDR               phy1addr
 #define UART_ADDR_t             PHY1_ADDR_t
@@ -39,12 +36,23 @@ static void uart_tx_task(void)
     uint8_t data;
 
 uart_tx_task_lbl1:
+    if(tx_pos == 0xFF)
+    {
+        if(pTx_buf == NULL)
+            pTx_buf = MEM_Dequeue(&uart_tx_queue);
+        
+        if(pTx_buf == NULL)
+            return;
 
-    if(tx_pos < tx_len)
+        // Send Length
+        data = pTx_buf->Length;
+        tx_len = data;
+    }
+    else if(tx_pos < tx_len)
     {
         data = pTx_buf->raw[tx_pos];
     }
-    else if(tx_pos == tx_len)
+    else
     {
         if(pTx_buf != NULL)
         {
@@ -53,24 +61,9 @@ uart_tx_task_lbl1:
         }
 
         if(hal_uart_send(0xC0))
-        {
             tx_pos = 0xFF;
-        }
 
         return;
-    }
-    else
-    {
-        if(pTx_buf == NULL)
-        {
-            if(!MEM_Dequeue(&uart_tx_queue, &pTx_buf))
-                return;
-        }
-
-        // Send Length
-        tx_pos = 0;
-        data = pTx_buf->Length;
-        tx_len = data;
     }
 
     // Convert data from RAW to SLEEP format
@@ -194,44 +187,6 @@ void * UART_Get(void)
             rx_pos = 0xFF;
         }
     }
-    
     return pRetVal;
 }
-
-
-/*
-static void uart_task(void *pvParameters)
-{
-    MQ_t * pMqBuf;
-    UBaseType_t qIsrSize;
-
-    while(1)
-    {
-        qIsrSize = uxQueueMessagesWaiting(uart_isr_queue);
-        if(qIsrSize < 2)
-        {
-            pMqBuf = pvPortMalloc(sizeof(MQ_t));
-            if(pMqBuf != NULL)
-                xQueueSend(uart_isr_queue, &pMqBuf, 0);
-        }
-        else if(qIsrSize > 4)
-        {
-            if(xQueueReceive(uart_isr_queue, &pMqBuf, 0) == pdTRUE)
-                vPortFree(pMqBuf);
-        }
-    
-        if(xQueueReceive(uart_out_queue, &pMqBuf, 0) == pdTRUE)
-        {
-#if (UART_PHY == 1)
-            mqttsn_parser_phy1(pMqBuf);
-#else   //  UART_PHY == 2
-            mqttsn_parser_phy2(pMqBuf);
-#endif  //  UART_PHY
-        }
-        taskYIELD();
-    }
-    vTaskDelete(NULL);
-}
-*/
-
 #endif  //  UART_PHY
