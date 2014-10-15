@@ -389,6 +389,8 @@ typedef struct sMQTTSN_MESSAGE
 
 typedef struct sMQ
 {
+    struct sMQ * pNext;
+
     union
     {
         uint8_t         phy1addr[sizeof(PHY1_ADDR_t)];
@@ -403,8 +405,6 @@ typedef struct sMQ
         uint8_t           raw[sizeof(MQTTSN_MESSAGE_t)];
         MQTTSN_MESSAGE_t   mq;
     };
-
-    void * pNext;
 } MQ_t;
 
 #endif  //    _MQ_TYPES_H
