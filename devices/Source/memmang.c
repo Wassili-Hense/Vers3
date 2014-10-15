@@ -27,18 +27,20 @@ static uint8_t mem_heap[configTOTAL_HEAP_SIZE];
 // Create a couple of list links to mark the start and end of the list.
 static BlockLink_t mem_start, mem_end;
 
+static size_t mem_FreeBytes;
+
 void MEM_Init(void)
 {
     BlockLink_t * pFirstFreeBlock;
-    uint8_t     * pucAlignedHeap;
+    uint8_t     * pAlignedHeap;
 
     /* Ensure the heap starts on a correctly aligned boundary. */
-    pucAlignedHeap = (uint8_t *)(((portPOINTER_SIZE_TYPE)&mem_heap[portBYTE_ALIGNMENT]) & ((portPOINTER_SIZE_TYPE)~portBYTE_ALIGNMENT_MASK));
+    pAlignedHeap = (uint8_t *)(((portPOINTER_SIZE_TYPE)&mem_heap[portBYTE_ALIGNMENT]) & ((portPOINTER_SIZE_TYPE)~portBYTE_ALIGNMENT_MASK));
 
     /* mem_start is used to hold a pointer to the first item in the list of free
     blocks.  The void cast is used to prevent compiler warnings. */
-    mem_start.pNextFreeBlock = (void *)pucAlignedHeap;
-    mem_start.BlockSize = (size_t)0;
+    mem_start.pNextFreeBlock = (void *)pAlignedHeap;
+    mem_start.BlockSize = 0;
 
     /* mem_end is used to mark the end of the list of free blocks. */
     mem_end.pNextFreeBlock = NULL;
@@ -46,17 +48,20 @@ void MEM_Init(void)
 
     /* To start with there is a single free block that is sized to take up the
     entire heap space. */
-    pFirstFreeBlock = (void *)pucAlignedHeap;
+    pFirstFreeBlock = (void *)pAlignedHeap;
     pFirstFreeBlock->BlockSize = configADJUSTED_HEAP_SIZE;
     pFirstFreeBlock->pNextFreeBlock = &mem_end;
+    
+    mem_FreeBytes = configADJUSTED_HEAP_SIZE;
 }
 
 void * MEM_Malloc(size_t xWantedSize)
 {
-    BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink;
-    void * pvReturn;
-    pvReturn = NULL;
+    BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink, *pIterator;
+    void * pReturn = NULL;
 
+    ENTER_CRITICAL_SECTION();
+    
     /* The wanted size is increased so it can contain a BlockLink_t
     structure in addition to the requested amount of bytes. */
     if(xWantedSize > 0)
@@ -88,7 +93,7 @@ void * MEM_Malloc(size_t xWantedSize)
         {
             /* Return the memory space - jumping over the BlockLink_t structure
                 at its start. */
-            pvReturn = (void *)(((uint8_t *)pxPreviousBlock->pNextFreeBlock) + heapSTRUCT_SIZE);
+            pReturn = (void *)(((uint8_t *)pxPreviousBlock->pNextFreeBlock) + heapSTRUCT_SIZE);
 
             /* This block is being returned for use so must be taken out of the
                 list of free blocks. */
@@ -107,29 +112,31 @@ void * MEM_Malloc(size_t xWantedSize)
                 pxBlock->BlockSize = xWantedSize;
 
                 // Insert the new block into the list of free blocks.
-                {
-                BlockLink_t *pxIterator;
                 size_t BlockSize = pxNewBlockLink->BlockSize;
-                for(pxIterator = &mem_start;
-                    pxIterator->pNextFreeBlock->BlockSize < BlockSize;
-                    pxIterator = pxIterator->pNextFreeBlock);
+                for(pIterator = &mem_start;
+                    pIterator->pNextFreeBlock->BlockSize < BlockSize;
+                    pIterator = pIterator->pNextFreeBlock);
 
-                pxNewBlockLink->pNextFreeBlock = pxIterator->pNextFreeBlock;
-                pxIterator->pNextFreeBlock = pxNewBlockLink;
-                }
+                pxNewBlockLink->pNextFreeBlock = pIterator->pNextFreeBlock;
+                pIterator->pNextFreeBlock = pxNewBlockLink;
             }
+
+            mem_FreeBytes -= pxBlock->BlockSize;
         }
     }
-    return pvReturn;
+    
+    LEAVE_CRITICAL_SECTION();
+
+    return pReturn;
 }
 
-void MEM_Free(void *pv)
+void MEM_Free(void *pBuf)
 {
-    BlockLink_t *pxLink;
+    BlockLink_t *pLink, *pIterator;
 
-    if(pv != NULL)
+    if(pBuf != NULL)
     {
-        uint8_t *puc = (uint8_t *)pv;    
+        uint8_t *puc = (uint8_t *)pBuf;
     
         /* The memory being freed will have an BlockLink_t structure immediately
         before it. */
@@ -137,16 +144,21 @@ void MEM_Free(void *pv)
 
         /* This unexpected casting is to keep some compilers from issuing
         byte alignment warnings. */
-        pxLink = (void *)puc;
+        pLink = (void *)puc;
 
+        ENTER_CRITICAL_SECTION();
+        
         // Add this block to the list of free blocks.
-        BlockLink_t *pxIterator;
-        size_t BlockSize = pxLink->BlockSize;
-        for(pxIterator = &mem_start;
-            pxIterator->pNextFreeBlock->BlockSize < BlockSize;
-            pxIterator = pxIterator->pNextFreeBlock);
-        pxLink->pNextFreeBlock = pxIterator->pNextFreeBlock;
-        pxIterator->pNextFreeBlock = pxLink;
+        size_t BlockSize = pLink->BlockSize;
+        for(pIterator = &mem_start;
+            pIterator->pNextFreeBlock->BlockSize < BlockSize;
+            pIterator = pIterator->pNextFreeBlock);
+        pLink->pNextFreeBlock = pIterator->pNextFreeBlock;
+        pIterator->pNextFreeBlock = pLink;
+        
+        mem_FreeBytes += pLink->BlockSize;
+        
+        LEAVE_CRITICAL_SECTION();
     }
 }
 
