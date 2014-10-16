@@ -160,6 +160,11 @@ void mqFree(void *pBuf)
     }
 }
 
+size_t mqGetFreeHeap(void)
+{
+    return mem_FreeBytes;
+}
+
 /*
 Queue_t * MEM_Create_Queue(void)
 {

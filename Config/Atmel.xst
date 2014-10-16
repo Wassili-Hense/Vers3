@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- device configuration file for http://jeelabs.com/  -->
+<!-- device configuration file for Atmel devices  -->
 <root head="/etc/declarers/dev">
-  <item name="A1En12" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String" ver="2.7.0">
+  <item name="A1En12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="2.7.0">
     <item name="Add">
       <item name="bool" value="1Z" saved="True" type="System.String" />
       <item name="long" value="4I" saved="True" type="System.String" />
@@ -375,7 +375,7 @@
         </item>
     </item>
   </item>
-  <item name="A1Sn12" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String" ver="2.7.0">
+  <item name="A1Sn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="2.7.0">
     <item name="Add">
       <item name="bool" value="1Z" saved="True" type="System.String" />
       <item name="long" value="4I" saved="True" type="System.String" />

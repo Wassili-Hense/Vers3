@@ -31,6 +31,9 @@ int main(void)
 #endif  //  PHY2_Init
     // Initialize MQTTSN
     MQTTSN_Init();
+#ifdef DIAG_USED
+    DIAG_Init();
+#endif  //  USE_DIAG
     
     SystemTickCnt = 0;
 
@@ -59,6 +62,10 @@ int main(void)
             MQTTSN_Poll();
             
             OD_Poll();
+            
+#ifdef DIAG_USED
+            DIAG_Poll();
+#endif  //  USE_DIAG
         }
     }
 }

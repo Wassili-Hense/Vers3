@@ -10,7 +10,7 @@ BSD New License
 See LICENSE file for license details.
 */
 
-// MQTT-SN Library, Version 4.0.1 alfa
+// MQTT-SN Library, Version 4.0.2 alfa
 
 #include "config.h"
 
@@ -99,7 +99,7 @@ static uint16_t mqttsn_new_msgid(void)
     return vMQTTSN.MsgId;
 }
 
-#if (configUSE_TRACE_FACILITY > 0)
+#ifdef DIAG_USED
 void mqttsn_trace_msg(uint8_t Level, MQ_t * pMessage)
 {
     if(pMessage == NULL)
@@ -129,7 +129,7 @@ void mqttsn_trace_msg(uint8_t Level, MQ_t * pMessage)
     memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
     PHY1_Send(pMessage);
 }
-#endif  //  (configUSE_TRACE_FACILITY > 0)
+#endif  //  DIAG_USED
 
 ////////////////////////////////////////////////////////////////////////
 // Parse incoming messages

@@ -41,6 +41,8 @@ extern "C" {
 //Optional modules
 #define EXTDIO_USED             1       // Use DIO
 
+#define DIAG_USED               1       // Enable diagnostic messages
+
 // Atmel
 // ATM328P
 #if     (defined CFG_A1EN12)
@@ -60,6 +62,7 @@ extern "C" {
 #include "mqTypes.h"
 #include "mqttsn.h"
 #include "ObjDict.h"
+#include "diag.h"
 
 void StartSheduler(void);
 void SystemTick(void);

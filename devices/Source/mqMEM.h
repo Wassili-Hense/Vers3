@@ -30,7 +30,7 @@ typedef struct
 void mqInit(void);
 void *mqAlloc(size_t xWantedSize);
 void mqFree(void *pv);
-size_t MEM_GetFreeHeapSize(void);
+size_t mqGetFreeHeap(void);
 
 //Queue_t * MEM_Create_Queue(void);
 bool mqEnqueue(Queue_t * pQueue, void * pBuf);

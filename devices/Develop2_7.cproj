@@ -170,6 +170,12 @@
     <Compile Include="Source\config.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\diag.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\diag.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\ext.c">
       <SubType>compile</SubType>
     </Compile>
