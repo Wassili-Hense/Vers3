@@ -24,12 +24,18 @@ void DIAG_Poll(void)
     MQ_t * pMessage = mqAlloc(sizeof(MQ_t));
     if(pMessage == NULL)
         return;
+        
+    uint16_t min, max, act;
+    mqGetHeapStat(&act, &max, &min);
     
-    uint16_t heap = mqGetFreeHeap();
-
-    pMessage->mq.publish.Data[0] = (heap >> 8);
-    pMessage->mq.publish.Data[1] = heap & 0xFF;
-    pMessage->Length = 2;
+    pMessage->mq.publish.Data[0] = (min >> 8);
+    pMessage->mq.publish.Data[1] = min & 0xFF;
+    pMessage->mq.publish.Data[2] = (act >> 8);
+    pMessage->mq.publish.Data[3] = act & 0xFF;
+    pMessage->mq.publish.Data[4] = (max >> 8);
+    pMessage->mq.publish.Data[5] = max & 0xFF;
+    
+    pMessage->Length = 6;
     
     mqttsn_trace_msg(lvlINFO, pMessage);
 }
