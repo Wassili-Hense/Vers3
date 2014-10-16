@@ -1,5 +1,11 @@
-#define HAL_SIZEOF_UART_RX_FIFO     16
-#define HAL_SIZEOF_UART_TX_FIFO     16
+#include "../../config.h"
+
+#ifdef UART_PHY
+
+#include <avr/interrupt.h>
+
+#define HAL_SIZEOF_UART_RX_FIFO     16      // Should be 2^n
+#define HAL_SIZEOF_UART_TX_FIFO     16      // Should be 2^n
 
 #if (USART_USE_PORT == 1)  // USART1
 
@@ -30,9 +36,6 @@ static volatile uint8_t hal_uart_tx_tail;
 
 void hal_uart_init_hw(void)
 {
-    // Debug
-    DDRA |= (1<<PA0) | (1<<PA1);
-
     UART_PORT |= (1<<UART_RX_PIN) | (1<<UART_TX_PIN);
     UART_DDR |= (1<<UART_TX_PIN);
     UART_DDR &= ~(1<<UART_RX_PIN);
@@ -51,10 +54,7 @@ void hal_uart_init_hw(void)
 
 bool hal_uart_tx_busy(void)
 {
-    uint8_t tmp_head = hal_uart_tx_head + 1;
-    if(tmp_head == HAL_SIZEOF_UART_TX_FIFO)
-        tmp_head = 0;
-
+    uint8_t tmp_head = (hal_uart_tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
     return (tmp_head == hal_uart_tx_tail);
 }
 
@@ -64,14 +64,10 @@ void hal_uart_send(uint8_t data)
     {
         UART_TX_DATA = data;
         UART_TX_ENABLE_INT();
-        PORTA |= (1<<PORTA1);
         return;
     }
 
-    uint8_t tmp_head = hal_uart_tx_head + 1;
-    if(tmp_head == HAL_SIZEOF_UART_TX_FIFO)
-        tmp_head = 0;
-
+    uint8_t tmp_head = (hal_uart_tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
     if(tmp_head == hal_uart_tx_tail)        // Overflow
         return;
 
@@ -86,8 +82,7 @@ bool hal_uart_get(uint8_t * pData)
     
     *pData = hal_uart_rx_fifo[hal_uart_rx_tail];
     hal_uart_rx_tail++;
-    if(hal_uart_rx_tail == HAL_SIZEOF_UART_RX_FIFO)
-        hal_uart_rx_tail = 0;
+    hal_uart_rx_tail &= (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
 
     return true;;
 }
@@ -95,10 +90,7 @@ bool hal_uart_get(uint8_t * pData)
 ISR(USART_RX_vect)
 {
     uint8_t data = UART_RX_DATA;
-    uint8_t tmp_head = hal_uart_rx_head + 1;
-    if(tmp_head == HAL_SIZEOF_UART_RX_FIFO)
-        tmp_head = 0;
-    
+    uint8_t tmp_head = (hal_uart_rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
     if(tmp_head == hal_uart_rx_tail)        // Overflow
         return;
 
@@ -110,13 +102,13 @@ ISR(USART_UDRE_vect)
 {
     if(hal_uart_tx_head == hal_uart_tx_tail)
     {
-        PORTA &= ~(1<<PORTA1);
         UART_TX_DISABLE_INT();
         return;
     }
 
     UART_TX_DATA = hal_uart_tx_fifo[hal_uart_tx_tail];
     hal_uart_tx_tail++;
-    if(hal_uart_tx_tail == HAL_SIZEOF_UART_TX_FIFO)
-        hal_uart_tx_tail = 0;
+    hal_uart_tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
 }
+
+#endif  //  UART_PHY

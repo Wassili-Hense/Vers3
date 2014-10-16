@@ -24,7 +24,7 @@ See LICENSE file for license details.
 #define UART_ADDR_t             PHY2_ADDR_t
 #endif  //  UART_PHY
 
-static Queue_t  uart_tx_queue;
+static Queue_t  uart_tx_queue = {NULL, NULL};
 
 static void uart_tx_task(void)
 {
@@ -40,7 +40,7 @@ static void uart_tx_task(void)
         if(tx_pos == 0xFF)
         {
             if(pTx_buf == NULL)
-                pTx_buf = MEM_Dequeue(&uart_tx_queue);
+                pTx_buf = mqDequeue(&uart_tx_queue);
         
             if(pTx_buf == NULL)
                 return;
@@ -57,7 +57,7 @@ static void uart_tx_task(void)
         {
             if(pTx_buf != NULL)
             {
-                MEM_Free(pTx_buf);
+                mqFree(pTx_buf);
                 pTx_buf = NULL;
             }
 
@@ -89,16 +89,13 @@ static void uart_tx_task(void)
 
 void UART_Init(void)
 {
-    uart_tx_queue.pHead = NULL;
-    uart_tx_queue.pTail = NULL;
-    
     hal_uart_init_hw();
 }
 
 void UART_Send(void *pBuf)
 {
-    if(!MEM_Enqueue(&uart_tx_queue, pBuf))
-        MEM_Free(pBuf);
+    if(!mqEnqueue(&uart_tx_queue, pBuf))
+        mqFree(pBuf);
     else
         uart_tx_task();
 }
@@ -157,7 +154,7 @@ void * UART_Get(void)
         
             if(pRx_buf == NULL)
             {
-                pRx_buf = MEM_Malloc(sizeof(MQ_t));
+                pRx_buf = mqAlloc(sizeof(MQ_t));
             }
 
             if(pRx_buf != NULL)

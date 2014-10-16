@@ -107,7 +107,7 @@ void mqttsn_trace_msg(uint8_t Level, MQ_t * pMessage)
     
     if(vMQTTSN.Status != MQTTSN_STATUS_CONNECT)
     {
-        vPortFree(pMessage);
+        mqFree(pMessage);
         return;
     }
 
@@ -203,7 +203,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
             default:
                 break;
         }
-        vPortFree(pPHY1outBuf);
+        mqFree(pPHY1outBuf);
         return;
     }
 #endif  //  MQTTSN_TRANSIT_ON_PHY1
@@ -499,11 +499,11 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
         default:
             break;
     }
-    MEM_Free(pPHY1outBuf);
+    mqFree(pPHY1outBuf);
 }
 
 // Parse Incoming messages from PHY2
-#ifdef PHY2_Send
+#ifdef PHY2_Get
 void mqttsn_parser_phy2(MQ_t * pPHY2outBuf)
 {
     if(vMQTTSN.Status == MQTTSN_STATUS_CONNECT)
@@ -554,9 +554,9 @@ void mqttsn_parser_phy2(MQ_t * pPHY2outBuf)
             }
         }
     }
-    vPortFree(pPHY2outBuf);
+    mqFree(pPHY2outBuf);
 }
-#endif  //  PHY2_Send
+#endif  //  PHY2_Get
 
 // End parse incoming messages
 ////////////////////////////////////////////////////////////////////////
@@ -670,7 +670,7 @@ void MQTTSN_Poll(void)
 
             vMQTTSN.Tretry = mqttsn_get_random_delay(MQTTSN_DEF_TSGW  * configTICK_RATE_HZ);
 
-            pMessage = MEM_Malloc(sizeof(MQ_t));
+            pMessage = mqAlloc(sizeof(MQ_t));
             if(pMessage == NULL)
                 break;
 
@@ -717,7 +717,7 @@ void MQTTSN_Poll(void)
             }
             vMQTTSN.Tretry = mqttsn_get_random_delay(MQTTSN_DEF_TSGW  * configTICK_RATE_HZ);
 
-            pMessage = MEM_Malloc(sizeof(MQ_t));
+            pMessage = mqAlloc(sizeof(MQ_t));
             if(pMessage == NULL)
                 break;
 
@@ -744,7 +744,7 @@ void MQTTSN_Poll(void)
             }
             vMQTTSN.Tretry = mqttsn_get_random_delay(MQTTSN_DEF_TCONNECT * configTICK_RATE_HZ);
 
-            pMessage = MEM_Malloc(sizeof(MQ_t));
+            pMessage = mqAlloc(sizeof(MQ_t));
             if(pMessage == NULL)
                 break;
 
@@ -775,7 +775,7 @@ void MQTTSN_Poll(void)
             }
 
             uint8_t Length;
-            pMessage = MEM_Malloc(sizeof(MQ_t));
+            pMessage = mqAlloc(sizeof(MQ_t));
             if(pMessage == NULL)
                 break;
 

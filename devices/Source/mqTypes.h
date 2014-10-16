@@ -13,6 +13,10 @@ See LICENSE file for license details.
 #ifndef _MQ_TYPES_H
 #define _MQ_TYPES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum e_MQTTSN_RETURNS
 {
     MQTTSN_RET_ACCEPTED         =   0x00,       // Accepted
@@ -406,5 +410,9 @@ typedef struct sMQ
         MQTTSN_MESSAGE_t   mq;
     };
 } MQ_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  //    _MQ_TYPES_H

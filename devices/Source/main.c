@@ -21,13 +21,13 @@ int main(void)
     // Initialise System Hardware
     INIT_SYSTEM();
     // Initialise Memory manager
-    MEM_Init();
+    mqInit();
     // Initialise Object's Dictionary
     InitOD();
     // Initialise PHY Interfaces
     PHY1_Init();
 #ifdef PHY2_Init
-//    PHY2_Init();
+    PHY2_Init();
 #endif  //  PHY2_Init
     // Initialize MQTTSN
     MQTTSN_Init();
@@ -44,6 +44,14 @@ int main(void)
         {
             mqttsn_parser_phy1(pBuf);
         }
+
+#ifdef PHY2_Get
+        pBuf = PHY2_Get();
+        if(pBuf != NULL)
+        {
+            mqttsn_parser_phy2(pBuf);
+        }
+#endif  //  PHY2_Get
         
         if(SystemTickCnt)
         {

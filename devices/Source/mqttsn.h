@@ -13,6 +13,10 @@ See LICENSE file for license details.
 #ifndef _MQTTSN_H
 #define _MQTTSN_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum e_MQTTSN_POLL_STATUS
 {
   MQTTSN_POLL_STAT_NOP = 0,
@@ -66,5 +70,9 @@ bool MQTTSN_CanSend(void);
 void MQTTSN_Send(e_MQTTSN_MSGTYPE_t      MsgType,
                  uint8_t                 Flags,
                  uint16_t                TopicId);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

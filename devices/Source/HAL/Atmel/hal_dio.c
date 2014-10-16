@@ -1,4 +1,6 @@
-#include <avr/pgmspace.h>
+#include "../../config.h"
+
+#ifdef EXTDIO_USED
 
 const uint16_t dio_portnum2port[]  = EXTDIO_PORTNUM2PORT;
 
@@ -44,3 +46,5 @@ void dioWritePort(uint8_t PortNr, DIO_PORT_TYPE Mask, bool Value)
   else
     *pPORT &= ~Mask;
 }
+
+#endif  //  EXTDIO_USED

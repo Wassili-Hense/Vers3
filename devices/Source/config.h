@@ -41,9 +41,22 @@ extern "C" {
 //Optional modules
 #define EXTDIO_USED             1       // Use DIO
 
+// Atmel
+// ATM328P
+#if     (defined CFG_A1EN12)
+#include "HAL/HWconfig_A1En12.h"
+#elif   (defined CFG_A1ES12)
+#include "HAL/HWconfig_A1ES12.h"
+#elif   (defined CFG_A1Sn12)
+#include "HAL/HWconfig_A1Sn12.h"
+// ATM1284P
+#elif   (defined CFG_A3Sn12)
 #include "HAL/HWconfig_A3Sn12.h"
+#else
+#error Undefined configuration
+#endif  //  Configuration
 
-#include "memmang.h"
+#include "mqMEM.h"
 #include "mqTypes.h"
 #include "mqttsn.h"
 #include "ObjDict.h"

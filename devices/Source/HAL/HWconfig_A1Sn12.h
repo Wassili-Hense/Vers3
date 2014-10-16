@@ -47,11 +47,19 @@ See LICENSE file for license details.
 // 30   PD6     SV1-4  PWM1
 // 31   PD7     SV1-3
 
-#include <avr/io.h>
-#include <avr/eeprom.h>
-//#include <util/delay.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define INIT_SYSTEM()
+#include "Atmel/hal.h"
+
+// DIO Section
+#define DIO_PORT_SIZE               8
+#define EXTDIO_BASE_OFFSET          1
+#define EXTDIO_MAXPORT_NR           3                                     // Number of digital Ports
+#define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
+#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0xE0, (uint8_t)0x03}
+// End DIO Section
 
 // UART Section
 #define UART_PORT                   PORTD
@@ -91,8 +99,8 @@ See LICENSE file for license details.
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objGateID
 
-#define eeprom_init_hw()
-#define eeprom_read(pBuf, Addr, Len)  eeprom_read_block((void *)pBuf, (const void *)Addr, (size_t)Len)
-#define eeprom_write(pBuf, Addr, Len) eeprom_write_block((const void *)pBuf, (void *)Addr, (size_t)Len)
+#ifdef __cplusplus
+}
+#endif
 
 #endif // HWCONFIG_A1SN12_H

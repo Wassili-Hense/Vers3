@@ -13,6 +13,10 @@ See LICENSE file for license details.
 #ifndef _OBJ_DICT_H_
 #define _OBJ_DICT_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define OD_DEV_TYP_LEN          6
 
 #define EXTDIO_BASE             0x0080
@@ -183,4 +187,8 @@ e_MQTTSN_RETURNS_t ReadODpack(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t
 e_MQTTSN_RETURNS_t WriteODpack(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf);
 
 void OD_Poll(void);
+
+#ifdef __cplusplus
+}
+#endif
 #endif

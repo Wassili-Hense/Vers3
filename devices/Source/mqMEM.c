@@ -7,9 +7,7 @@ typedef struct S_BLOCK_LINK
     size_t  BlockSize;
 } BlockLink_t;
 
-#if (portBYTE_ALIGNMENT == 8)
-    #define portBYTE_ALIGNMENT_MASK     (0x0007U)
-#elif (portBYTE_ALIGNMENT == 4)
+#if   (portBYTE_ALIGNMENT == 4)
     #define portBYTE_ALIGNMENT_MASK     (0x0003)
 #elif (portBYTE_ALIGNMENT == 2)
     #define portBYTE_ALIGNMENT_MASK     (0x0001)
@@ -29,7 +27,7 @@ static BlockLink_t mem_start, mem_end;
 
 static size_t mem_FreeBytes;
 
-void MEM_Init(void)
+void mqInit(void)
 {
     BlockLink_t * pFirstFreeBlock;
     uint8_t     * pAlignedHeap;
@@ -55,7 +53,7 @@ void MEM_Init(void)
     mem_FreeBytes = configADJUSTED_HEAP_SIZE;
 }
 
-void * MEM_Malloc(size_t xWantedSize)
+void * mqAlloc(size_t xWantedSize)
 {
     BlockLink_t *pxBlock, *pxPreviousBlock, *pxNewBlockLink, *pIterator;
     void * pReturn = NULL;
@@ -130,7 +128,7 @@ void * MEM_Malloc(size_t xWantedSize)
     return pReturn;
 }
 
-void MEM_Free(void *pBuf)
+void mqFree(void *pBuf)
 {
     BlockLink_t *pLink, *pIterator;
 
@@ -166,7 +164,7 @@ void MEM_Free(void *pBuf)
 Queue_t * MEM_Create_Queue(void)
 {
     Queue_t * pQueue;
-    pQueue = MEM_Malloc(sizeof(Queue_t));
+    pQueue = mqAlloc(sizeof(Queue_t));
     if(pQueue != NULL)
     {
         pQueue->pHead = NULL;
@@ -177,7 +175,7 @@ Queue_t * MEM_Create_Queue(void)
 }
 */
 
-bool MEM_Enqueue(Queue_t * pQueue, void * pBuf)
+bool mqEnqueue(Queue_t * pQueue, void * pBuf)
 {
     if((pQueue == NULL) || (pBuf == NULL))
         return false;
@@ -204,7 +202,7 @@ bool MEM_Enqueue(Queue_t * pQueue, void * pBuf)
     return true;
 }
 
-void * MEM_Dequeue(Queue_t * pQueue)
+void * mqDequeue(Queue_t * pQueue)
 {
     if(pQueue == NULL)
         return false;

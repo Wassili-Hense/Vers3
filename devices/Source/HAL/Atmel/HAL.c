@@ -36,11 +36,3 @@ ISR(TIMER2_COMPA_vect)
 {
     SystemTick();
 }
-
-#ifdef UART_PHY
-#include "hal_uart.c"
-#endif  //  UART_PHY
-
-#ifdef EXTDIO_USED
-#include "hal_dio.c"
-#endif  //  EXTDIO_USED
