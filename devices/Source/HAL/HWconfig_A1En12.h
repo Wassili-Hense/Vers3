@@ -76,10 +76,7 @@ extern "C" {
 #define inet_addr(d,c,b,a)          (((uint32_t)a<<24) | ((uint32_t)b << 16) | ((uint32_t)c<<8)  | ((uint32_t)d))
 // End LAN Section
 
-
-
 #define ENC28J60_PHY                1
-#define LAN_NODE                    1
 
 #define PHY1_ADDR_t                 uint32_t
 #define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)inet_addr(255,255,255,255)

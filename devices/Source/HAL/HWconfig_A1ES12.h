@@ -88,9 +88,7 @@ extern "C" {
 // End UART Section
 
 #define ENC28J60_PHY                1
-#define LAN_NODE                    1
 #define UART_PHY                    2
-#define RF_NODE                     2
 
 #define PHY1_ADDR_t                 uint32_t
 #define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)inet_addr(255,255,255,255)

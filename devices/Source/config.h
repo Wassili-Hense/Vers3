@@ -37,6 +37,7 @@ extern "C" {
 #define configTICK_RATE_HZ      100     // System Tick Period
 
 #define UART_BaudRate           38400
+#define RF_BASE_FREQ            868300000UL
 
 //Optional modules
 #define EXTDIO_USED             1       // Use DIO
@@ -52,6 +53,8 @@ extern "C" {
 #elif   (defined CFG_A1Sn12)
 #include "HAL/HWconfig_A1Sn12.h"
 // ATM1284P
+#elif   (defined CFG_A3SC12)
+#include "HAL/HWconfig_A3SC12.h"
 #elif   (defined CFG_A3Sn12)
 #include "HAL/HWconfig_A3Sn12.h"
 #else

@@ -38,7 +38,7 @@ static const indextable_t listPredefOD[] =
   {{objEEMEM, objUInt16, eeTAsleep},
     objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL},
 #endif  //  ASLEEP
-#ifdef RF_NODE
+#ifdef RF_ADDR_t
   {{objEEMEM, OD_ADDR_TYPE, eeNodeID},
     objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
   {{objEEMEM, OD_ADDR_TYPE, eeGateID},
@@ -51,7 +51,7 @@ static const indextable_t listPredefOD[] =
   {{objEEMEM, objUInt8, eeChannel},
     objRFChannel, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #endif  //  OD_DEFAULT_CHANNEL
-#endif  //  RF_NODE
+#endif  //  RF_ADDR_t
 #ifdef LAN_NODE
   {{objEEMEM, objArray, eeMACAddr},
     objMACAddr, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
@@ -335,101 +335,98 @@ static void deleteIndexOD(uint8_t id)
 
 void InitOD(void)
 {
-  uint8_t ucTmp;
+    uint8_t ucTmp;
 
-  eeprom_init_hw();
+    eeprom_init_hw();
 
-  // Check Settings
-  uint8_t Len = 1;
-  uint16_t  uiTmp;
+    // Check Settings
+    uint8_t Len = 1;
+    uint16_t  uiTmp;
 
-  ReadOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, &Len, &ucTmp);
-  if(ucTmp == 0xFF)                                                                   // Not Configured
-  {
-    // Load Default Settings
-    ucTmp = 0;
-    WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);                        // Device Name
-#ifdef RF_NODE
+    ReadOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, &Len, &ucTmp);
+    if(ucTmp == 0xFF)                                                                       // Not Configured
+    {
+        // Load Default Settings
+        ucTmp = 0;
+        WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);                          // Device Name
+#ifdef RF_ADDR_t
 #ifndef ADDR_DEFAULT_RF
 #define ADDR_DEFAULT_RF ADDR_UNDEF_RF    // DHCP
 #endif  //  ADDR_DEFAULT_RF
-    RF_ADDR_t saTmp;
-    saTmp = ADDR_DEFAULT_RF;
-    WriteOD(objRFNodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &saTmp);            // Node address
-    saTmp = ADDR_UNDEF_RF;
-    WriteOD(objGateID, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &saTmp);              // Gateway address
+        RF_ADDR_t rfAddr = ADDR_DEFAULT_RF;
+        WriteOD(objRFNodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfAddr);         // Node address
+        RF_ADDR_t rfGw = ADDR_UNDEF_RF;
+        WriteOD(objGateID, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfGw);             // Gateway address
 #ifdef OD_DEFAULT_GROUP
-    uiTmp = OD_DEFAULT_GROUP;
-    WriteOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);  // Group Id
+        uiTmp = OD_DEFAULT_GROUP;
+        WriteOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    // Group Id
 #endif  //  OD_DEFAULT_GROUP
 #ifdef OD_DEFAULT_CHANNEL
-    ucTmp = OD_DEFAULT_CHANNEL;
-    WriteOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);           // Channel
+        ucTmp = OD_DEFAULT_CHANNEL;
+        WriteOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);             // Channel
 #endif  //  OD_DEFAULT_CHANNEL
 #ifdef ASLEEP
-    uiTmp = OD_DEFAULT_TASLEEP;
-    WriteOD(objTAsleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);  // Sleep Time
+        uiTmp = OD_DEFAULT_TASLEEP;
+        WriteOD(objTAsleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    // Sleep Time
 #endif  //  ASLEEP
-#endif  //  RF_NODE
+#endif  //  RF_ADDR_t
 #ifdef LAN_NODE
 #ifndef OD_DEF_IP_ADDR
-#define OD_DEF_IP_ADDR      0xFFFFFFFF
+#define OD_DEF_IP_ADDR      0xFFFFFFFF      // Default IP - use DHCP
 #endif  //  OD_DEF_IP_ADDR
 #ifndef OD_DEF_IP_MASK
-#define OD_DEF_IP_MASK      0xFFFFFFFF
+#define OD_DEF_IP_MASK      0xFFFFFFFF      // Default IP Mask - use DHCP
 #endif  //  OD_DEF_IP_MASK
 #ifndef OD_DEF_IP_ROUTER
-#define OD_DEF_IP_ROUTER    0xFFFFFFFF
+#define OD_DEF_IP_ROUTER    0xFFFFFFFF      // Default IP Gateway - use DHCP
 #endif  //  OD_DEF_IP_ROUTER
 #ifndef OD_DEF_IP_BROKER
-#define OD_DEF_IP_BROKER    0xFFFFFFFF
+#define OD_DEF_IP_BROKER    0xFFFFFFFF      // Default IP Broker - auto resolve
 #endif  //  OD_DEF_IP_BROKER
-    uint32_t  ulTmp;
-    uint8_t   defMAC[] = OD_DEV_MAC;
-    WriteOD(objMACAddr, MQTTSN_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);     // Default MAC
-    ulTmp = OD_DEF_IP_ADDR;
-    WriteOD(objIPAddr, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);       // Default IP - use DHCP
-    ulTmp = OD_DEF_IP_MASK;
-    WriteOD(objIPMask, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);       // Default IP Mask - use DHCP
-    ulTmp = OD_DEF_IP_ROUTER;
-    WriteOD(objIPRouter, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);     // Default IP Gateway - use DHCP
-    ulTmp = OD_DEF_IP_BROKER;
-    WriteOD(objIPBroker, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);     // Default IP Broker
+        uint32_t  ulTmp;
+        uint8_t   defMAC[] = OD_DEV_MAC;
+        WriteOD(objMACAddr, MQTTSN_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);       // Default MAC
+        ulTmp = OD_DEF_IP_ADDR;
+        WriteOD(objIPAddr, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
+        ulTmp = OD_DEF_IP_MASK;
+        WriteOD(objIPMask, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
+        ulTmp = OD_DEF_IP_ROUTER;
+        WriteOD(objIPRouter, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
+        ulTmp = OD_DEF_IP_BROKER;
+        WriteOD(objIPBroker, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
 #endif  //  LAN_NODE
-  }
+    }
 
-  // Clear listOD
-  for(uiTmp = 0; uiTmp < OD_MAX_INDEX_LIST; uiTmp++)
-    ListOD[uiTmp].Index = 0xFFFF;
+    // Clear listOD
+    for(uiTmp = 0; uiTmp < OD_MAX_INDEX_LIST; uiTmp++)
+        ListOD[uiTmp].Index = 0xFFFF;
 
-  // Clear Poll Variables
-  idxUpdate = 0x00;
+    // Clear Poll Variables
+    idxUpdate = 0x00;
 
-  for(uiTmp = 0; uiTmp < sizeof(exchg_data); uiTmp++)
-    exchg_data[uiTmp] = 0;
+    for(uiTmp = 0; uiTmp < sizeof(exchg_data); uiTmp++)
+        exchg_data[uiTmp] = 0;
 
-  extInit(exchg_data);
+    extInit(exchg_data);
 #ifdef PLC_USED
-  plcInit(exchg_data);
+    plcInit(exchg_data);
 #endif  //  PLC_USED
 
-  // Load Saved Variables
-  uint16_t pos = 0;
-  for(uiTmp = 0; uiTmp < OD_MAX_INDEX_LIST; uiTmp++)
-  {
-    RestoreSubindex(uiTmp, &ListOD[pos].sidx);
+    // Load Saved Variables
+    uint16_t pos = 0;
+    for(uiTmp = 0; uiTmp < OD_MAX_INDEX_LIST; uiTmp++)
+    {
+        RestoreSubindex(uiTmp, &ListOD[pos].sidx);
 
-    if((ListOD[pos].sidx.Place == 0xFF) || (ListOD[pos].sidx.Place == 0x00) ||
-       (extRegisterOD(&ListOD[pos]) != MQTTSN_RET_ACCEPTED))
-      continue;
+        if((ListOD[pos].sidx.Place == 0xFF) || (ListOD[pos].sidx.Place == 0x00) ||
+           (extRegisterOD(&ListOD[pos]) != MQTTSN_RET_ACCEPTED))
+            continue;
 
-    ListOD[pos++].Index = 0x0000;
-  }
+        ListOD[pos++].Index = 0x0000;
+    }
 
-  // Configure extensions & PnP devices
-//  extConfig();
-
-//  xTaskCreate(od_main_task, "od1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL );
+    // Configure extensions & PnP devices
+//    extConfig();
 }
 
 /*

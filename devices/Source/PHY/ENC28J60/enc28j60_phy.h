@@ -17,6 +17,8 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+#define LAN_NODE
+
 // API Section
 void ENC28J60_Init(void);
 void ENC28J60_Send(void *pBuf);

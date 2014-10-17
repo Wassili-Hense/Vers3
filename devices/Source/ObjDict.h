@@ -148,7 +148,7 @@ enum
 // BackUp Objects
   eelistOdbu,
   eelistOdbubody = eelistOdbu + OD_MAX_INDEX_LIST * sizeof(subidx_t) - 1,
-// LAN_NODE
+// LAN NODE
   eeMACAddr,
   eeMACAddrBody = eeMACAddr + 5,
   eeIPAddr,
@@ -159,18 +159,16 @@ enum
   eeIPRouterbody = eeIPRouter + sizeof(uint32_t) - 1,
   eeIPBroker,
   eeIPBrokerbody = eeIPBroker + sizeof(uint32_t) - 1,
-// RF_NODE
-#if (defined RF_NODE)
+// RF NODE
 #if (defined RF_ADDR_t)
   eeNodeID,
   eeNodeIDbody = eeNodeID + sizeof(RF_ADDR_t) - 1,
   eeGateID,
   eeGateIDbody = eeGateID + sizeof(RF_ADDR_t) - 1,
-#endif  //  RF_ADDR_t
   eeGroupID,
   eeGroupIDbody = eeGroupID + sizeof(uint16_t) - 1,
   eeChannel,
-#endif  //  RF_NODE
+#endif  //  RF_ADDR_t
   eeNextFreeAddress
 } eEEPROMAddr;
 

@@ -10,12 +10,13 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_A3SN12_H
-#define HWCONFIG_A3SN12_H
+#ifndef HWCONFIG_A3SC12_H
+#define HWCONFIG_A3SC12_H
 
 // Busware CSM V2.0
 // uc ATMega1284p
 // Phy1: UART
+// Phy2: RF - CC1101
 
 // PORTA
 // PA0  --    LEDG
@@ -59,6 +60,7 @@ extern "C" {
 #endif
 
 #include "Atmel/hal.h"
+#include <util/delay.h>
 
 // DIO Section
 #define DIO_PORT_SIZE               8
@@ -76,33 +78,79 @@ extern "C" {
 #define USART_USE_PORT              1
 // End UART Section
 
+// RF Section
+#define TxLEDon()                   PORTA |= (1<<PA1);
+#define RxLEDon()                   PORTA |= (1<<PA0);
+#define LEDsOff()                   PORTA &= ~((1<<PA0) | (1<<PA1));
+
+#define RF_PORT                     PORTB
+#define RF_DDR                      DDRB
+#define RF_PIN                      PINB
+#define RF_PIN_SS                   PB4
+#define RF_PIN_MOSI                 PB5
+#define RF_PIN_MISO                 PB6
+#define RF_PIN_SCK                  PB7
+
+// RF IRQ
+#define RF_IRQ_PORT                 PORTB
+#define RF_IRQ_DDR                  DDRB
+#define RF_IRQ_PIN                  PIND
+#define RF_PIN_IRQ                  PB1
+#define RF_IRQ_CFG()                {PCIFR = (1<<PCIF1); PCICR = (1<<PCIE1);}
+#define RF_DISABLE_IRQ()            PCMSK1 = 0
+#define RF_ENABLE_IRQ()             PCMSK1 = (1<<RF_PIN_IRQ)
+#define RF_INT_vect                 PCINT1_vect
+
+#define RF_PORT_INIT()              {PRR0 &= ~(1<<PRSPI);                     \
+                                     DDRA |= ((1<<PA0) | (1<<PA1));           \
+                                     RF_PORT = (1<<RF_PIN_SS);                \
+                                     RF_DDR = (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) | (1<<RF_PIN_SS);  \
+                                     RF_IRQ_DDR &= ~(1<<RF_PIN_IRQ); RF_IRQ_PORT |= (1<<RF_PIN_IRQ);}
+// RF SPI
+#define RF_SPI_DATA                 SPDR
+#define RF_SPI_BISY                 (!(SPSR &(1<<SPIF)))
+
+#if (F_CPU > 13000000UL)
+#define RF_SPI_INIT()               {SPCR = (1<<SPE) | (1<<MSTR); SPSR = 0;}            // F_CPU/4
+#else   //  (F_CPU <= 13000000UL)
+#define RF_SPI_INIT()               {SPCR = (1<<SPE) | (1<<MSTR); SPSR = (1<<SPI2X);}   // F_CPU/2
+#endif  //  (F_CPU > 13000000UL)
+//  End RF Section
+
 #define UART_PHY                    1
+#define CC11_PHY                    2
 
 #define PHY1_ADDR_t                 uint8_t
 #define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)0x00
 #define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)0xFF
 
-#define RF_ADDR_t                   uint8_t
-#define ADDR_UNDEF_RF               (RF_ADDR_t)0xFF
-//#define ADDR_DEFAULT_RF             (RF_ADDR_t)0x04
+#define PHY2_ADDR_t                 uint8_t
+#define ADDR_BROADCAST_PHY2         (PHY2_ADDR_t)0x00
+#define ADDR_UNDEF_PHY2             (PHY2_ADDR_t)0xFF
 
 // Object's Dictionary Section
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '3'
 #define OD_DEV_PHY1                 'S'
-#define OD_DEV_PHY2                 'n'
+#define OD_DEV_PHY2                 'C'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '2'
 
 #define OD_ADDR_TYPE                objUInt8
 
 #include "../PHY/UART/uart_phy.h"
+#include "../PHY/CC1101/cc11_phy.h"
 
 #define PHY1_Init                   UART_Init
 #define PHY1_Send                   UART_Send
 #define PHY1_Get                    UART_Get
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objGateID
+
+#define PHY2_Init                   CC11_Init
+#define PHY2_Send                   CC11_Send
+#define PHY2_Get                    CC11_Get
+#define PHY2_NodeId                 objRFNodeId
 
 #ifdef __cplusplus
 }

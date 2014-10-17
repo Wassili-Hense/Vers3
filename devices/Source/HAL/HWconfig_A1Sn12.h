@@ -71,7 +71,6 @@ extern "C" {
 // End UART Section
 
 #define UART_PHY                    1
-#define RF_NODE                     1
 
 #define PHY1_ADDR_t                 uint8_t
 #define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)0x00
