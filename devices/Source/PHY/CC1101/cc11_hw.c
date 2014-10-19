@@ -187,7 +187,7 @@ void cc11_init_hw(uint8_t NodeID, uint16_t GroupID, uint8_t Channel)
     // Init Internal variables
     cc11v_State = CC11_STATE_IDLE;
     
-    RF_ENABLE_IRQ();                      // configure interrupt controller    
+    RF_ENABLE_IRQ();                      // Enable IRQ
 }
 
 void CC11_IRQ_Handler()

@@ -61,6 +61,7 @@ static const PHY1_ADDR_t addr1_broad = ADDR_BROADCAST_PHY1;
     
 #ifdef PHY2_ADDR_t
 static const PHY2_ADDR_t addr2_undef = ADDR_UNDEF_PHY2;
+static const PHY2_ADDR_t addr2_broad = ADDR_BROADCAST_PHY2;
 #endif  //  PHY2_ADDR_t
 
 #ifndef mqttsn_get_random       // for devices without HW RNG
@@ -508,50 +509,65 @@ void mqttsn_parser_phy2(MQ_t * pPHY2outBuf)
 {
     if(vMQTTSN.Status == MQTTSN_STATUS_CONNECT)
     {
-        if(pPHY2outBuf->mq.MsgType == MQTTSN_MSGTYP_SEARCHGW)
+        switch(pPHY2outBuf->mq.MsgType)
         {
-            if(pPHY2outBuf->mq.searchgw.Radius == vMQTTSN.Radius)
-            {
-                // Send Gateway Info message
-                PHY2_ADDR_t s_addr = ADDR_BROADCAST_PHY2;
-                memcpy(pPHY2outBuf->phy2addr, &s_addr, sizeof(PHY2_ADDR_t));
-                uint8_t Length = MQTTSN_SIZEOF_MSG_GWINFO;
-
-                pPHY2outBuf->mq.MsgType = MQTTSN_MSGTYP_GWINFO;
-                pPHY2outBuf->mq.gwinfo.GwId = vMQTTSN.GwId;
-                if(vMQTTSN.Radius > 1)
+            case MQTTSN_MSGTYP_SEARCHGW:
+                if((pPHY2outBuf->mq.searchgw.Radius == vMQTTSN.Radius) ||
+                   (pPHY2outBuf->mq.searchgw.Radius == 0))
                 {
-                    memcpy(pPHY2outBuf->mq.gwinfo.GwAdd, vMQTTSN.phy2addr, sizeof(PHY2_ADDR_t));
-                    Length += sizeof(PHY2_ADDR_t);
+                    // Send Gateway Info message
+                    memcpy(pPHY2outBuf->phy2addr, &addr2_broad, sizeof(PHY2_ADDR_t));
+                    uint8_t Length = MQTTSN_SIZEOF_MSG_GWINFO;
+
+                    pPHY2outBuf->mq.MsgType = MQTTSN_MSGTYP_GWINFO;
+                    pPHY2outBuf->mq.gwinfo.GwId = vMQTTSN.GwId;
+                    if(vMQTTSN.Radius > 1)
+                    {
+                        memcpy(pPHY2outBuf->mq.gwinfo.GwAdd, vMQTTSN.phy2addr, sizeof(PHY2_ADDR_t));
+                        Length += sizeof(PHY2_ADDR_t);
+                    }
+
+                    pPHY2outBuf->Length = Length;
+                    pPHY2outBuf->mq.Length = Length;
+                    PHY2_Send(pPHY2outBuf);
+                    return;
                 }
-
-                pPHY2outBuf->Length = Length;
-                pPHY2outBuf->mq.Length = Length;
-                PHY2_Send(pPHY2outBuf);
-                return;
-            }
-        }
-        else  // Encapulate message to Forward Packet and send to Gateway
-        {
-            uint8_t Length = pPHY2outBuf->Length;
-            uint8_t Size = (MQTTSN_SIZEOF_MSG_FORWARD + sizeof(PHY2_ADDR_t) + 1);
-            uint8_t pos;
-            if((Length + Size) <= sizeof(MQTTSN_MESSAGE_t))
+                break;
+            // Encapulate message to Forward Packet and send to Gateway
+            case MQTTSN_MSGTYP_CONNECT:
+            case MQTTSN_MSGTYP_REGISTER:
+            case MQTTSN_MSGTYP_REGACK:
+            case MQTTSN_MSGTYP_PUBLISH:
+            case MQTTSN_MSGTYP_PUBACK:
+            case MQTTSN_MSGTYP_SUBSCRIBE:
+            case MQTTSN_MSGTYP_PINGREQ:
+            case MQTTSN_MSGTYP_DISCONNECT:
+            case MQTTSN_MSGTYP_DHCPREQ:
+            case MQTTSN_MSGTYP_FORWARD:
             {
-                for(pos = (Size + Length - 1); pos >= Size; pos--)
-                    pPHY2outBuf->raw[pos] = pPHY2outBuf->raw[pos - Size];
+                uint8_t Length = pPHY2outBuf->Length;
+                uint8_t Size = (MQTTSN_SIZEOF_MSG_FORWARD + sizeof(PHY2_ADDR_t) + 1);
+                uint8_t pos;
+                if((Length + Size) <= sizeof(MQTTSN_MESSAGE_t))
+                {
+                    for(pos = (Size + Length - 1); pos >= Size; pos--)
+                        pPHY2outBuf->raw[pos] = pPHY2outBuf->raw[pos - Size];
 
-                // Make forward message
-                pPHY2outBuf->Length += Size;
-                pPHY2outBuf->mq.Length = Size;
-                pPHY2outBuf->mq.MsgType = MQTTSN_MSGTYP_FORWARD;
-                pPHY2outBuf->mq.forward.Ctrl = 0;   // ?? TTL
-                pPHY2outBuf->mq.forward.wNodeID[0] = 2;     // PHY2
-                memcpy(&pPHY2outBuf->mq.forward.wNodeID[1], pPHY2outBuf->phy2addr, sizeof(PHY2_ADDR_t));
-                memcpy(pPHY2outBuf->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
-                PHY1_Send(pPHY2outBuf);
-                return;
+                    // Make forward message
+                    pPHY2outBuf->Length += Size;
+                    pPHY2outBuf->mq.Length = Size;
+                    pPHY2outBuf->mq.MsgType = MQTTSN_MSGTYP_FORWARD;
+                    pPHY2outBuf->mq.forward.Ctrl = 0;   // ?? TTL
+                    pPHY2outBuf->mq.forward.wNodeID[0] = 2;     // PHY2
+                    memcpy(&pPHY2outBuf->mq.forward.wNodeID[1], pPHY2outBuf->phy2addr, sizeof(PHY2_ADDR_t));
+                    memcpy(pPHY2outBuf->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
+                    PHY1_Send(pPHY2outBuf);
+                    return;
+                }
+                break;
             }
+            default:
+                break;
         }
     }
     mqFree(pPHY2outBuf);
@@ -606,6 +622,7 @@ static uint8_t mqttsn_build_node_name(uint8_t * pBuf)
 void MQTTSN_Poll(void)
 {
     MQ_t * pMessage;
+    uint8_t Length;
     
     if(vMQTTSN.Tretry > 0)
     {
@@ -617,7 +634,7 @@ void MQTTSN_Poll(void)
     switch(vMQTTSN.Status)
     {
         case MQTTSN_STATUS_DISCONNECTED:
-            {
+        {
             uint8_t uTmp = sizeof(PHY1_ADDR_t);
             ReadOD(PHY1_GateId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.GatewayAddr);
             ReadOD(PHY1_NodeId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.phy1addr);
@@ -646,11 +663,11 @@ void MQTTSN_Poll(void)
             vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
             vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
             vMQTTSN.MsgId = 0;
-            }
-            break;
+            return;
+        }
 #ifdef MQTTSN_USE_DHCP
         case MQTTSN_STATUS_DHCP:
-            {
+        {
             if(vMQTTSN.Nretry > 0)
                 vMQTTSN.Nretry--;
             else
@@ -664,19 +681,18 @@ void MQTTSN_Poll(void)
                 {
                     vMQTTSN.Tretry = (MQTTSN_DEF_TDISCONNECT  * configTICK_RATE_HZ);
                     vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
-                    break;
+                    return;
                 }
             }
-
             vMQTTSN.Tretry = mqttsn_get_random_delay(MQTTSN_DEF_TSGW  * configTICK_RATE_HZ);
 
             pMessage = mqAlloc(sizeof(MQ_t));
             if(pMessage == NULL)
-                break;
+                return;
 
             vMQTTSN.MsgId = mqttsn_get_random();
 
-            uint8_t Length = 0;
+            Length = 0;
             if(memcmp(vMQTTSN.phy1addr, &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)
                 pMessage->mq.dhcpreq.hlen[Length++] = sizeof(PHY1_ADDR_t);
 #ifdef PHY2_ADDR_t
@@ -685,20 +701,16 @@ void MQTTSN_Poll(void)
 #endif  //  PHY2_ADDR_t
 
             memcpy(pMessage->phy1addr, &addr1_broad, sizeof(PHY1_ADDR_t));
-
-            pMessage->Length = MQTTSN_SIZEOF_MSG_DHCPREQ + Length;
-            pMessage->mq.Length = MQTTSN_SIZEOF_MSG_DHCPREQ + Length;
-    
             pMessage->mq.MsgType = MQTTSN_MSGTYP_DHCPREQ;
             pMessage->mq.dhcpreq.Radius = vMQTTSN.Radius;
             memcpy(pMessage->mq.dhcpreq.MsgId, &vMQTTSN.MsgId, sizeof(vMQTTSN.MsgId));
-
-            PHY1_Send(pMessage);
-            }
+            
+            Length += MQTTSN_SIZEOF_MSG_DHCPREQ;
             break;
+        }
 #endif  //  MQTTSN_USE_DHCP
         case MQTTSN_STATUS_SEARCHGW:
-            {
+        {
             if(vMQTTSN.Nretry > 0)
                 vMQTTSN.Nretry--;
             else
@@ -712,26 +724,24 @@ void MQTTSN_Poll(void)
                 {
                     vMQTTSN.Tretry = (MQTTSN_DEF_TDISCONNECT  * configTICK_RATE_HZ);
                     vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
-                    break;
+                    return;
                 }
             }
             vMQTTSN.Tretry = mqttsn_get_random_delay(MQTTSN_DEF_TSGW  * configTICK_RATE_HZ);
 
             pMessage = mqAlloc(sizeof(MQ_t));
             if(pMessage == NULL)
-                break;
+                return;
 
             memcpy(pMessage->phy1addr, &addr1_broad, sizeof(PHY1_ADDR_t));
-            pMessage->Length = MQTTSN_SIZEOF_MSG_SEARCHGW;
-            pMessage->mq.Length = MQTTSN_SIZEOF_MSG_SEARCHGW;
             pMessage->mq.MsgType = MQTTSN_MSGTYP_SEARCHGW;
             pMessage->mq.searchgw.Radius = vMQTTSN.Radius;
-
-            PHY1_Send(pMessage);
-            }
+            
+            Length = MQTTSN_SIZEOF_MSG_SEARCHGW;
             break;
+        }
         case MQTTSN_STATUS_OFFLINE:
-            {
+        {
             if(vMQTTSN.Nretry > 0)
                 vMQTTSN.Nretry--;
             else
@@ -740,117 +750,123 @@ void MQTTSN_Poll(void)
                 vMQTTSN.Tretry = (MQTTSN_DEF_TSGW  * configTICK_RATE_HZ);
                 vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
                 vMQTTSN.Status = MQTTSN_STATUS_SEARCHGW;
-                break;
+                return;
             }
             vMQTTSN.Tretry = mqttsn_get_random_delay(MQTTSN_DEF_TCONNECT * configTICK_RATE_HZ);
 
             pMessage = mqAlloc(sizeof(MQ_t));
             if(pMessage == NULL)
-                break;
+                return;
 
             pMessage->mq.MsgType = MQTTSN_MSGTYP_CONNECT;
             pMessage->mq.connect.Flags = MQTTSN_FL_CLEANSESSION;
             pMessage->mq.connect.ProtocolId = MQTTSN_DEF_PROTOCOLID;
             pMessage->mq.connect.Duration[0] = (MQTTSN_DEF_KEEPALIVE>>8);
             pMessage->mq.connect.Duration[1] = (MQTTSN_DEF_KEEPALIVE & 0xFF);
-
-            uint8_t Length = mqttsn_build_node_name((uint8_t *)&pMessage->mq.connect.ClientId);
-
-            Length += MQTTSN_SIZEOF_MSG_CONNECT;
-            pMessage->Length = Length;
-            pMessage->mq.Length = Length;
             memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
-            PHY1_Send(pMessage);
-            }
+            
+            Length = mqttsn_build_node_name((uint8_t *)&pMessage->mq.connect.ClientId);
+            Length += MQTTSN_SIZEOF_MSG_CONNECT;
             break;
+        }
         case MQTTSN_STATUS_PRE_CONNECT:
-        case MQTTSN_STATUS_CONNECT:
-            {
+        {
             if(vMQTTSN.Nretry > 0)
                 vMQTTSN.Nretry--;
             else
             {
                 vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
-                break;
+                return;
             }
 
-            uint8_t Length;
             pMessage = mqAlloc(sizeof(MQ_t));
             if(pMessage == NULL)
-                break;
-
-            switch(vMQTTSN.MsgBuf.MsgType)
+                return;
+            
+            // Make Register message
+            if(vMQTTSN.MsgBuf.MsgType == MQTTSN_MSGTYP_REGISTER)
             {
-                // Make Publish message
-                case MQTTSN_MSGTYP_PUBLISH:
-                    {
-                    pMessage->mq.MsgType = MQTTSN_MSGTYP_PUBLISH;
-                    pMessage->mq.publish.Flags = vMQTTSN.MsgBuf.Flags;
-                    pMessage->mq.publish.TopicId[0] = vMQTTSN.MsgBuf.TopicId>>8;
-                    pMessage->mq.publish.TopicId[1] = vMQTTSN.MsgBuf.TopicId & 0xFF;
-                    pMessage->mq.publish.MsgId[0] = vMQTTSN.MsgBuf.MsgId>>8;
-                    pMessage->mq.publish.MsgId[1] = vMQTTSN.MsgBuf.MsgId & 0xFF;
-                    Length = (MQTTSN_MSG_SIZE - 5);
-                    ReadODpack(vMQTTSN.MsgBuf.TopicId, vMQTTSN.MsgBuf.Flags, &Length, pMessage->mq.publish.Data);
-                    Length += MQTTSN_SIZEOF_MSG_PUBLISH;
+                pMessage->mq.MsgType = MQTTSN_MSGTYP_REGISTER;
+                pMessage->mq.regist.TopicId[0] = vMQTTSN.MsgBuf.TopicId>>8;
+                pMessage->mq.regist.TopicId[1] = vMQTTSN.MsgBuf.TopicId & 0xFF;
+                pMessage->mq.regist.MsgId[0] = vMQTTSN.MsgBuf.MsgId>>8;
+                pMessage->mq.regist.MsgId[1] = vMQTTSN.MsgBuf.MsgId & 0xFF;
+                Length = MakeTopicName(vMQTTSN.MsgBuf.Flags, pMessage->mq.regist.TopicName);
+                Length += MQTTSN_SIZEOF_MSG_REGISTER;
+            }
+            // Make Subscribe message
+            else
+            {
+                pMessage->mq.MsgType = MQTTSN_MSGTYP_SUBSCRIBE;
+                pMessage->mq.subscribe.Flags = vMQTTSN.MsgBuf.Flags;
+                vMQTTSN.MsgBuf.Flags |= MQTTSN_FL_DUP;
+                pMessage->mq.subscribe.MsgId[0] = vMQTTSN.MsgBuf.MsgId>>8;
+                pMessage->mq.subscribe.MsgId[1] = vMQTTSN.MsgBuf.MsgId & 0xFF;
+                pMessage->mq.subscribe.Topic[0] = '#';
+                Length = (MQTTSN_SIZEOF_MSG_SUBSCRIBE + 1);
+            }
+            memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
+            vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/8) + (configTICK_RATE_HZ/8);
+            break;
+        }
+        case MQTTSN_STATUS_CONNECT:
+        {
+            if(vMQTTSN.Nretry > 0)
+                vMQTTSN.Nretry--;
+            else
+            {
+                vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
+                return;
+            }
 
-                    // ToDo QoS2 not supported
-                    if((vMQTTSN.MsgBuf.Flags & MQTTSN_FL_QOS_MASK) != MQTTSN_FL_QOS1)
-                        vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
-                    else
-                    {
-                        vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/8) + (configTICK_RATE_HZ/8);
-                        vMQTTSN.MsgBuf.Flags |= MQTTSN_FL_DUP;
-                    }
-                    }
-                    break;
-                // Make Register message
-                case MQTTSN_MSGTYP_REGISTER:
-                    {
-                    pMessage->mq.MsgType = MQTTSN_MSGTYP_REGISTER;
-                    pMessage->mq.regist.TopicId[0] = vMQTTSN.MsgBuf.TopicId>>8;
-                    pMessage->mq.regist.TopicId[1] = vMQTTSN.MsgBuf.TopicId & 0xFF;
-                    pMessage->mq.regist.MsgId[0] = vMQTTSN.MsgBuf.MsgId>>8;
-                    pMessage->mq.regist.MsgId[1] = vMQTTSN.MsgBuf.MsgId & 0xFF;
-                    Length = MakeTopicName(vMQTTSN.MsgBuf.Flags, pMessage->mq.regist.TopicName);
-                    Length += MQTTSN_SIZEOF_MSG_REGISTER;
+            pMessage = mqAlloc(sizeof(MQ_t));
+            if(pMessage == NULL)
+                return;
 
-                    vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/8) + (configTICK_RATE_HZ/8);
-                    }
-                    break;
-                // Make Subscribe message
-                case MQTTSN_MSGTYP_SUBSCRIBE:
-                    {
-                    pMessage->mq.MsgType = MQTTSN_MSGTYP_SUBSCRIBE;
-                    pMessage->mq.subscribe.Flags = vMQTTSN.MsgBuf.Flags;
-                    pMessage->mq.subscribe.MsgId[0] = vMQTTSN.MsgBuf.MsgId>>8;
-                    pMessage->mq.subscribe.MsgId[1] = vMQTTSN.MsgBuf.MsgId & 0xFF;
-                    pMessage->mq.subscribe.Topic[0] = '#';
-                    Length = (MQTTSN_SIZEOF_MSG_SUBSCRIBE + 1);
-        
+            memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
+
+            // Make Publish message
+            if(vMQTTSN.MsgBuf.MsgType == MQTTSN_MSGTYP_PUBLISH)
+            {
+                pMessage->mq.MsgType = MQTTSN_MSGTYP_PUBLISH;
+                pMessage->mq.publish.Flags = vMQTTSN.MsgBuf.Flags;
+                pMessage->mq.publish.TopicId[0] = vMQTTSN.MsgBuf.TopicId>>8;
+                pMessage->mq.publish.TopicId[1] = vMQTTSN.MsgBuf.TopicId & 0xFF;
+                pMessage->mq.publish.MsgId[0] = vMQTTSN.MsgBuf.MsgId>>8;
+                pMessage->mq.publish.MsgId[1] = vMQTTSN.MsgBuf.MsgId & 0xFF;
+                Length = (MQTTSN_MSG_SIZE - 5);
+                ReadODpack(vMQTTSN.MsgBuf.TopicId, vMQTTSN.MsgBuf.Flags, &Length, pMessage->mq.publish.Data);
+
+                if((vMQTTSN.MsgBuf.Flags & MQTTSN_FL_QOS_MASK) == MQTTSN_FL_QOS1)
+                {
                     vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/8) + (configTICK_RATE_HZ/8);
                     vMQTTSN.MsgBuf.Flags |= MQTTSN_FL_DUP;
-                    }
-                    break;
-                // No messages, send PingReq
-                default:
-                    {
-                    vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
-                    Length = MQTTSN_SIZEOF_MSG_PINGREQ;
-                    pMessage->mq.MsgType = MQTTSN_MSGTYP_PINGREQ;
+                }
+                else    // QOS0, QOS-1, ToDo QoS2 not supported
+                {
                     vMQTTSN.Tretry = (MQTTSN_DEF_KEEPALIVE * configTICK_RATE_HZ);
-                    }
-                    break;
+                    vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
+                }
+
+                Length += MQTTSN_SIZEOF_MSG_PUBLISH;
             }
-            pMessage->Length = Length;
-            pMessage->mq.Length = Length;
-            memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
-            PHY1_Send(pMessage);                
+            else    // No messages, send PingReq
+            {
+                vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
+                pMessage->mq.MsgType = MQTTSN_MSGTYP_PINGREQ;
+                vMQTTSN.Tretry = (MQTTSN_DEF_KEEPALIVE * configTICK_RATE_HZ);
+
+                Length = MQTTSN_SIZEOF_MSG_PINGREQ;
             }
             break;
+        }
         default:
-            break;
+            return;
     }
+
+    pMessage->Length = Length;
+    pMessage->mq.Length = Length;
+    PHY1_Send(pMessage);
 }
 
 // End Poll Task
