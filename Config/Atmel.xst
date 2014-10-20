@@ -1,6 +1,205 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- device configuration file for Atmel devices  -->
 <root head="/etc/declarers/dev">
+  <item name="A1Cn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="2.7.0">
+    <item name="Add">
+      <item name="bool" value="1Z" saved="True" type="System.String" />
+      <item name="long" value="4I" saved="True" type="System.String" />
+    </item>
+    <item name="remove" value="ZD" saved="True" type="System.String" />
+    <item name="Digital Inputs">
+        <item name="PortC">
+            <item name="Ip16" value="6zX16" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PC0" saved="True" type="System.String" />
+            </item>
+            <item name="Ip17" value="6zX17" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PC1" saved="True" type="System.String" />
+            </item>
+            <item name="Ip18" value="6zX18" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PC2" saved="True" type="System.String" />
+            </item>
+            <item name="Ip19" value="6zX19" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PC3" saved="True" type="System.String" />
+            </item>
+            <item name="Ip20" value="6zX20" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PC4" saved="True" type="System.String" />
+            </item>
+            <item name="Ip21" value="6zX21" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PC5" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="PortD">
+            <item name="Ip24" value="6zX24" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PD0" saved="True" type="System.String" />
+            </item>
+            <item name="Ip25" value="6zX25" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PD1" saved="True" type="System.String" />
+            </item>
+            <item name="Ip26" value="6zX26" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PD2" saved="True" type="System.String" />
+            </item>
+            <item name="Ip27" value="6zX27" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PD3" saved="True" type="System.String" />
+            </item>
+            <item name="Ip28" value="6zX28" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PD4" saved="True" type="System.String" />
+            </item>
+            <item name="Ip29" value="6zX29" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PD5" saved="True" type="System.String" />
+            </item>
+            <item name="Ip30" value="6zX30" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PD6" saved="True" type="System.String" />
+            </item>
+            <item name="Ip31" value="6zX31" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PD7" saved="True" type="System.String" />
+            </item>
+        </item>
+    </item>
+    <item name="Digital Pull-Up inverted inputs">
+        <item name="PortC">
+            <item name="In16" value="6zX16" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PC0" saved="True" type="System.String" />
+            </item>
+            <item name="In17" value="6zX17" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PC1" saved="True" type="System.String" />
+            </item>
+            <item name="In18" value="6zX18" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PC2" saved="True" type="System.String" />
+            </item>
+            <item name="In19" value="6zX19" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PC3" saved="True" type="System.String" />
+            </item>
+            <item name="In20" value="6zX20" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PC4" saved="True" type="System.String" />
+            </item>
+            <item name="In21" value="6zX21" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PC5" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="PortD">
+            <item name="In24" value="6zX24" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PD0" saved="True" type="System.String" />
+            </item>
+            <item name="In25" value="6zX25" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PD1" saved="True" type="System.String" />
+            </item>
+            <item name="In26" value="6zX26" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PD2" saved="True" type="System.String" />
+            </item>
+            <item name="In27" value="6zX27" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PD3" saved="True" type="System.String" />
+            </item>
+            <item name="In28" value="6zX28" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PD4" saved="True" type="System.String" />
+            </item>
+            <item name="In29" value="6zX29" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PD5" saved="True" type="System.String" />
+            </item>
+            <item name="In30" value="6zX30" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PD6" saved="True" type="System.String" />
+            </item>
+            <item name="In31" value="6zX31" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, PD7" saved="True" type="System.String" />
+            </item>
+        </item>
+    </item>
+    <item name="Digital Outputs">
+        <item name="PortC">
+            <item name="Op16" value="6zX16" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PC0" saved="True" type="System.String" />
+            </item>
+            <item name="Op17" value="6zX17" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PC1" saved="True" type="System.String" />
+            </item>
+            <item name="Op18" value="6zX18" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PC2" saved="True" type="System.String" />
+            </item>
+            <item name="Op19" value="6zX19" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PC3" saved="True" type="System.String" />
+            </item>
+            <item name="Op20" value="6zX20" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PC4" saved="True" type="System.String" />
+            </item>
+            <item name="Op21" value="6zX21" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PC5" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="PortD">
+            <item name="Op24" value="6zX24" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PD0" saved="True" type="System.String" />
+            </item>
+            <item name="Op25" value="6zX25" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PD1" saved="True" type="System.String" />
+            </item>
+            <item name="Op26" value="6zX26" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PD2" saved="True" type="System.String" />
+            </item>
+            <item name="Op27" value="6zX27" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PD3" saved="True" type="System.String" />
+            </item>
+            <item name="Op28" value="6zX28" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PD4" saved="True" type="System.String" />
+            </item>
+            <item name="Op29" value="6zX29" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PD5" saved="True" type="System.String" />
+            </item>
+            <item name="Op30" value="6zX30" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PD6" saved="True" type="System.String" />
+            </item>
+            <item name="Op31" value="6zX31" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PD7" saved="True" type="System.String" />
+            </item>
+        </item>
+    </item>
+    <item name="Digital Inverted Outputs">
+        <item name="PortC">
+            <item name="On16" value="6zX16" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PC0" saved="True" type="System.String" />
+            </item>
+            <item name="On17" value="6zX17" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PC1" saved="True" type="System.String" />
+            </item>
+            <item name="On18" value="6zX18" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PC2" saved="True" type="System.String" />
+            </item>
+            <item name="On19" value="6zX19" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PC3" saved="True" type="System.String" />
+            </item>
+            <item name="On20" value="6zX20" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PC4" saved="True" type="System.String" />
+            </item>
+            <item name="On21" value="6zX21" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PC5" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="PortD">
+            <item name="On24" value="6zX24" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PD0" saved="True" type="System.String" />
+            </item>
+            <item name="On25" value="6zX25" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PD1" saved="True" type="System.String" />
+            </item>
+            <item name="On26" value="6zX26" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PD2" saved="True" type="System.String" />
+            </item>
+            <item name="On27" value="6zX27" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PD3" saved="True" type="System.String" />
+            </item>
+            <item name="On28" value="6zX28" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PD4" saved="True" type="System.String" />
+            </item>
+            <item name="On29" value="6zX29" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PD5" saved="True" type="System.String" />
+            </item>
+            <item name="On30" value="6zX30" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PD6" saved="True" type="System.String" />
+            </item>
+            <item name="On31" value="6zX31" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PD7" saved="True" type="System.String" />
+            </item>
+        </item>
+    </item>
+  </item>
   <item name="A1En12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="2.7.0">
     <item name="Add">
       <item name="bool" value="1Z" saved="True" type="System.String" />
@@ -1090,5 +1289,4 @@
         </item>
     </item>
   </item>
-  
 </root>

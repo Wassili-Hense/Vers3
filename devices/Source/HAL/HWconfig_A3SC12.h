@@ -82,6 +82,7 @@ extern "C" {
 #define TxLEDon()                   PORTA |= (1<<PA1);
 #define RxLEDon()                   PORTA |= (1<<PA0);
 #define LEDsOff()                   PORTA &= ~((1<<PA0) | (1<<PA1));
+#define LEDsInit()                  DDRA |= ((1<<PA0) | (1<<PA1));
 
 #define RF_PORT                     PORTB
 #define RF_DDR                      DDRB
@@ -94,27 +95,11 @@ extern "C" {
 // RF IRQ
 #define RF_IRQ_PORT                 PORTB
 #define RF_IRQ_DDR                  DDRB
-#define RF_IRQ_PIN                  PIND
 #define RF_PIN_IRQ                  PB1
 #define RF_IRQ_CFG()                {PCIFR = (1<<PCIF1); PCICR = (1<<PCIE1);}
 #define RF_DISABLE_IRQ()            PCMSK1 = 0
 #define RF_ENABLE_IRQ()             PCMSK1 = (1<<RF_PIN_IRQ)
 #define RF_INT_vect                 PCINT1_vect
-
-#define RF_PORT_INIT()              {PRR0 &= ~(1<<PRSPI);                     \
-                                     DDRA |= ((1<<PA0) | (1<<PA1));           \
-                                     RF_PORT = (1<<RF_PIN_SS);                \
-                                     RF_DDR = (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) | (1<<RF_PIN_SS);  \
-                                     RF_IRQ_DDR &= ~(1<<RF_PIN_IRQ); RF_IRQ_PORT |= (1<<RF_PIN_IRQ);}
-// RF SPI
-#define RF_SPI_DATA                 SPDR
-#define RF_SPI_BISY                 (!(SPSR &(1<<SPIF)))
-
-#if (F_CPU > 13000000UL)
-#define RF_SPI_INIT()               {SPCR = (1<<SPE) | (1<<MSTR); SPSR = 0;}            // F_CPU/4
-#else   //  (F_CPU <= 13000000UL)
-#define RF_SPI_INIT()               {SPCR = (1<<SPE) | (1<<MSTR); SPSR = (1<<SPI2X);}   // F_CPU/2
-#endif  //  (F_CPU > 13000000UL)
 //  End RF Section
 
 #define UART_PHY                    1

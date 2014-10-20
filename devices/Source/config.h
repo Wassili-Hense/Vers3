@@ -46,7 +46,9 @@ extern "C" {
 
 // Atmel
 // ATM328P
-#if     (defined CFG_A1EN12)
+#if     (defined CFG_A1Cn12)
+#include "HAL/HWconfig_A1Cn12.h"
+#elif   (defined CFG_A1En12)
 #include "HAL/HWconfig_A1En12.h"
 #elif   (defined CFG_A1ES12)
 #include "HAL/HWconfig_A1ES12.h"

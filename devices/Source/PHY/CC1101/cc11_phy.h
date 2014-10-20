@@ -45,6 +45,6 @@ See LICENSE file for license details.
 void CC11_Init(void);
 void CC11_Send(void *pBuf);
 void * CC11_Get(void);
-//void CC11_IRQ_Handler(BaseType_t * pxHigherPriorityTaskWoken);
+void CC11_IRQ_Handler();
 
 #endif  //  _CC11_PHY_H

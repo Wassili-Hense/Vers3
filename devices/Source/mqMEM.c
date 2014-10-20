@@ -229,18 +229,15 @@ bool mqEnqueue(Queue_t * pQueue, void * pBuf)
 void * mqDequeue(Queue_t * pQueue)
 {
     if(pQueue == NULL)
-        return false;
+        return NULL;
+
     MQ_t * pBuf = NULL;
-    
+
     ENTER_CRITICAL_SECTION();
 
     pBuf = pQueue->pTail;
     
-    if(pBuf == NULL)
-    {
-        pQueue->pHead = NULL;
-    }
-    else
+    if(pBuf != NULL)
     {
         pQueue->pTail = pBuf->pNext;
         if(pQueue->pTail == NULL)
