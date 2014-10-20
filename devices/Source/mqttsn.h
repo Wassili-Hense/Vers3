@@ -17,17 +17,6 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-typedef enum e_MQTTSN_POLL_STATUS
-{
-  MQTTSN_POLL_STAT_NOP = 0,
-#ifdef ASLEEP
-  MQTTSN_POLL_STAT_ASLEEP,
-  MQTTSN_POLL_STAT_AWAKE,
-#endif  //  ASLEEP
-  MQTTSN_POLL_STAT_CONNECTED,
-  MQTTSN_POLL_STAT_DISCONNECTED
-}MQTTSN_POLL_STATUS_t;
-
 // Current Status
 typedef enum e_MQTTSN_STATUS
 {
@@ -53,8 +42,6 @@ typedef enum e_TRACE_LEVEL
     lvlWARNING,
     lvlERROR
 }TRACE_LEVEL_t;
-
-typedef void (*cbMQTTSN_PARSER_t)(MQ_t * pMqBuf);   // Callback on PHY data ready.
 
 void mqttsn_trace_msg(uint8_t Level, MQ_t * pMessage);
 

@@ -54,19 +54,23 @@ void hal_uart_init_hw(void)
 
 bool hal_uart_tx_busy(void)
 {
-    uint8_t tmp_head = (hal_uart_tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
-    return (tmp_head == hal_uart_tx_tail);
+    if(hal_uart_tx_head == hal_uart_tx_tail)
+        return false;
+
+    if(IS_UART_TX_INT_ENABLED() == 0)
+    {
+        UART_TX_DATA = hal_uart_tx_fifo[hal_uart_tx_tail];
+        hal_uart_tx_tail++;
+        hal_uart_tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
+        UART_TX_ENABLE_INT();
+        return false;
+    }
+
+    return (((hal_uart_tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1)) == hal_uart_tx_tail);
 }
 
 void hal_uart_send(uint8_t data)
 {
-    if(IS_UART_TX_INT_ENABLED() == 0)
-    {
-        UART_TX_DATA = data;
-        UART_TX_ENABLE_INT();
-        return;
-    }
-
     uint8_t tmp_head = (hal_uart_tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
     if(tmp_head == hal_uart_tx_tail)        // Overflow
         return;
@@ -84,7 +88,7 @@ bool hal_uart_get(uint8_t * pData)
     hal_uart_rx_tail++;
     hal_uart_rx_tail &= (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
 
-    return true;;
+    return true;
 }
 
 ISR(USART_RX_vect)
