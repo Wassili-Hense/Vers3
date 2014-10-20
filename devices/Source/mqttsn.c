@@ -217,10 +217,18 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
             {
                 memcpy(vMQTTSN.GatewayAddr, pPHY1outBuf->phy1addr, sizeof(PHY1_ADDR_t));
                 vMQTTSN.GwId = pPHY1outBuf->mq.advertise.GwId;
+                vMQTTSN.Radius = 1;
                 vMQTTSN.Status = MQTTSN_STATUS_OFFLINE;
                 vMQTTSN.Tretry = mqttsn_get_random_delay(MQTTSN_DEF_TCONNECT * configTICK_RATE_HZ);
                 vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
             }
+#ifdef PHY2_Send
+            else if((vMQTTSN.Status == MQTTSN_STATUS_CONNECT) && msg_from_gw)
+            {
+                PHY2_Send(pPHY1outBuf);
+                return;
+            }
+#endif
             break;
         // Search gateway request from another node
         case MQTTSN_MSGTYP_SEARCHGW:
@@ -545,16 +553,17 @@ void mqttsn_parser_phy2(MQ_t * pPHY2outBuf)
             case MQTTSN_MSGTYP_DHCPREQ:
             case MQTTSN_MSGTYP_FORWARD:
             {
-                uint8_t Length = pPHY2outBuf->Length;
                 uint8_t Size = (MQTTSN_SIZEOF_MSG_FORWARD + sizeof(PHY2_ADDR_t) + 1);
+                uint8_t Length = pPHY2outBuf->Length + Size;
+                
                 uint8_t pos;
-                if((Length + Size) <= sizeof(MQTTSN_MESSAGE_t))
+                if(Length <= sizeof(MQTTSN_MESSAGE_t))
                 {
-                    for(pos = (Size + Length - 1); pos >= Size; pos--)
+                    for(pos = (Length - 1); pos >= Size; pos--)
                         pPHY2outBuf->raw[pos] = pPHY2outBuf->raw[pos - Size];
 
                     // Make forward message
-                    pPHY2outBuf->Length += Size;
+                    pPHY2outBuf->Length = Length;
                     pPHY2outBuf->mq.Length = Size;
                     pPHY2outBuf->mq.MsgType = MQTTSN_MSGTYP_FORWARD;
                     pPHY2outBuf->mq.forward.Ctrl = 0;   // ?? TTL
@@ -746,7 +755,7 @@ void MQTTSN_Poll(void)
                 vMQTTSN.Nretry--;
             else
             {
-                vMQTTSN.Radius = 0;
+                vMQTTSN.Radius = 1;
                 vMQTTSN.Tretry = (MQTTSN_DEF_TSGW  * configTICK_RATE_HZ);
                 vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
                 vMQTTSN.Status = MQTTSN_STATUS_SEARCHGW;
@@ -806,7 +815,7 @@ void MQTTSN_Poll(void)
                 Length = (MQTTSN_SIZEOF_MSG_SUBSCRIBE + 1);
             }
             memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
-            vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/8) + (configTICK_RATE_HZ/8);
+            vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/5) + (configTICK_RATE_HZ/10);
             break;
         }
         case MQTTSN_STATUS_CONNECT:
@@ -839,7 +848,7 @@ void MQTTSN_Poll(void)
 
                 if((vMQTTSN.MsgBuf.Flags & MQTTSN_FL_QOS_MASK) == MQTTSN_FL_QOS1)
                 {
-                    vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/8) + (configTICK_RATE_HZ/8);
+                    vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/5) + (configTICK_RATE_HZ/10);
                     vMQTTSN.MsgBuf.Flags |= MQTTSN_FL_DUP;
                 }
                 else    // QOS0, QOS-1, ToDo QoS2 not supported
@@ -880,8 +889,6 @@ void MQTTSN_Init(void)
 {
     vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
     vMQTTSN.Tretry = configTICK_RATE_HZ;
-
-    //xTaskCreate(mqttsn_poll_task, "poll", configMINIMAL_STACK_SIZE + 20, NULL, tskIDLE_PRIORITY + 1, NULL );
 }
 
 // Get MQTTSN Status
