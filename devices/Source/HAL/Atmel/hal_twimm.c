@@ -47,7 +47,6 @@ bool hal_twimm_can_send(void)
 
 void hal_twimm_send(MQ_t *pBuf)
 {
-/*
     TWIMM_Status = TWIMM_STAT_TX_BUSY;
 
     vTWIMM.addr = ((pBuf->phy1addr[0])<<1) | TW_WRITE;
@@ -57,8 +56,25 @@ void hal_twimm_send(MQ_t *pBuf)
     TWCR = (1<<TWEN) |                          // TWI Interface enabled.
            (1<<TWIE) | (1<<TWINT) |             // Enable TWI Interrupt and clear the flag.
            (1<<TWSTA);                          // Initiate a START condition.
-*/
 }
+
+MQ_t * hal_twimm_get(void)
+{
+    if(TWIMM_Status != TWIMM_STAT_RX_RDY)
+        return NULL;
+        
+    MQ_t * pBuf = mqAlloc(sizeof(MQ_t));
+    if(pBuf != NULL)
+    {
+        pBuf->phy1addr[0] = vTWIMM.addr;
+        pBuf->Length = vTWIMM.len;
+        memcpy(pBuf->raw, vTWIMM.data, vTWIMM.len);
+        TWIMM_Status = TWIMM_STAT_FREE;
+    }
+
+    return pBuf;
+}
+
 
 ISR(TWI_vect)
 {
@@ -91,7 +107,7 @@ ISR(TWI_vect)
                        (1<<TWIE) | (1<<TWINT);      // Enable TWI Interrupt and clear the flag to send byte
                 break;
             }
-            else
+            else    // ACK received on last byte.
             {
                 TWIMM_Status = TWIMM_STAT_FREE;
                 TWCR = (1<<TWEN) |                  // TWI Interface enabled
@@ -109,7 +125,6 @@ ISR(TWI_vect)
             TWIMM_Status = TWIMM_STAT_RX_BUSY;
             TWCR = (1<<TWINT) | (1<<TWEA) | (1<<TWEN) | (1<<TWIE);
             break;
-            
         case TW_SR_DATA_ACK:                        // data received, ACK returned
         case TW_SR_GCALL_DATA_ACK:                  // general call data received, ACK returned
             if(twi_ptr == 0)                        // Receive Sender Address
@@ -129,13 +144,21 @@ ISR(TWI_vect)
 
                 if(twi_ptr > vTWIMM.len)
                 {
-                    TWIMM_Status = TWIMM_STAT_RX_RDY;
                     TWCR = (1<<TWINT) | (1<<TWEN) | (1<<TWIE);
                     break;
                 }
             }
             TWCR = (1<<TWINT) | (1<<TWEA) | (1<<TWEN) | (1<<TWIE);
             break;
+        case TW_SR_DATA_NACK:                       // data received, NACK returned
+        case TW_SR_GCALL_DATA_NACK:                 // general call data received, NACK returned
+            // Last byte;
+            vTWIMM.data[twi_ptr - 2] = TWDR;
+            TWIMM_Status = TWIMM_STAT_RX_RDY;
+            TWCR = (1<<TWINT) | (1<<TWEA) | (1<<TWEN) | (1<<TWIE);
+            break;
+
+        //case TW_MT_DATA_NACK:                       // data transmitted, NACK received
         //case TW_SR_STOP:                            // stop or repeated start condition received while selected
         default:                                    // Error
             if(TWIMM_Status == TWIMM_STAT_TX_BUSY)
@@ -147,10 +170,5 @@ ISR(TWI_vect)
     }
 }
 // End TWI HAL
-
-/*
-
-        case TW_SR_DATA_ACK:                    // 0x80, Previously addressed with own SLA+W; data has been received; ACK has been returned
-*/
 
 #endif  //  TWIMM_PHY

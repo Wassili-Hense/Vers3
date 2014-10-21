@@ -21,6 +21,7 @@ static Queue_t  twimm_tx_queue = {NULL, NULL};
 void hal_twimm_init_hw(uint8_t addr);
 bool hal_twimm_can_send(void);
 void hal_twimm_send(MQ_t *pBuf);
+MQ_t * hal_twimm_get(void);
 
 static void twimm_tx_task(void)
 {
@@ -57,7 +58,7 @@ void * TWIMM_Get(void)
 {
     twimm_tx_task();
 
-    return NULL;
+    return hal_twimm_get();
 }
 
 #endif  //  TWIMM_PHY
