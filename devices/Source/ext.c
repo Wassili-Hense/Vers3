@@ -25,30 +25,30 @@ See LICENSE file for license details.
 void extInit(uint8_t *pBuf)
 {
 #ifdef EXTDIO_USED
-  dioInit(&pBuf[EXTDIO_BASE>>3]);
+    dioInit(&pBuf[EXTDIO_BASE>>3]);
 #endif  //  EXTDIO_USED
 
 #ifdef EXTAIN_USED
-  ainInit(&pBuf[EXTAIN_BASE>>3]);
+    ainInit(&pBuf[EXTAIN_BASE>>3]);
 #endif  //  EXTAIN_USED
 }
 
 // Check Subindex ->free/busy/invalid
 uint16_t extCheckIdx(subidx_t * pSubidx)
 {
-  switch(pSubidx->Place)
-  {
+    switch(pSubidx->Place)
+    {
 #ifdef EXTDIO_USED
-    case objDin:
-    case objDout:
-      return dioCheckIdx(pSubidx);
+        case objDin:
+        case objDout:
+            return dioCheckIdx(pSubidx);
 #endif  //  EXTDIO_USED
 #ifdef EXTAIN_USED
-    case objAin:
-      return ainCheckIdx(pSubidx);
+        case objAin:
+            return ainCheckIdx(pSubidx);
 #endif  //  EXTAIN_USED
-    default:
-      break;
+        default:
+            break;
   }
   return 0xFFFF;
 }
@@ -56,55 +56,55 @@ uint16_t extCheckIdx(subidx_t * pSubidx)
 // Register Object
 e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx)
 {
-  pIdx->cbRead = NULL;
-  pIdx->cbWrite = NULL;
-  pIdx->cbPoll = NULL;
+    pIdx->cbRead = NULL;
+    pIdx->cbWrite = NULL;
+    pIdx->cbPoll = NULL;
 
-  switch(pIdx->sidx.Place)
-  {
+    switch(pIdx->sidx.Place)
+    {
 #ifdef EXTDIO_USED
-    case objDin:        // Digital(bool) Input's
-    case objDout:       // Digital(bool) Output's
-      return dioRegisterOD(pIdx);
+        case objDin:        // Digital(bool) Input's
+        case objDout:       // Digital(bool) Output's
+            return dioRegisterOD(pIdx);
 #endif  //  EXTDIO_USED
 #ifdef EXTAIN_USED
-    case objAin:        // Analog(int16_t) Input's
-      return dioRegisterOD(pIdx);
+        case objAin:        // Analog(int16_t) Input's
+            return ainRegisterOD(pIdx);
 #endif  //  EXTAIN_USED
-    default:
-      break;
-  }
-  return MQTTSN_RET_REJ_NOT_SUPP;
+        default:
+            break;
+    }
+    return MQTTSN_RET_REJ_NOT_SUPP;
 }
 
 // Delete Object
 void extDeleteOD(subidx_t * pSubidx)
 {
-  // Delete Objects
-  switch(pSubidx->Place)
-  {
+    // Delete Objects
+    switch(pSubidx->Place)
+    {
 #ifdef EXTDIO_USED
-    case objDin:
-    case objDout:
-      dioDeleteOD(pSubidx);
-      break;
+        case objDin:
+        case objDout:
+            dioDeleteOD(pSubidx);
+            break;
 #endif  //  EXTDIO_USED
 #ifdef EXTAIN_USED
-    case objAin:
-      ainDeleteOD(pSubidx);
-      break;
+        case objAin:
+            ainDeleteOD(pSubidx);
+            break;
 #endif  //  EXTAIN_USED
-    default:
-      break;
-  }
+        default:
+            break;
+    }
 }
 
 void extProc(void)
 {
 #ifdef EXTDIO_USED
-  dioProc();
+    dioProc();
 #endif  //  EXTDIO_USED
 #ifdef EXTAIN_USED
-  ainProc();
+    ainProc();
 #endif  //  EXTAIN_USED
 }

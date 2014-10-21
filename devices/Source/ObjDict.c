@@ -335,12 +335,11 @@ static void deleteIndexOD(uint8_t id)
 
 void InitOD(void)
 {
-    uint8_t ucTmp;
-
     eeprom_init_hw();
 
     // Check Settings
     uint8_t Len = 1;
+    uint8_t ucTmp = 0;
     uint16_t  uiTmp;
 
     ReadOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, &Len, &ucTmp);
@@ -589,7 +588,7 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
     if(ListOD[id].Index == 0xFFFF)                                      // New variable
     {
         if((TopicId == 0xFFFF) ||                                       // Try to delete not exist variable
-          ((TopicId & 0x3FFF) != idx))                                  // Incorrect mapping to the index
+          ((idx != 0) && ((TopicId & 0x3FFF) != idx)))                  // Incorrect mapping to the index
             return MQTTSN_RET_REJ_INV_ID;
 
         ListOD[id].sidx = Subidx;
