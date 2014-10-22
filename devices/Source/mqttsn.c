@@ -215,7 +215,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
         case MQTTSN_MSGTYP_ADVERTISE:
             if(vMQTTSN.Status == MQTTSN_STATUS_DISCONNECTED)
             {
-                vMQTTSN.Tretry = 0;
+                vMQTTSN.Tretry = 1;
             }
             else if(vMQTTSN.Status == MQTTSN_STATUS_SEARCHGW)
             {
@@ -245,7 +245,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
         case MQTTSN_MSGTYP_GWINFO:
             if(vMQTTSN.Status == MQTTSN_STATUS_DISCONNECTED)
             {
-                vMQTTSN.Tretry = 0;
+                vMQTTSN.Tretry = 1;
             }
             else if(vMQTTSN.Status == MQTTSN_STATUS_SEARCHGW)
             {
@@ -403,13 +403,13 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
             if(vMQTTSN.Status < MQTTSN_STATUS_OFFLINE)
             {
                 vMQTTSN.Radius = 1;
-                vMQTTSN.Tretry = 0;
+                vMQTTSN.Tretry = 1;
                 vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
             }
             else if(msg_from_gw)
             {
                 vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
-                vMQTTSN.Tretry = 0;
+                vMQTTSN.Tretry = 1;
                 vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
             }
             break;
@@ -454,23 +454,17 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                         memcpy(vMQTTSN.phy1addr, pData, sizeof(PHY1_ADDR_t));
                         pData += sizeof(PHY1_ADDR_t);
                         WriteOD(PHY1_NodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(PHY1_ADDR_t), (uint8_t *)vMQTTSN.phy1addr);
-                        PHY1_Init();
                     }
 #ifdef PHY2_ADDR_t
                     if(Mask & 2)
                     {
                         memcpy(vMQTTSN.phy2addr, pData, sizeof(PHY2_ADDR_t));
                         WriteOD(PHY2_NodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(PHY2_ADDR_t), (uint8_t *)vMQTTSN.phy2addr);
-                        PHY2_Init();
                     }
 #endif  //  PHY2_ADDR_t
 
-                    memcpy(vMQTTSN.GatewayAddr, pPHY1outBuf->phy1addr, sizeof(PHY1_ADDR_t));
-                    vMQTTSN.GwId = pPHY1outBuf->mq.dhcpresp.GwId;
-                    vMQTTSN.Status = MQTTSN_STATUS_OFFLINE;
-                    vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ) + (configTICK_RATE_HZ/10);
-                    vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
-                    vMQTTSN.MsgId = 0;
+                    vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
+                    vMQTTSN.Tretry = 1;
                 }
             }
             break;
@@ -650,14 +644,70 @@ void MQTTSN_Poll(void)
 
     switch(vMQTTSN.Status)
     {
+        case MQTTSN_STATUS_CONNECT:
+        {
+            if(vMQTTSN.Nretry > 0)
+                vMQTTSN.Nretry--;
+            else
+            {
+                vMQTTSN.Tretry = 1;
+                vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
+                return;
+            }
+
+            pMessage = mqAlloc(sizeof(MQ_t));
+            if(pMessage == NULL)
+                return;
+
+            memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
+
+            // Make Publish message
+            if(vMQTTSN.MsgBuf.MsgType == MQTTSN_MSGTYP_PUBLISH)
+            {
+                pMessage->mq.MsgType = MQTTSN_MSGTYP_PUBLISH;
+                pMessage->mq.publish.Flags = vMQTTSN.MsgBuf.Flags;
+                pMessage->mq.publish.TopicId[0] = vMQTTSN.MsgBuf.TopicId>>8;
+                pMessage->mq.publish.TopicId[1] = vMQTTSN.MsgBuf.TopicId & 0xFF;
+                pMessage->mq.publish.MsgId[0] = vMQTTSN.MsgBuf.MsgId>>8;
+                pMessage->mq.publish.MsgId[1] = vMQTTSN.MsgBuf.MsgId & 0xFF;
+                Length = (MQTTSN_MSG_SIZE - 5);
+                ReadODpack(vMQTTSN.MsgBuf.TopicId, vMQTTSN.MsgBuf.Flags, &Length, pMessage->mq.publish.Data);
+
+                if((vMQTTSN.MsgBuf.Flags & MQTTSN_FL_QOS_MASK) == MQTTSN_FL_QOS1)
+                {
+                    vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/5) + (configTICK_RATE_HZ/10);
+                    vMQTTSN.MsgBuf.Flags |= MQTTSN_FL_DUP;
+                }
+                else    // QOS0, QOS-1, ToDo QoS2 not supported
+                {
+                    vMQTTSN.Tretry = (MQTTSN_DEF_KEEPALIVE * configTICK_RATE_HZ);
+                    vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
+                }
+
+                Length += MQTTSN_SIZEOF_MSG_PUBLISH;
+            }
+            else    // No messages, send PingReq
+            {
+                vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
+                pMessage->mq.MsgType = MQTTSN_MSGTYP_PINGREQ;
+                vMQTTSN.Tretry = (MQTTSN_DEF_KEEPALIVE * configTICK_RATE_HZ);
+
+                Length = MQTTSN_SIZEOF_MSG_PINGREQ;
+            }
+            break;
+        }
         case MQTTSN_STATUS_DISCONNECTED:
         {
             uint8_t uTmp = sizeof(PHY1_ADDR_t);
             ReadOD(PHY1_GateId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.GatewayAddr);
             ReadOD(PHY1_NodeId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.phy1addr);
+
+            PHY1_Init();
 #ifdef PHY2_ADDR_t
             uTmp = sizeof(PHY2_ADDR_t);
             ReadOD(PHY2_NodeId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.phy2addr);
+
+            PHY2_Init();
 #endif  //  PHY2_ADDR_t
 #ifdef MQTTSN_USE_DHCP
             if(memcmp(vMQTTSN.phy1addr, &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)
@@ -676,7 +726,7 @@ void MQTTSN_Poll(void)
 
             vMQTTSN.GwId = 0;
             vMQTTSN.Radius = 1;
-            vMQTTSN.Tretry = 0;
+            vMQTTSN.Tretry = configTICK_RATE_HZ/10;
             vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
             vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
             vMQTTSN.MsgId = 0;
@@ -792,10 +842,8 @@ void MQTTSN_Poll(void)
                 vMQTTSN.Nretry--;
             else
             {
-                vMQTTSN.Radius = 1;
-                vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/5) + (configTICK_RATE_HZ/10);
-                vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
-                vMQTTSN.Status = MQTTSN_STATUS_SEARCHGW;
+                vMQTTSN.Tretry = 1;
+                vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
                 return;
             }
 
@@ -829,60 +877,6 @@ void MQTTSN_Poll(void)
             vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/5) + (configTICK_RATE_HZ/10);
             break;
         }
-        case MQTTSN_STATUS_CONNECT:
-        {
-            if(vMQTTSN.Nretry > 0)
-                vMQTTSN.Nretry--;
-            else
-            {
-                vMQTTSN.Radius = 1;
-                vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/5) + (configTICK_RATE_HZ/10);
-                vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
-                vMQTTSN.Status = MQTTSN_STATUS_SEARCHGW;
-                return;
-            }
-
-            pMessage = mqAlloc(sizeof(MQ_t));
-            if(pMessage == NULL)
-                return;
-
-            memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
-
-            // Make Publish message
-            if(vMQTTSN.MsgBuf.MsgType == MQTTSN_MSGTYP_PUBLISH)
-            {
-                pMessage->mq.MsgType = MQTTSN_MSGTYP_PUBLISH;
-                pMessage->mq.publish.Flags = vMQTTSN.MsgBuf.Flags;
-                pMessage->mq.publish.TopicId[0] = vMQTTSN.MsgBuf.TopicId>>8;
-                pMessage->mq.publish.TopicId[1] = vMQTTSN.MsgBuf.TopicId & 0xFF;
-                pMessage->mq.publish.MsgId[0] = vMQTTSN.MsgBuf.MsgId>>8;
-                pMessage->mq.publish.MsgId[1] = vMQTTSN.MsgBuf.MsgId & 0xFF;
-                Length = (MQTTSN_MSG_SIZE - 5);
-                ReadODpack(vMQTTSN.MsgBuf.TopicId, vMQTTSN.MsgBuf.Flags, &Length, pMessage->mq.publish.Data);
-
-                if((vMQTTSN.MsgBuf.Flags & MQTTSN_FL_QOS_MASK) == MQTTSN_FL_QOS1)
-                {
-                    vMQTTSN.Tretry = mqttsn_get_random_delay(configTICK_RATE_HZ/5) + (configTICK_RATE_HZ/10);
-                    vMQTTSN.MsgBuf.Flags |= MQTTSN_FL_DUP;
-                }
-                else    // QOS0, QOS-1, ToDo QoS2 not supported
-                {
-                    vMQTTSN.Tretry = (MQTTSN_DEF_KEEPALIVE * configTICK_RATE_HZ);
-                    vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
-                }
-
-                Length += MQTTSN_SIZEOF_MSG_PUBLISH;
-            }
-            else    // No messages, send PingReq
-            {
-                vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
-                pMessage->mq.MsgType = MQTTSN_MSGTYP_PINGREQ;
-                vMQTTSN.Tretry = (MQTTSN_DEF_KEEPALIVE * configTICK_RATE_HZ);
-
-                Length = MQTTSN_SIZEOF_MSG_PINGREQ;
-            }
-            break;
-        }
         default:
             return;
     }
@@ -902,7 +896,7 @@ void MQTTSN_Poll(void)
 void MQTTSN_Init(void)
 {
     vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
-    vMQTTSN.Tretry = configTICK_RATE_HZ;
+    vMQTTSN.Tretry = 0;
 }
 
 // Get MQTTSN Status

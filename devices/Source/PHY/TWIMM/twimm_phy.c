@@ -38,6 +38,10 @@ static void twimm_tx_task(void)
 
 void TWIMM_Init(void)
 {
+    MQ_t * pBuf;
+    while((pBuf = mqDequeue(&twimm_tx_queue)) != NULL)
+        mqFree(pBuf);
+
     // Load Device ID
     uint8_t Len = sizeof(uint8_t);
     uint8_t Addr;

@@ -29,7 +29,7 @@ S - Serial(UART)
 R - RFM12
 C - CC11__
 E - ENC28J60
-2 - I2C(TWI)
+T - I2C(TWI)
 n - none
 
 #define OD_DEV_PHY1                 'S'

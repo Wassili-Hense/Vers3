@@ -89,6 +89,10 @@ static void uart_tx_task(void)
 
 void UART_Init(void)
 {
+    MQ_t * pBuf;
+    while((pBuf = mqDequeue(&uart_tx_queue)) != NULL)
+        mqFree(pBuf);
+
     hal_uart_init_hw();
 }
 

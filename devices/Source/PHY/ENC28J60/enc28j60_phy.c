@@ -363,6 +363,10 @@ static void udp_filter(uint16_t len, eth_frame_t * pFrame)
 
 void ENC28J60_Init(void)
 {
+    MQ_t * pBuf;
+    while((pBuf = mqDequeue(&enc_out_queue)) != NULL)
+        mqFree(pBuf);
+
     uint8_t Len;
     // Read Configuration data
     Len = sizeof(mac_addr);

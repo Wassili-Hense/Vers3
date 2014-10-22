@@ -24,23 +24,29 @@ int main(void)
     mqInit();
     // Initialise Object's Dictionary
     InitOD();
-    // Initialise PHY Interfaces
-    PHY1_Init();
-#ifdef PHY2_Init
-    PHY2_Init();
-#endif  //  PHY2_Init
     // Initialize MQTTSN
     MQTTSN_Init();
 #ifdef DIAG_USED
     DIAG_Init();
 #endif  //  USE_DIAG
     
-    SystemTickCnt = 0;
+    SystemTickCnt = 1;
 
     StartSheduler();
   
     while(1)
     {
+        if(SystemTickCnt)
+        {
+            SystemTickCnt = 0;
+            OD_Poll();
+
+            MQTTSN_Poll();
+#ifdef DIAG_USED
+            DIAG_Poll();
+#endif  //  USE_DIAG
+        }
+
         MQ_t * pBuf;
         pBuf = PHY1_Get();
         if(pBuf != NULL)
@@ -55,18 +61,6 @@ int main(void)
             mqttsn_parser_phy2(pBuf);
         }
 #endif  //  PHY2_Get
-        
-        if(SystemTickCnt)
-        {
-            SystemTickCnt = 0;
-            MQTTSN_Poll();
-            
-            OD_Poll();
-            
-#ifdef DIAG_USED
-            DIAG_Poll();
-#endif  //  USE_DIAG
-        }
     }
 }
 

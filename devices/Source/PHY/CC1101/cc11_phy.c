@@ -272,6 +272,10 @@ void CC11_Init(void)
 {
     uint8_t     Channel;
     uint16_t    GroupID;
+    
+    MQ_t * pBuf;
+    while((pBuf = mqDequeue(&cc11_tx_queue)) != NULL)
+        mqFree(pBuf);    
 
     // Load Device ID
     uint8_t Len = sizeof(uint8_t);

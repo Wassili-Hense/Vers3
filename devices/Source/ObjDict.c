@@ -712,53 +712,52 @@ void OD_Poll(void)
 #endif  // PLC_USED
 
     // Send Data to Broker
-    switch(MQTTSN_GetStatus())
+    e_MQTTSN_STATUS_t mqstat = MQTTSN_GetStatus();
+    if(mqstat == MQTTSN_STATUS_CONNECT)
     {
-        case MQTTSN_STATUS_PRE_CONNECT:
-            // Register variables
-            if(idxUpdate < OD_MAX_INDEX_LIST)
-            {
-                if(ListOD[idxUpdate].Index != 0xFFFF)
-                {
-                    if(MQTTSN_CanSend())
-                        MQTTSN_Send(MQTTSN_MSGTYP_REGISTER,     // Message type
-                                    idxUpdate,                  // Flags
-                                    ListOD[idxUpdate].Index);   // Topic Id
-                }
-                else
-                    idxUpdate++;
-            }
-            // Send Subscribe & Publish Device Info
-            else if(idxUpdate == OD_MAX_INDEX_LIST)
+        if(idxUpdate >= OD_MAX_INDEX_LIST)
+            idxUpdate = 0;
+
+        while(idxUpdate < OD_MAX_INDEX_LIST)
+        {
+            if((ListOD[idxUpdate].Index != 0xFFFF) &&
+               (ListOD[idxUpdate].cbPoll != NULL) &&
+               (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx, 0))
             {
                 if(MQTTSN_CanSend())
-                    MQTTSN_Send(MQTTSN_MSGTYP_SUBSCRIBE, (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM), 0);
-            }
-            break;
-        case MQTTSN_STATUS_CONNECT:
-            if(idxUpdate >= OD_MAX_INDEX_LIST)
-                idxUpdate = 0;
-
-            while(idxUpdate < OD_MAX_INDEX_LIST)
-            {
-                if((ListOD[idxUpdate].Index != 0xFFFF) &&
-                   (ListOD[idxUpdate].cbPoll != NULL) &&
-                   (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx, 0))
                 {
-                    if(MQTTSN_CanSend())
-                    {
-                        MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
-                                   (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
-                                    ListOD[idxUpdate].Index);
-                        idxUpdate++;
-                    }
-                    break;
+                    MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
+                               (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
+                                ListOD[idxUpdate].Index);
+                    idxUpdate++;
                 }
-                idxUpdate++;
+                break;
             }
-            break;
-        default:
-            idxUpdate = 0x00;
-            break;
+            idxUpdate++;
+        }
     }
+    else if(mqstat == MQTTSN_STATUS_PRE_CONNECT)
+    {
+        // Register variables
+        if(idxUpdate < OD_MAX_INDEX_LIST)
+        {
+            if(ListOD[idxUpdate].Index != 0xFFFF)
+            {
+                if(MQTTSN_CanSend())
+                    MQTTSN_Send(MQTTSN_MSGTYP_REGISTER,     // Message type
+                                idxUpdate,                  // Flags
+                                ListOD[idxUpdate].Index);   // Topic Id
+            }
+            else
+                idxUpdate++;
+        }
+        // Send Subscribe & Publish Device Info
+        else if(idxUpdate == OD_MAX_INDEX_LIST)
+        {
+            if(MQTTSN_CanSend())
+                MQTTSN_Send(MQTTSN_MSGTYP_SUBSCRIBE, (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM), 0);
+        }
+    }
+    else 
+        idxUpdate = 0x00;
 }

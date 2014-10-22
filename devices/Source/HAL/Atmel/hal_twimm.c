@@ -27,12 +27,17 @@ typedef struct
 
 static S_TWIMM_t        vTWIMM;
 static volatile uint8_t TWIMM_Status;
+static uint16_t         TWIMM_BusBusyCnt;
 
 void hal_twimm_init_hw(uint8_t addr)
 {
-    TWCR = 0;
+    PORTB |= (1<<PORTB0);
+    DDRB |= (1<<PORTB0);
+
+    TWCR = (1<<TWINT);
 
     vTWIMM.own_addr = addr;
+    TWIMM_BusBusyCnt = 0;
 
     TWBR = (((F_CPU/100000UL)-16)/2);   // 100kHz
     TWAR = (addr<<1) | (1<<TWGCE);
@@ -42,54 +47,70 @@ void hal_twimm_init_hw(uint8_t addr)
 
 bool hal_twimm_can_send(void)
 {
-    return (TWIMM_Status == TWIMM_STAT_FREE);
+    return ((TWIMM_Status == TWIMM_STAT_FREE) && (TWIMM_SCL_STAT() != 0));
 }
 
 void hal_twimm_send(MQ_t *pBuf)
 {
     TWIMM_Status = TWIMM_STAT_TX_BUSY;
+    PORTB &= ~(1<<PORTB0);
 
     vTWIMM.addr = ((pBuf->phy1addr[0])<<1) | TW_WRITE;
     vTWIMM.len  = pBuf->Length;
     memcpy(vTWIMM.data, pBuf->raw, vTWIMM.len);
-
-    TWCR = (1<<TWEN) |                          // TWI Interface enabled.
-           (1<<TWIE) | (1<<TWINT) |             // Enable TWI Interrupt and clear the flag.
-           (1<<TWSTA);                          // Initiate a START condition.
+    
+    if(TWIMM_SCL_STAT() != 0)                   // Bus free
+        TWCR = (1<<TWEN) |                      // TWI Interface enabled.
+               (1<<TWIE) | (1<<TWINT) |         // Enable TWI Interrupt and clear the flag.
+               (1<<TWSTA);                      // Initiate a START condition.
 }
 
 MQ_t * hal_twimm_get(void)
 {
-    if(TWIMM_Status != TWIMM_STAT_RX_RDY)
-        return NULL;
-        
-    MQ_t * pBuf = mqAlloc(sizeof(MQ_t));
-    if(pBuf != NULL)
+    if(TWIMM_Status == TWIMM_STAT_RX_RDY)
     {
-        pBuf->phy1addr[0] = vTWIMM.addr;
-        pBuf->Length = vTWIMM.len;
-        memcpy(pBuf->raw, vTWIMM.data, vTWIMM.len);
+        MQ_t * pBuf = mqAlloc(sizeof(MQ_t));
+        if(pBuf != NULL)
+        {
+            pBuf->phy1addr[0] = vTWIMM.addr;
+            pBuf->Length = vTWIMM.len;
+            memcpy(pBuf->raw, vTWIMM.data, vTWIMM.len);
+        }
         TWIMM_Status = TWIMM_STAT_FREE;
+        return pBuf;
     }
+    else if((TWIMM_Status != TWIMM_STAT_FREE) || (TWCR & (1<<TWINT)))
+    {
+        TWIMM_BusBusyCnt--;
+        if(TWIMM_BusBusyCnt == 0)
+        {
+            TWCR = (1<<TWINT);
+            TWDR = 0xFF;
+            TWCR = (1<<TWEA) | (1<<TWEN) | (1<<TWIE);
+            TWIMM_Status = TWIMM_STAT_FREE;
+        }
+    }
+    else
+        TWIMM_BusBusyCnt = 0;
 
-    return pBuf;
+    return NULL;
 }
-
 
 ISR(TWI_vect)
 {
     static uint8_t twi_ptr;
 
-    switch(TWSR & TW_STATUS_MASK)
+    switch(TW_STATUS)
     {
         // Master
-        case TW_START:                              // START has been transmitted  
+        case TW_START:                              // start condition transmitted
+        case TW_REP_START:                          // repeated start condition transmitted
             twi_ptr = 0;
             TWDR = vTWIMM.addr;
             TWCR = (1<<TWINT) | (1<<TWEN) | (1<<TWIE);
             break;
-        case TW_MT_SLA_ACK:                         // SLA+W has been transmitted and ACK received
-        case TW_MT_DATA_ACK:                        // Data byte has been transmitted and ACK received
+        case TW_MT_SLA_ACK:                         // SLA+W transmitted, ACK received
+        case TW_MT_DATA_ACK:                        // data transmitted, ACK received
             if(twi_ptr <= vTWIMM.len)
             {
                 if(twi_ptr == 0)
@@ -102,24 +123,21 @@ ISR(TWI_vect)
                 else
                     TWDR = vTWIMM.data[twi_ptr - 2];
                 twi_ptr++;
-
-                TWCR = (1<<TWEN) |                  // TWI Interface enabled
-                       (1<<TWIE) | (1<<TWINT);      // Enable TWI Interrupt and clear the flag to send byte
+                TWCR = (1<<TWINT) | (1<<TWEN) | (1<<TWIE);
                 break;
             }
-            else    // ACK received on last byte.
-            {
-                TWIMM_Status = TWIMM_STAT_FREE;
-                TWCR = (1<<TWEN) |                  // TWI Interface enabled
-                       (1<<TWEA) |
-                       (1<<TWSTO) |                 // Send Stop
-                       (1<<TWIE) | (1<<TWINT);      // Enable TWI Interrupt and clear the flag to send byte
-            }
+            // else, ACK received but should be NACK
+        case TW_MT_SLA_NACK:                        // SLA+W transmitted, NACK received
+        case TW_MT_DATA_NACK:                       // data transmitted, NACK received
+            TWCR = (1<<TWINT) | (1<<TWEA) | (1<<TWSTO) | (1<<TWEN) | (1<<TWIE); // Send Stop
+            PORTB |= (1<<PORTB0);
+            TWIMM_Status = TWIMM_STAT_FREE;
             break;
 
         // Slave
         case TW_SR_SLA_ACK:                         // SLA+W received, ACK returned
         case TW_SR_GCALL_ACK:                       // general call received, ACK returned
+            PORTB &= ~(1<<PORTB0);
             twi_ptr = 0;
             vTWIMM.len = 0;
             TWIMM_Status = TWIMM_STAT_RX_BUSY;
@@ -152,23 +170,18 @@ ISR(TWI_vect)
             break;
         case TW_SR_DATA_NACK:                       // data received, NACK returned
         case TW_SR_GCALL_DATA_NACK:                 // general call data received, NACK returned
-            // Last byte;
             vTWIMM.data[twi_ptr - 2] = TWDR;
-            TWIMM_Status = TWIMM_STAT_RX_RDY;
             TWCR = (1<<TWINT) | (1<<TWEA) | (1<<TWEN) | (1<<TWIE);
+            TWIMM_Status = TWIMM_STAT_RX_RDY;
+            PORTB |= (1<<PORTB0);
             break;
 
-        //case TW_MT_DATA_NACK:                       // data transmitted, NACK received
-        //case TW_SR_STOP:                            // stop or repeated start condition received while selected
         default:                                    // Error
-            if(TWIMM_Status == TWIMM_STAT_TX_BUSY)
-                TWCR = (1<<TWINT) | (1<<TWEA) | (1<<TWSTO) | (1<<TWEN) | (1<<TWIE); // Send Stop
-            else
-                TWCR = (1<<TWINT) | (1<<TWEA) | (1<<TWEN) | (1<<TWIE);
+            TWCR &= ~((1<<TWEN) | (1<<TWSTO));
+            TWCR |= (1<<TWINT) | (1<<TWEN);
             TWIMM_Status = TWIMM_STAT_FREE;
             break;
     }
 }
-// End TWI HAL
 
 #endif  //  TWIMM_PHY
