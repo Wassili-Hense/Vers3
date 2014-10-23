@@ -18,57 +18,61 @@ See LICENSE file for license details.
 // PHY1: UART
 
 // GPIOA
-// Pin  Port    Func
-//   0  PA0     
-//   1  PA1
-//   2  PA2     USART2_TX
-//   3  PA3     USART2_RX
-//   4  PA4
-//   5  PA5
-//   6  PA6
-//   7  PA7
-//   8  PA8
-//   9  PA9     USART1_TX
-//  10  PA10    USART1_RX
-//  11  PA11
-//  12  PA12
-//  13  PA13
-//  14  PA14
-//  15  PA15
+// Pin  Port    Mapple  Func
+//   0  PA0     D2      AIN0
+//   1  PA1     D3      AIN1/ LED Yellow
+//   2  PA2     D1      AIN2/ USART2_TX
+//   3  PA3     D0      AIN3/ USART2_RX
+//   4  PA4     D10     AIN4/ /SS1
+//   5  PA5     D13     AIN5/ /SCK1/ LED Green
+//   6  PA6     D12     AIN6/ MISO1
+//   7  PA7     D11     AIN7/ MOSI1
+//   8  PA8     D6
+//   9  PA9     D7      USART1_TX
+//  10  PA10    D8      USART1_RX
+//  11  PA11    USBDM
+//  12  PA12    USBDP
+//  13  PA13    TMS/SWDIO
+//  14  PA14    TCK/SWCLK
+//  15  PA15    TDI
 // GPIOB
-//  16  PB0
-//  17  PB1
-//  18  PB2
-//  19  PB3
-//  20  PB4
-//  21  PB5
-//  22  PB6
-//  23  PB7
-//  24  PB8
-//  25  PB9
-//  26  PB10
-//  27  PB11
-//  28  PB12
-//  29  PB13
-//  30  PB14
-//  31  PB15
+//  16  PB0     D27     AIN8
+//  17  PB1     D28     AIN9
+//  18  PB2     GND
+//  19  PB3     TDO/SWO
+//  20  PB4     TRST
+//  21  PB5     D4      UEXT-10 /CS
+//  22  PB6     D5
+//  23  PB7     D9
+//  24  PB8     D14     CAN-RX
+//  25  PB9     D24     CAN-TX
+//  26  PB10    D29     SCL2
+//  27  PB11    D30     SDA2
+//  28  PB12    D31     /SS2
+//  29  PB13    D32     SCLK2
+//  30  PB14    D33     MISO2
+//  31  PB15    D34     MOSI2
 // GPIOC
-//  32  PC0
-//  33  PC1
-//  34  PC2
-//  35  PC3
-//  36  PC4
-//  37  PC5
-//  38  PC6
-//  39  PC7
-//  40  PC8
-//  41  PC9
-//  42  PC10
-//  43  PC11
-//  44  PC12
-//  45  PC13
-//  46  PC14
-//  47  PC15
+//  32  PC0     D15     AIN10
+//  33  PC1     D16     AIN11
+//  34  PC2     D17     AIN12
+//  35  PC3     D18     AIN13
+//  36  PC4     D19     AIN14
+//  37  PC5     D20     AIN15
+//  38  PC6     D35
+//  39  PC7     D36
+//  40  PC8     D37
+//  41  PC9     SW_BUT
+//  42  PC10    D26
+//  43  PC11    USB_P
+//  44  PC12    USB_DISC
+//  45  PC13    D21     CAN_CTRL
+//  46  PC14    D22     OSC32 In
+//  47  PC15    D23     OSC32 Out
+// GPIOD - Not Used
+//  48  PD0     OSC In 8M
+//  49  PD1     OSC Out 8M
+//  50  PD2     D25     MMC_CS
 
 
 #ifdef __cplusplus
@@ -81,7 +85,7 @@ extern "C" {
 #define DIO_PORT_SIZE               16
 #define EXTDIO_MAXPORT_NR           3
 #define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB, GPIOC}
-#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x0600, (uint16_t)0x0000, (uint16_t)0x0000}
+#define EXTDIO_PORTNUM2MASK         {(uint16_t)0xFE00, (uint16_t)0x001C, (uint16_t)0x1800}
 // End DIO Section
 
 // UART Section

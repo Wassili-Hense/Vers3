@@ -9,8 +9,10 @@ void INIT_SYSTEM(void)
     SystemInit();
 
     // Enable GPIO clock
-#ifdef STM32F0XX_MD
+#if   (defined STM32F0XX_MD)
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN;
+#elif (defined STM32F10X_MD)
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN;
 #endif  //  STM32F0XX_MD
 
     CriticalNesting = 0;
