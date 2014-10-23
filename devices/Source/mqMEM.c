@@ -7,7 +7,9 @@ typedef struct S_BLOCK_LINK
     size_t  BlockSize;
 } BlockLink_t;
 
-#if   (portBYTE_ALIGNMENT == 4)
+#if    (portBYTE_ALIGNMENT == 8)
+    #define portBYTE_ALIGNMENT_MASK     (0x0007U)
+#elif  (portBYTE_ALIGNMENT == 4)
     #define portBYTE_ALIGNMENT_MASK     (0x0003)
 #elif (portBYTE_ALIGNMENT == 2)
     #define portBYTE_ALIGNMENT_MASK     (0x0001)

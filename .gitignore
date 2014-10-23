@@ -4,9 +4,10 @@
 /devices/A1En12
 /devices/A1ES12
 /devices/A1Sn12
-/devices/A3ST12
-/devices/A3Tn12
-/devices/A3SC12
-/devices/A3Sn12
 /devices/A1ST12
 /devices/A1Tn12
+/devices/A3SC12
+/devices/A3Sn12
+/devices/S2Sn12
+/devices/*.cogui
+/devices/*.comarker

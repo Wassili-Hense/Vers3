@@ -1,4 +1,4 @@
-// EEPROM emulation for STM32F103R8
+// EEPROM emulation for STM32F0/STM32F1
 
 // Так как у STM'а по непонятной мне причине, нельзя записать в ячейку если состояние ячеики не равно 0xFFFF
 // Даже если ну очень хочется, даже если только нолики по местам единичек, все равно нельзя.
@@ -15,7 +15,7 @@
 
 #include "../../config.h"
 
-#if (defined STM32F051R8)
+#if ((defined STM32F051R8) || (defined STM32F103R8))
 
 #define FEE_BASE_ADDRESS          (uint32_t)0x0800F000    // Base for 'EEPROM'
 #define FEE_SECTOR_SIZE           (uint32_t)0x00000400    // Size of FLASH Sectors
@@ -24,6 +24,10 @@
 #define FEE_MIRROR_NUMBER         (uint8_t)2
 
 #endif
+
+#ifndef FLASH_FLAG_WRPERR
+#define FLASH_FLAG_WRPERR FLASH_FLAG_WRPRTERR
+#endif  //  FLASH_FLAG_WRPERR
 
 #define FEE_SECTORS               (uint16_t)(FEE_EEPROM_SIZE / FEE_SECTOR_SIZE)
 

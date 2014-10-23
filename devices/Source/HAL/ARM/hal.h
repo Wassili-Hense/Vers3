@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
+#ifdef STM32F0XX_MD
 #include "stm32f0xx.h"
+#endif  //  STM32F0XX_MD
 
 void INIT_SYSTEM(void);
 
@@ -13,9 +15,6 @@ void halEnterCritical(void);
 void halLeaveCritical(void);
 #define ENTER_CRITICAL_SECTION      halEnterCritical
 #define LEAVE_CRITICAL_SECTION      halLeaveCritical
-
-extern uint32_t SystemCoreClock;
-#define configCPU_CLOCK_HZ          (SystemCoreClock)
 
 #define portBYTE_ALIGNMENT          8
 #define configTOTAL_HEAP_SIZE       1024
@@ -29,6 +28,5 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif  //  __HAL_H

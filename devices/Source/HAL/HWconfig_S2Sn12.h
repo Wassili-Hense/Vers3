@@ -76,7 +76,7 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#include "STM32F0/hal.h"
+#include "ARM/hal.h"
 
 // DIO Section
 #define DIO_PORT_SIZE               16
@@ -87,16 +87,6 @@ extern "C" {
 
 // UART Section
 #define USART_USE_PORT              1   //  1 - USART1 PA9,PA10 GPIOA MASK 0x0600, 2 - USART2 PA2,PA3 GPIO MASK 0x000C
-
-#if (USART_USE_PORT == 1)
-    #define UARTx                   USART1
-#elif (USART_USE_PORT == 2)
-    #define UARTx                   USART2
-#endif
-
-#define UART_TX_ENABLE_INT()        UARTx->CR1 |= USART_CR1_TXEIE;
-#define UART_TX_DISABLE_INT()       UARTx->CR1 &= ~USART_CR1_TXEIE;
-#define IS_UART_TX_INT_ENABLED()    (UARTx->CR1 & USART_CR1_TXEIE)
 // End UART Section
 
 #define UART_PHY                    1

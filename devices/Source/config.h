@@ -34,7 +34,7 @@ extern "C" {
 #define OD_DEV_SWVERSM          '7'
 #define OD_DEV_SWVERSL          'a'     // Alfa
 
-#define configTICK_RATE_HZ      100     // System Tick Period
+#define POLL_TMR_FREQ           100     // System Tick Period
 
 #define UART_BaudRate           38400
 #define RF_BASE_FREQ            868300000UL
@@ -42,7 +42,7 @@ extern "C" {
 //Optional modules
 #define EXTDIO_USED             1       // Use DIO
 
-#define DIAG_USED               1       // Enable diagnostic messages
+//#define DIAG_USED               1       // Enable diagnostic messages
 
 // Atmel
 // ATM328P
@@ -63,6 +63,9 @@ extern "C" {
 #include "HAL/HWconfig_A3SC12.h"
 #elif   (defined CFG_A3Sn12)
 #include "HAL/HWconfig_A3Sn12.h"
+// STM32F051
+#elif   (defined CFG_S2Sn12)
+#include "HAL/HWconfig_S2Sn12.h"
 #else
 #error Undefined configuration
 #endif  //  Configuration
@@ -72,9 +75,6 @@ extern "C" {
 #include "mqttsn.h"
 #include "ObjDict.h"
 #include "diag.h"
-
-void StartSheduler(void);
-void SystemTick(void);
 
 #ifdef __cplusplus
 }

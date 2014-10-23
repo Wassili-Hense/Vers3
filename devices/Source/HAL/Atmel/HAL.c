@@ -3,31 +3,31 @@
 #include <avr/interrupt.h>
 
 /* Hardware constants for timer 2. */
-#define portCLOCK_PRESCALER             1024UL
-#define portPRESCALE                    0x07
+#define halCLOCK_CONFIG                 0x07
+#define halCLOCK_PRESCALER              1024UL
 
-// portPRESCALE
-// 1 - portCLOCK_PRESCALER = 1
-// 2 - portCLOCK_PRESCALER = 8
-// 3 - portCLOCK_PRESCALER = 32
-// 4 - portCLOCK_PRESCALER = 64
-// 5 - portCLOCK_PRESCALER = 128
-// 6 - portCLOCK_PRESCALER = 256
-// 7 - portCLOCK_PRESCALER = 1024
+// halCLOCK_CONFIG
+// 1 - halCLOCK_PRESCALER = 1
+// 2 - halCLOCK_PRESCALER = 8
+// 3 - halCLOCK_PRESCALER = 32
+// 4 - halCLOCK_PRESCALER = 64
+// 5 - halCLOCK_PRESCALER = 128
+// 6 - halCLOCK_PRESCALER = 256
+// 7 - halCLOCK_PRESCALER = 1024
 
-#define portCOMPARE_VALUE ((F_CPU/portCLOCK_PRESCALER/configTICK_RATE_HZ)-1)
-#if (portCOMPARE_VALUE > 255) || (portCOMPARE_VALUE < 60)
-#error Check F_CPU, configTICK_RATE_HZ and portCLOCK_PRESCALER
+#define halCLOCK_COMPARE_VALUE ((F_CPU/halCLOCK_PRESCALER/POLL_TMR_FREQ)-1)
+#if (halCLOCK_COMPARE_VALUE > 255) || (halCLOCK_COMPARE_VALUE < 60)
+#error Check F_CPU, POLL_TMR_FREQ and halCLOCK_PRESCALER
 #endif
 
 void StartSheduler(void)
 {
     TCCR2A = (1<<WGM21);
     TCNT2 = 0;
-    OCR2A = portCOMPARE_VALUE;
+    OCR2A = halCLOCK_COMPARE_VALUE;
     TIFR2 = (1<<OCF2A);
     TIMSK2 = (1<<OCIE2A);
-    TCCR2B = portPRESCALE;
+    TCCR2B = halCLOCK_CONFIG;
 
     sei();
 }

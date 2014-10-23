@@ -2,7 +2,7 @@
 
 #ifdef DIAG_USED
 
-#define DIAG_DEF_TIMEOUT    (300 * configTICK_RATE_HZ)
+#define DIAG_DEF_TIMEOUT    (300 * POLL_TMR_FREQ)
 
 static uint16_t diag_timeout;
 

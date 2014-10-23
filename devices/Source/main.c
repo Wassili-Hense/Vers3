@@ -12,8 +12,6 @@ See LICENSE file for license details.
 
 #include "config.h"
 
-#include <avr/interrupt.h>
-
 static volatile uint8_t SystemTickCnt;
 
 int main(void)

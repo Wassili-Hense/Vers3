@@ -90,40 +90,40 @@
     <File name="cmsis_core" path="" type="2"/>
     <File name="Source/EXT/extdio.h" path="Source/EXT/extdio.h" type="1"/>
     <File name="stm32_lib/inc/stm32f0xx_gpio.h" path="stm32_lib/inc/stm32f0xx_gpio.h" type="1"/>
-    <File name="Source/HAL/STM32F0/hal.h" path="Source/HAL/STM32F0/hal.h" type="1"/>
     <File name="Source/PHY" path="" type="2"/>
+    <File name="Source/HAL/ARM/hal_eeprom_flash.c" path="Source/HAL/ARM/hal_eeprom_flash.c" type="1"/>
     <File name="cmsis_boot/stm32f0xx.h" path="cmsis_boot/stm32f0xx.h" type="1"/>
     <File name="cmsis_core/core_cm0.h" path="cmsis_core/core_cm0.h" type="1"/>
-    <File name="Source/HAL/STM32F0/hal_dio.c" path="Source/HAL/STM32F0/hal_dio.c" type="1"/>
+    <File name="Source/HAL/ARM/HAL.c" path="Source/HAL/ARM/HAL.c" type="1"/>
     <File name="Source/config.h" path="Source/config.h" type="1"/>
     <File name="Source/ext.c" path="Source/ext.c" type="1"/>
+    <File name="Source/HAL/ARM/hal.h" path="Source/HAL/ARM/hal.h" type="1"/>
     <File name="Source" path="" type="2"/>
-    <File name="Source/HAL/STM32F0/hal_uart.c" path="Source/HAL/STM32F0/hal_uart.c" type="1"/>
     <File name="stm32_lib/inc/stm32f0xx_misc.h" path="stm32_lib/inc/stm32f0xx_misc.h" type="1"/>
     <File name="Source/PHY/UART/uart_phy.h" path="Source/PHY/UART/uart_phy.h" type="1"/>
     <File name="stm32_lib/src/stm32f0xx_rcc.c" path="stm32_lib/src/stm32f0xx_rcc.c" type="1"/>
-    <File name="Source/HAL/STM32F0/hal_eeprom_flash.c" path="Source/HAL/STM32F0/hal_eeprom_flash.c" type="1"/>
     <File name="Source/ext.h" path="Source/ext.h" type="1"/>
     <File name="stm32_lib/inc/stm32f0xx_flash.h" path="stm32_lib/inc/stm32f0xx_flash.h" type="1"/>
     <File name="Source/EXT" path="" type="2"/>
     <File name="cmsis_boot/startup/startup_stm32f0xx.s" path="cmsis_boot/startup/startup_stm32f0xx.s" type="1"/>
     <File name="cmsis_boot/stm32f0xx_conf.h" path="cmsis_boot/stm32f0xx_conf.h" type="1"/>
     <File name="Source/EXT/extdio.c" path="Source/EXT/extdio.c" type="1"/>
-    <File name="Source/HAL/STM32F0/HAL.c" path="Source/HAL/STM32F0/HAL.c" type="1"/>
     <File name="cmsis_core/core_cmFunc.h" path="cmsis_core/core_cmFunc.h" type="1"/>
     <File name="Source/mqTypes.h" path="Source/mqTypes.h" type="1"/>
     <File name="stm32_lib" path="" type="2"/>
     <File name="Source/diag.h" path="Source/diag.h" type="1"/>
     <File name="Source/PHY/UART/uart_phy.c" path="Source/PHY/UART/uart_phy.c" type="1"/>
+    <File name="Source/HAL/ARM/hal_uart.c" path="Source/HAL/ARM/hal_uart.c" type="1"/>
     <File name="Source/ObjDict.h" path="Source/ObjDict.h" type="1"/>
     <File name="stm32_lib/inc" path="" type="2"/>
+    <File name="Source/HAL/ARM/hal_dio.c" path="Source/HAL/ARM/hal_dio.c" type="1"/>
     <File name="Source/mqMEM.h" path="Source/mqMEM.h" type="1"/>
     <File name="Source/diag.c" path="Source/diag.c" type="1"/>
     <File name="Source/mqttsn.h" path="Source/mqttsn.h" type="1"/>
     <File name="stm32_lib/inc/stm32f0xx_rcc.h" path="stm32_lib/inc/stm32f0xx_rcc.h" type="1"/>
     <File name="Source/main.c" path="Source/main.c" type="1"/>
+    <File name="Source/HAL/ARM" path="" type="2"/>
     <File name="cmsis_boot/system_stm32f0xx.h" path="cmsis_boot/system_stm32f0xx.h" type="1"/>
-    <File name="Source/HAL/STM32F0" path="" type="2"/>
     <File name="Source/ObjDict.c" path="Source/ObjDict.c" type="1"/>
     <File name="stm32_lib/src/stm32f0xx_gpio.c" path="stm32_lib/src/stm32f0xx_gpio.c" type="1"/>
     <File name="Source/HAL/HWconfig_S2Sn12.h" path="Source/HAL/HWconfig_S2Sn12.h" type="1"/>
