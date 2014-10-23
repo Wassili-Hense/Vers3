@@ -62,7 +62,7 @@ void hal_uart_init_hw(void)
     #define HAL_USART_TX_DATA           UARTx->DR
 
 #if (USART_USE_PORT == 1)                           // USART1, STM32F1
-    //#define UART_BUS_FREQUENCY
+    #define UART_BUS_FREQUENCY          PCLK2_Frequency
     // Enable Clock
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;             // Enable Clock on GPIOA
     RCC->APB2ENR |= RCC_APB2ENR_USART1EN;           // Enable Clock on USART1
@@ -70,7 +70,7 @@ void hal_uart_init_hw(void)
     GPIOA->CRH &= ~GPIO_CRH_CNF9_0;
     GPIOA->CRH |= GPIO_CRH_CNF9_1 | GPIO_CRH_MODE9; // AF Push-Pull out (TX)
 #elif (USART_USE_PORT == 2)                         // USART2, STM32F1
-    //#define UART_BUS_FREQUENCY
+    #define UART_BUS_FREQUENCY          PCLK1_Frequency
     // Enable Clock
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;             // Enable Clock on GPIOA
     RCC->APB1ENR |= RCC_APB1ENR_USART2EN;           // Enable Clock on USART2
@@ -78,7 +78,7 @@ void hal_uart_init_hw(void)
     GPIOA->CRL &= ~GPIO_CRL_CNF2_0;
     GPIOA->CRL |= GPIO_CRL_CNF2_1 | GPIO_CRL_MODE2; // AF Push-Pull out (TX)
 #elif (USART_USE_PORT == 3)                         // USART3, STM32F1
-    //#define UART_BUS_FREQUENCY
+    #define UART_BUS_FREQUENCY          PCLK1_Frequency
     // Enable Clock
     RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;             // Enable Clock on GPIOB
     RCC->APB1ENR |= RCC_APB1ENR_USART3EN;           // Enable Clock on USART3

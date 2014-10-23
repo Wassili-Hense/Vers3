@@ -5,9 +5,11 @@
 extern "C" {
 #endif
 
-#ifdef STM32F0XX_MD
+#if   (defined STM32F0XX_MD)
 #include "stm32f0xx.h"
-#endif  //  STM32F0XX_MD
+#elif (defined STM32F10X_MD)
+#include "stm32f10x.h"
+#endif  //  uC Familie
 
 void INIT_SYSTEM(void);
 

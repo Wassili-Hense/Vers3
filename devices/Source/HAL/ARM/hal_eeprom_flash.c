@@ -23,6 +23,14 @@
 #define FEE_EEPROM_SIZE           (uint32_t)0x00000800    // Size of 'EEPROM'
 #define FEE_MIRROR_NUMBER         (uint8_t)2
 
+#elif (defined STM32F103RB)
+
+#define FEE_BASE_ADDRESS          (uint32_t)0x0801F000    // Base for 'EEPROM'
+#define FEE_SECTOR_SIZE           (uint32_t)0x00000400    // Size of FLASH Sectors
+
+#define FEE_EEPROM_SIZE           (uint32_t)0x00000800    // Size of 'EEPROM'
+#define FEE_MIRROR_NUMBER         (uint8_t)2
+
 #endif
 
 #ifndef FLASH_FLAG_WRPERR

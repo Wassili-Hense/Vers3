@@ -1,4 +1,6 @@
 *.atsuo
+*.cogui
+*.comarker
 /devices/Debug
 /devices/A1Cn12
 /devices/A1En12
@@ -9,5 +11,4 @@
 /devices/A3SC12
 /devices/A3Sn12
 /devices/S2Sn12
-/devices/*.cogui
-/devices/*.comarker
+/devices/S3Sn12

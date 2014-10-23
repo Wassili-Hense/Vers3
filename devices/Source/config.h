@@ -66,6 +66,9 @@ extern "C" {
 // STM32F051
 #elif   (defined CFG_S2Sn12)
 #include "HAL/HWconfig_S2Sn12.h"
+// STM32F103
+#elif   (defined CFG_S3Sn12)
+#include "HAL/HWconfig_S3Sn12.h"
 #else
 #error Undefined configuration
 #endif  //  Configuration
