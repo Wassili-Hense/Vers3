@@ -70,15 +70,23 @@ void dioConfigPort(uint8_t PortNr, DIO_PORT_TYPE Mask, eDIOmode_t Mode)
 
 DIO_PORT_TYPE dioReadPort(uint8_t PortNr)
 {
-    return GPIO_ReadInputData(dioPortNr2GPIOx(PortNr));
+    GPIO_TypeDef * GPIOx = dioPortNr2GPIOx(PortNr);
+    if(GPIOx == NULL)
+        return 0;
+
+    return ((uint16_t)GPIOx->IDR);
 }
 
 void dioWritePort(uint8_t PortNr, DIO_PORT_TYPE Mask, bool Value)
 {
-    if(Value)
-        GPIO_SetBits(dioPortNr2GPIOx(PortNr), Mask);
-    else
-        GPIO_ResetBits(dioPortNr2GPIOx(PortNr), Mask);
+    GPIO_TypeDef * GPIOx = dioPortNr2GPIOx(PortNr);
+    if(GPIOx != NULL)
+    {
+        if(Value)
+            GPIOx->BSRR = Mask;
+        else
+            GPIOx->BRR = Mask;
+    }
 }
 
 #endif  //  EXTDIO_USED

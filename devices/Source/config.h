@@ -64,9 +64,13 @@ extern "C" {
 #elif   (defined CFG_A3Sn12)
 #include "HAL/HWconfig_A3Sn12.h"
 // STM32F051
+#elif   (defined CFG_S2En12)
+#include "HAL/HWconfig_S2En12.h"
 #elif   (defined CFG_S2Sn12)
 #include "HAL/HWconfig_S2Sn12.h"
-// STM32F103
+// STM32F10x
+#elif   (defined CFG_S3En12)
+#include "HAL/HWconfig_S3En12.h"
 #elif   (defined CFG_S3Sn12)
 #include "HAL/HWconfig_S3Sn12.h"
 #else

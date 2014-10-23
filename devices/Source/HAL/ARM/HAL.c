@@ -27,7 +27,6 @@ void halEnterCritical(void)
     __DSB();    //  Data Synchronization Barrier
     __ISB();    //  Instruction Synchronization Barrier
 }
-/*-----------------------------------------------------------*/
 
 void halLeaveCritical(void)
 {
@@ -72,7 +71,6 @@ void HardFault_Handler(void)
     while(1);
 }
 
-/*
 void _delay_ms(uint32_t ms)
 {
   ms *= (SystemCoreClock / 12000UL);
@@ -86,5 +84,3 @@ void _delay_us(uint32_t us)
   while(us > 0)
     us--;
 }
-*/
-
