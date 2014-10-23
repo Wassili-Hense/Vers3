@@ -7,7 +7,6 @@ extern "C" {
 
 #include <avr/io.h>
 #include <avr/eeprom.h>
-//#include <util/delay.h>
 
 #define INIT_SYSTEM()
 
@@ -27,6 +26,8 @@ extern "C" {
 #define portBYTE_ALIGNMENT          1
 
 #define configTOTAL_HEAP_SIZE       1024    // ATMega328P
+
+void StartSheduler(void);
 
 #ifdef __cplusplus
 }

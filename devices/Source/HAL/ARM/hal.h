@@ -7,7 +7,7 @@ extern "C" {
 
 #if   (defined STM32F0XX_MD)
 #include "stm32f0xx.h"
-#elif (defined STM32F10X_MD)
+#elif ((defined STM32F10X_MD) || (defined STM32F10X_MD_VL))
 #include "stm32f10x.h"
 #endif  //  uC Familie
 

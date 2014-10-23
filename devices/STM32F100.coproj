@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Project version="2G - 1.7.7" name="STM32F103">
+<Project version="2G - 1.7.7" name="STM32F100">
   <Target name="S3Sn12" isCurrent="1">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="310" chipName="STM32F103RB" boardId="" boardName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="257" chipName="STM32F100RB" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="1"/>
@@ -12,11 +12,11 @@
           <Includepath path="."/>
         </Includepaths>
         <DefinedSymbols>
-          <Define name="STM32F103RB"/>
-          <Define name="STM32F10X_MD"/>
           <Define name="USE_STDPERIPH_DRIVER"/>
           <Define name="__ASSEMBLY__"/>
           <Define name="CFG_S3Sn12"/>
+          <Define name="STM32F100RB"/>
+          <Define name="STM32F10X_MD_VL"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -30,16 +30,16 @@
         <LinkedLibraries/>
         <MemoryAreas debugInFlashNotRAM="1">
           <Memory name="IROM1" type="ReadOnly" size="0x0001F000" startValue="0x08000000"/>
-          <Memory name="IRAM1" type="ReadWrite" size="0x00005000" startValue="0x20000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00002000" startValue="0x20000000"/>
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../../../arm/coocox/coide/configuration/programdata/stm32f103/arm-gcc-link.ld" type="0"/>
+        <LocateLinkFile path="../../../../../arm/coocox/coide/configuration/programdata/stm32f100/arm-gcc-link.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
         <Option name="Path" value="./"/>
-        <Option name="Name" value="STM32F103"/>
+        <Option name="Name" value="STM32F100"/>
         <Option name="HEX" value="1"/>
         <Option name="BIN" value="1"/>
       </Output>
@@ -71,7 +71,6 @@
   </Target>
   <Components path="./">
     <Component id="50" name="CMSIS core" path="" type="2"/>
-    <Component id="439" name="CMSIS_Boot" path="" type="2"/>
     <Component id="440" name="RCC" path="" type="2"/>
     <Component id="444" name="GPIO" path="" type="2"/>
     <Component id="455" name="FLASH" path="" type="2"/>
@@ -99,11 +98,11 @@
     <File name="Source/ext.c" path="Source/ext.c" type="1"/>
     <File name="Source/HAL/ARM/hal.h" path="Source/HAL/ARM/hal.h" type="1"/>
     <File name="Source" path="" type="2"/>
-    <File name="stm32_lib/inc/stm32f10x_flash.h" path="stm32_lib/inc/stm32f10x_flash.h" type="1"/>
     <File name="cmsis_boot/startup/startup_stm32f10x_md.c" path="cmsis_boot/startup/startup_stm32f10x_md.c" type="1"/>
+    <File name="stm32_lib/inc/stm32f10x_flash.h" path="stm32_lib/inc/stm32f10x_flash.h" type="1"/>
     <File name="Source/PHY/UART/uart_phy.h" path="Source/PHY/UART/uart_phy.h" type="1"/>
-    <File name="cmsis_boot/system_stm32f10x.c" path="cmsis_boot/system_stm32f10x.c" type="1"/>
     <File name="Source/ext.h" path="Source/ext.h" type="1"/>
+    <File name="cmsis_boot/system_stm32f10x.c" path="cmsis_boot/system_stm32f10x.c" type="1"/>
     <File name="Source/EXT" path="" type="2"/>
     <File name="cmsis/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
     <File name="Source/EXT/extdio.c" path="Source/EXT/extdio.c" type="1"/>
@@ -117,9 +116,9 @@
     <File name="stm32_lib/inc" path="" type="2"/>
     <File name="Source/HAL/HWconfig_S3Sn12.h" path="Source/HAL/HWconfig_S3Sn12.h" type="1"/>
     <File name="stm32_lib/src/stm32f10x_rcc.c" path="stm32_lib/src/stm32f10x_rcc.c" type="1"/>
-    <File name="Source/mqMEM.h" path="Source/mqMEM.h" type="1"/>
-    <File name="cmsis" path="" type="2"/>
     <File name="Source/HAL/ARM/hal_dio.c" path="Source/HAL/ARM/hal_dio.c" type="1"/>
+    <File name="cmsis" path="" type="2"/>
+    <File name="Source/mqMEM.h" path="Source/mqMEM.h" type="1"/>
     <File name="stm32_lib/inc/stm32f10x_misc.h" path="stm32_lib/inc/stm32f10x_misc.h" type="1"/>
     <File name="Source/mqttsn.h" path="Source/mqttsn.h" type="1"/>
     <File name="Source/diag.c" path="Source/diag.c" type="1"/>

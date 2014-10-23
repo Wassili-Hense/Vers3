@@ -32,6 +32,9 @@ void StartSheduler(void)
     sei();
 }
 
+// Main program tick procedure
+void SystemTick(void);
+
 ISR(TIMER2_COMPA_vect)
 {
     SystemTick();
