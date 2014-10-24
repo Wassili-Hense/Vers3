@@ -18,7 +18,8 @@ See LICENSE file for license details.
 #define MQTTSN_DEF_KEEPALIVE    (uint16_t)30
 #define MQTTSN_DEF_NRETRY       (uint8_t)3                      // Number of retry's
 #define MQTTSN_DEF_TCONNECT     (uint16_t)10                    // Time between Connect's
-#define MQTTSN_DEF_TSGW         (uint16_t)15                    // Time between search gateway request
+#define MQTTSN_DEF_TSGW         (uint16_t)5                     // Time between search gateway request
+#define MQTTSN_DEF_TGWINFO      (uint16_t)5                     // Time between search gateway request and GWInfo
 #define MQTTSN_DEF_TDISCONNECT  (uint16_t)30                    // Pause on Disconnect State
 
 #define MQTTSN_DEF_PROTOCOLID   0x01
@@ -32,8 +33,11 @@ typedef struct
     uint8_t                     phy1addr[sizeof(PHY1_ADDR_t)];
 #ifdef PHY2_ADDR_t
     uint8_t                     phy2addr[sizeof(PHY2_ADDR_t)];
+    uint16_t                    tGWinfo2;   // Timeout to send GWInfo message
 #endif
 
+    uint16_t                    tGWinfo1;
+    
     uint8_t                     GwId;       // Unique Gateway ID
     uint8_t                     Radius;     // Broadcast Radius
 
@@ -146,24 +150,17 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
     {
         switch(pPHY1outBuf->mq.MsgType)
         {
-/*
             case MQTTSN_MSGTYP_SEARCHGW:
-                // !! ToDo random delay.
-                // Gateway Info request on PHY1 from Remote Node
-                if(pPHY1outBuf->mq.searchgw.Radius == (vMQTTSN.Radius + 1))
+                if((pPHY1outBuf->mq.searchgw.Radius == (vMQTTSN.Radius + 1)) ||
+                   (pPHY1outBuf->mq.searchgw.Radius == 0))
                 {
-                    // Send Gateway Info message
-                    PHY1_ADDR_t s_addr = ADDR_BROADCAST_PHY1;
-                    memcpy(pPHY1outBuf->phy1addr, &s_addr, sizeof(PHY1_ADDR_t));
-                    pPHY1outBuf->Length = (MQTTSN_SIZEOF_MSG_GWINFO + sizeof(PHY1_ADDR_t));
-                    pPHY1outBuf->mq.Length = (MQTTSN_SIZEOF_MSG_GWINFO + sizeof(PHY1_ADDR_t));
-                    pPHY1outBuf->mq.MsgType = MQTTSN_MSGTYP_GWINFO;
-                    pPHY1outBuf->mq.gwinfo.GwId = vMQTTSN.GwId;
-                    memcpy(pPHY1outBuf->mq.gwinfo.GwAdd, vMQTTSN.phy1addr, sizeof(PHY1_ADDR_t));
-                    PHY1_Send(pPHY1outBuf);
-                    return;
+                    vMQTTSN.tGWinfo1 = mqttsn_get_random_delay(MQTTSN_DEF_TGWINFO * POLL_TMR_FREQ) + POLL_TMR_FREQ;
                 }
-*/
+                break;
+            case MQTTSN_MSGTYP_ADVERTISE:
+            case MQTTSN_MSGTYP_GWINFO:
+                vMQTTSN.tGWinfo1 = 0;
+                break;
             case MQTTSN_MSGTYP_CONNECT:
             case MQTTSN_MSGTYP_REGISTER:
             case MQTTSN_MSGTYP_REGACK:
@@ -171,7 +168,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
             case MQTTSN_MSGTYP_PUBACK:
             case MQTTSN_MSGTYP_SUBSCRIBE:
             case MQTTSN_MSGTYP_PINGREQ:
-            //case MQTTSN_MSGTYP_DISCONNECT:        ASleep not realised yet.
+            case MQTTSN_MSGTYP_DISCONNECT:
 #ifdef MQTTSN_USE_DHCP
             case MQTTSN_MSGTYP_DHCPREQ:
 #endif  //  MQTTSN_USE_DHCP
@@ -213,9 +210,10 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
     {
         // Advertise message from Gate, equivalent GWINFO 
         case MQTTSN_MSGTYP_ADVERTISE:
-            if(vMQTTSN.Status == MQTTSN_STATUS_DISCONNECTED)
+            if(vMQTTSN.Status < MQTTSN_STATUS_SEARCHGW)
             {
-                vMQTTSN.Tretry = 1;
+                vMQTTSN.Radius = 1;
+                vMQTTSN.Tretry = mqttsn_get_random_delay(POLL_TMR_FREQ) + POLL_TMR_FREQ;
             }
             else if(vMQTTSN.Status == MQTTSN_STATUS_SEARCHGW)
             {
@@ -223,12 +221,16 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                 vMQTTSN.GwId = pPHY1outBuf->mq.advertise.GwId;
                 vMQTTSN.Radius = 1;
                 vMQTTSN.Status = MQTTSN_STATUS_OFFLINE;
-                vMQTTSN.Tretry = mqttsn_get_random_delay(POLL_TMR_FREQ) + (POLL_TMR_FREQ/10);
+                vMQTTSN.Tretry = mqttsn_get_random_delay(POLL_TMR_FREQ) + POLL_TMR_FREQ;
                 vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
             }
 #ifdef PHY2_Send
-            else if((vMQTTSN.Status == MQTTSN_STATUS_CONNECT) && msg_from_gw)
+            else if((vMQTTSN.Status == MQTTSN_STATUS_CONNECT) && 
+                     msg_from_gw &&
+                    (vMQTTSN.Radius == 1))
             {
+                vMQTTSN.tGWinfo1 = 0;
+                vMQTTSN.tGWinfo2 = 0;
                 PHY2_Send(pPHY1outBuf);
                 return;
             }
@@ -243,9 +245,9 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
             break;
         // Gateway Info message
         case MQTTSN_MSGTYP_GWINFO:
-            if(vMQTTSN.Status == MQTTSN_STATUS_DISCONNECTED)
+            if(vMQTTSN.Status < MQTTSN_STATUS_SEARCHGW)
             {
-                vMQTTSN.Tretry = 1;
+                vMQTTSN.Tretry = mqttsn_get_random_delay(MQTTSN_DEF_TSGW  * POLL_TMR_FREQ) + POLL_TMR_FREQ;
             }
             else if(vMQTTSN.Status == MQTTSN_STATUS_SEARCHGW)
             {
@@ -254,6 +256,10 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                 vMQTTSN.Status = MQTTSN_STATUS_OFFLINE;
                 vMQTTSN.Tretry = mqttsn_get_random_delay(POLL_TMR_FREQ) + (POLL_TMR_FREQ/10);
                 vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
+            }
+            else if(vMQTTSN.Status == MQTTSN_STATUS_CONNECT)
+            {
+                vMQTTSN.tGWinfo1 = 0;
             }
             break;
         // Connack message
@@ -525,23 +531,15 @@ void mqttsn_parser_phy2(MQ_t * pPHY2outBuf)
                 if((pPHY2outBuf->mq.searchgw.Radius == vMQTTSN.Radius) ||
                    (pPHY2outBuf->mq.searchgw.Radius == 0))
                 {
-                    // Send Gateway Info message
-                    memcpy(pPHY2outBuf->phy2addr, &addr2_broad, sizeof(PHY2_ADDR_t));
-                    uint8_t Length = MQTTSN_SIZEOF_MSG_GWINFO;
-
-                    pPHY2outBuf->mq.MsgType = MQTTSN_MSGTYP_GWINFO;
-                    pPHY2outBuf->mq.gwinfo.GwId = vMQTTSN.GwId;
-                    if(vMQTTSN.Radius > 1)
-                    {
-                        memcpy(pPHY2outBuf->mq.gwinfo.GwAdd, vMQTTSN.phy2addr, sizeof(PHY2_ADDR_t));
-                        Length += sizeof(PHY2_ADDR_t);
-                    }
-
-                    pPHY2outBuf->Length = Length;
-                    pPHY2outBuf->mq.Length = Length;
-                    PHY2_Send(pPHY2outBuf);
-                    return;
+                    if(vMQTTSN.Radius == 1)
+                        vMQTTSN.tGWinfo2 = 1;
+                    else
+                        vMQTTSN.tGWinfo2 = mqttsn_get_random_delay(MQTTSN_DEF_TGWINFO * POLL_TMR_FREQ) + POLL_TMR_FREQ;;
                 }
+                break;
+            case MQTTSN_MSGTYP_ADVERTISE:
+            case MQTTSN_MSGTYP_GWINFO:
+                vMQTTSN.tGWinfo2 = 0;
                 break;
             // Encapulate message to Forward Packet and send to Gateway
             case MQTTSN_MSGTYP_CONNECT:
@@ -589,7 +587,7 @@ void mqttsn_parser_phy2(MQ_t * pPHY2outBuf)
 ////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////
-// Start Poll Task
+// Poll Task
 
 // Build Name
 static uint8_t mqttsn_build_node_name(uint8_t * pBuf)
@@ -630,11 +628,68 @@ static uint8_t mqttsn_build_node_name(uint8_t * pBuf)
     return Length;
 }
 
+// Send Gateway Info message
+static void mqttsn_send_gwinfo(uint8_t phy)
+{
+    MQ_t * pGWInfo;
+
+    if(phy == 1)
+    {
+        pGWInfo = mqAlloc(sizeof(MQ_t));
+        if(pGWInfo == NULL)
+            return;
+    
+        memcpy(pGWInfo->phy1addr, &addr1_broad, sizeof(PHY1_ADDR_t));
+        pGWInfo->Length = MQTTSN_SIZEOF_MSG_GWINFO;
+        pGWInfo->mq.Length = MQTTSN_SIZEOF_MSG_GWINFO;
+        pGWInfo->mq.MsgType = MQTTSN_MSGTYP_GWINFO;
+        pGWInfo->mq.gwinfo.GwId = vMQTTSN.GwId;
+        //memcpy(pGWInfo->mq.gwinfo.GwAdd, vMQTTSN.phy1addr, sizeof(PHY1_ADDR_t));
+        PHY1_Send(pGWInfo);
+        return;
+    }
+#ifdef PHY2_ADDR_t
+    else if(phy == 2)
+    {
+        pGWInfo = mqAlloc(sizeof(MQ_t));
+        if(pGWInfo == NULL)
+            return;
+    
+        memcpy(pGWInfo->phy2addr, &addr2_broad, sizeof(PHY2_ADDR_t));
+        pGWInfo->Length = MQTTSN_SIZEOF_MSG_GWINFO;
+        pGWInfo->mq.Length = MQTTSN_SIZEOF_MSG_GWINFO;
+        pGWInfo->mq.MsgType = MQTTSN_MSGTYP_GWINFO;
+        pGWInfo->mq.gwinfo.GwId = vMQTTSN.GwId;
+        //memcpy(pGWInfo->mq.gwinfo.GwAdd, vMQTTSN.phy1addr, sizeof(PHY1_ADDR_t));
+        PHY2_Send(pGWInfo);
+        return;
+    }
+#endif
+}
+
 void MQTTSN_Poll(void)
 {
     MQ_t * pMessage;
     uint8_t Length;
     
+    // Gateway Info messages
+    if(vMQTTSN.tGWinfo1 > 0)
+    {
+        vMQTTSN.tGWinfo1--;
+        if(vMQTTSN.tGWinfo1 == 0)
+            mqttsn_send_gwinfo(1);
+    }
+
+#ifdef PHY2_ADDR_t
+    if(vMQTTSN.tGWinfo2 > 0)
+    {
+        vMQTTSN.tGWinfo2--;
+        if(vMQTTSN.tGWinfo2 == 0)
+            mqttsn_send_gwinfo(2);
+    }
+#endif  //  PHY2_ADDR_t
+    
+    // Normal Messages
     if(vMQTTSN.Tretry > 0)
     {
         vMQTTSN.Tretry--;
