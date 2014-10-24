@@ -16,6 +16,8 @@ See LICENSE file for license details.
 
 #ifdef CC11_PHY
 
+//#define CC11_ANAREN
+
 #include "cc11_reg.h"
 
 #ifndef CC11_ANAREN     // Fosc = 26M
@@ -97,8 +99,13 @@ typedef struct
 
 static const uint8_t cc11config[][2] =
 {
+#ifndef CC11_ANAREN
   {CC11_IOCFG2,   CC11_GDO_DISABLE},    // GDO2 - High impedance (3-State)
   {CC11_IOCFG0,   CC11_GDO_SYNC},       // GDO0 - Asserts when sync word has been sent/received, and de-asserts at the end of the packet.
+#else
+  {CC11_IOCFG2,   CC11_GDO_SYNC},       // GDO2 - High impedance (3-State)
+  {CC11_IOCFG0,   CC11_GDO_DISABLE},    // GDO0 - Asserts when sync word has been sent/received, and de-asserts at the end of the packet.
+#endif
   {CC11_FIFOTHR,  0x47},                // ADC_RETENTION, RX Attenuation: 0 dB, FIFO Threshold 33/32 bytes 
   {CC11_PKTLEN,   0x3D},                // default packet length 61 byte
   {CC11_PKTCTRL1, 0x06},                // Append Status, Check Address and Broadcast
