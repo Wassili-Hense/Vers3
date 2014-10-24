@@ -79,7 +79,7 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#include "ARM/hal.h"
+#include "STM32/hal.h"
 
 // DIO Section
 #define DIO_PORT_SIZE               16
@@ -89,21 +89,10 @@ extern "C" {
 // End DIO Section
 
 // ENC Section
-#define ENC_USE_SPI                 2   // 1 - SPI1 PA4-PA7, 2 - SPI2 PB12-PB15
-
-#if (ENC_USE_SPI == 1)
-#define ENC_NSS_PORT                GPIOA
-#define ENC_NSS_PIN                 GPIO_Pin_4
-
+#define ENC_USE_SPI                 1   // SPI1 PA5-PA7
 #define SPIe                        SPI1
-
-#elif (ENC_USE_SPI == 2)
 #define ENC_NSS_PORT                GPIOB
-#define ENC_NSS_PIN                 GPIO_Pin_12
-
-#define SPIe                        SPI2
-
-#endif  //  ENC_USE_SPI
+#define ENC_NSS_PIN                 GPIO_Pin_5
 
 #define ENC_SELECT()                ENC_NSS_PORT->BRR = ENC_NSS_PIN
 #define ENC_RELEASE()               {while(SPIe->SR & SPI_SR_BSY); ENC_NSS_PORT->BSRR = ENC_NSS_PIN;}

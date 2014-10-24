@@ -76,7 +76,7 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#include "ARM/hal.h"
+#include "STM32/hal.h"
 
 // DIO Section
 #define DIO_PORT_SIZE               16

@@ -34,7 +34,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../../../arm/coocox/coide/configuration/programdata/stm32f103/arm-gcc-link.ld" type="0"/>
+        <LocateLinkFile path="c:/coocox/coide/configuration/programdata/stm32f103/arm-gcc-link.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -103,7 +103,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../../../arm/coocox/coide/configuration/programdata/stm32f103/arm-gcc-link.ld" type="0"/>
+        <LocateLinkFile path="c:/coocox/coide/configuration/programdata/stm32f103/arm-gcc-link.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -144,67 +144,64 @@
     <Component id="440" name="RCC" path="" type="2"/>
     <Component id="444" name="GPIO" path="" type="2"/>
     <Component id="455" name="FLASH" path="" type="2"/>
-    <Component id="467" name="MISC" path="" type="2"/>
   </Components>
   <Files>
     <File name="Source/PHY/ENC28J60/enc28j60_hw.c" path="Source/PHY/ENC28J60/enc28j60_hw.c" type="1"/>
     <File name="stm32_lib/inc/stm32f10x_gpio.h" path="stm32_lib/inc/stm32f10x_gpio.h" type="1"/>
     <File name="Source/PHY/ENC28J60" path="" type="2"/>
-    <File name="stm32_lib/src/stm32f10x_misc.c" path="stm32_lib/src/stm32f10x_misc.c" type="1"/>
     <File name="Source/mqttsn.c" path="Source/mqttsn.c" type="1"/>
     <File name="cmsis_boot" path="" type="2"/>
     <File name="stm32_lib/inc/stm32f10x_rcc.h" path="stm32_lib/inc/stm32f10x_rcc.h" type="1"/>
     <File name="Source/mqMEM.c" path="Source/mqMEM.c" type="1"/>
-    <File name="Source/HAL" path="" type="2"/>
     <File name="Source/PHY/UART" path="" type="2"/>
+    <File name="Source/HAL" path="" type="2"/>
     <File name="cmsis_boot/startup" path="" type="2"/>
-    <File name="Source/HAL/ARM/hal_enc28j60.c" path="Source/HAL/ARM/hal_enc28j60.c" type="1"/>
     <File name="cmsis/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
     <File name="Source/EXT/extdio.h" path="Source/EXT/extdio.h" type="1"/>
     <File name="Source/PHY" path="" type="2"/>
     <File name="cmsis_boot/stm32f10x.h" path="cmsis_boot/stm32f10x.h" type="1"/>
     <File name="cmsis_boot/stm32f10x_conf.h" path="cmsis_boot/stm32f10x_conf.h" type="1"/>
-    <File name="Source/HAL/ARM/hal_eeprom_flash.c" path="Source/HAL/ARM/hal_eeprom_flash.c" type="1"/>
     <File name="stm32_lib/src/stm32f10x_flash.c" path="stm32_lib/src/stm32f10x_flash.c" type="1"/>
-    <File name="Source/HAL/ARM/HAL.c" path="Source/HAL/ARM/HAL.c" type="1"/>
     <File name="Source/config.h" path="Source/config.h" type="1"/>
     <File name="Source/ext.c" path="Source/ext.c" type="1"/>
-    <File name="Source/HAL/ARM/hal.h" path="Source/HAL/ARM/hal.h" type="1"/>
     <File name="Source" path="" type="2"/>
-    <File name="cmsis_boot/startup/startup_stm32f10x_md.c" path="cmsis_boot/startup/startup_stm32f10x_md.c" type="1"/>
     <File name="stm32_lib/inc/stm32f10x_flash.h" path="stm32_lib/inc/stm32f10x_flash.h" type="1"/>
+    <File name="cmsis_boot/startup/startup_stm32f10x_md.c" path="cmsis_boot/startup/startup_stm32f10x_md.c" type="1"/>
     <File name="Source/PHY/UART/uart_phy.h" path="Source/PHY/UART/uart_phy.h" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_net.h" path="Source/PHY/ENC28J60/enc28j60_net.h" type="1"/>
-    <File name="cmsis_boot/system_stm32f10x.c" path="cmsis_boot/system_stm32f10x.c" type="1"/>
+    <File name="Source/HAL/STM32/hal_uart.c" path="Source/HAL/STM32/hal_uart.c" type="1"/>
     <File name="Source/ext.h" path="Source/ext.h" type="1"/>
+    <File name="cmsis_boot/system_stm32f10x.c" path="cmsis_boot/system_stm32f10x.c" type="1"/>
     <File name="Source/EXT" path="" type="2"/>
     <File name="cmsis/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
-    <File name="Source/EXT/extdio.c" path="Source/EXT/extdio.c" type="1"/>
+    <File name="Source/HAL/STM32/hal_enc28j60.c" path="Source/HAL/STM32/hal_enc28j60.c" type="1"/>
     <File name="cmsis/core_cm3.h" path="cmsis/core_cm3.h" type="1"/>
+    <File name="Source/EXT/extdio.c" path="Source/EXT/extdio.c" type="1"/>
     <File name="Source/mqTypes.h" path="Source/mqTypes.h" type="1"/>
-    <File name="stm32_lib" path="" type="2"/>
     <File name="Source/diag.h" path="Source/diag.h" type="1"/>
+    <File name="stm32_lib" path="" type="2"/>
     <File name="Source/PHY/UART/uart_phy.c" path="Source/PHY/UART/uart_phy.c" type="1"/>
-    <File name="Source/HAL/ARM/hal_uart.c" path="Source/HAL/ARM/hal_uart.c" type="1"/>
     <File name="Source/ObjDict.h" path="Source/ObjDict.h" type="1"/>
     <File name="stm32_lib/inc" path="" type="2"/>
     <File name="Source/HAL/HWconfig_S3Sn12.h" path="Source/HAL/HWconfig_S3Sn12.h" type="1"/>
+    <File name="Source/HAL/STM32/hal_eeprom_flash.c" path="Source/HAL/STM32/hal_eeprom_flash.c" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_phy.h" path="Source/PHY/ENC28J60/enc28j60_phy.h" type="1"/>
     <File name="stm32_lib/src/stm32f10x_rcc.c" path="stm32_lib/src/stm32f10x_rcc.c" type="1"/>
-    <File name="Source/HAL/ARM/hal_dio.c" path="Source/HAL/ARM/hal_dio.c" type="1"/>
     <File name="cmsis" path="" type="2"/>
+    <File name="Source/HAL/STM32" path="" type="2"/>
     <File name="Source/mqMEM.h" path="Source/mqMEM.h" type="1"/>
-    <File name="stm32_lib/inc/stm32f10x_misc.h" path="stm32_lib/inc/stm32f10x_misc.h" type="1"/>
+    <File name="Source/HAL/STM32/HAL.c" path="Source/HAL/STM32/HAL.c" type="1"/>
     <File name="Source/mqttsn.h" path="Source/mqttsn.h" type="1"/>
     <File name="Source/diag.c" path="Source/diag.c" type="1"/>
     <File name="cmsis_boot/system_stm32f10x.h" path="cmsis_boot/system_stm32f10x.h" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_def.h" path="Source/PHY/ENC28J60/enc28j60_def.h" type="1"/>
     <File name="Source/main.c" path="Source/main.c" type="1"/>
-    <File name="Source/HAL/ARM" path="" type="2"/>
+    <File name="Source/HAL/STM32/hal_dio.c" path="Source/HAL/STM32/hal_dio.c" type="1"/>
     <File name="Source/ObjDict.c" path="Source/ObjDict.c" type="1"/>
     <File name="stm32_lib/src/stm32f10x_gpio.c" path="stm32_lib/src/stm32f10x_gpio.c" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_hw.h" path="Source/PHY/ENC28J60/enc28j60_hw.h" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_phy.c" path="Source/PHY/ENC28J60/enc28j60_phy.c" type="1"/>
+    <File name="Source/HAL/STM32/hal.h" path="Source/HAL/STM32/hal.h" type="1"/>
     <File name="stm32_lib/src" path="" type="2"/>
   </Files>
 </Project>

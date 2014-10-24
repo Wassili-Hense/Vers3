@@ -10,7 +10,7 @@ BSD New License
 See LICENSE file for license details.
 */
 
-// MQTT-SN Library, Version 4.0.2 alfa
+// MQTT-SN Library, Version 2.7.0
 
 #include "config.h"
 
@@ -698,38 +698,13 @@ void MQTTSN_Poll(void)
         }
         case MQTTSN_STATUS_DISCONNECTED:
         {
-            uint8_t uTmp = sizeof(PHY1_ADDR_t);
-            ReadOD(PHY1_GateId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.GatewayAddr);
-            ReadOD(PHY1_NodeId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.phy1addr);
+            MQTTSN_Init();
 
             PHY1_Init();
 #ifdef PHY2_ADDR_t
-            uTmp = sizeof(PHY2_ADDR_t);
-            ReadOD(PHY2_NodeId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.phy2addr);
-
             PHY2_Init();
 #endif  //  PHY2_ADDR_t
-#ifdef MQTTSN_USE_DHCP
-            if(memcmp(vMQTTSN.phy1addr, &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)
-                vMQTTSN.Status = MQTTSN_STATUS_DHCP;
-            else
-#ifdef PHY2_ADDR_t
-            if(memcmp(vMQTTSN.phy2addr, &addr2_undef, sizeof(PHY2_ADDR_t)) == 0)
-                vMQTTSN.Status = MQTTSN_STATUS_DHCP;
-            else
-#endif  //  PHY2_ADDR_t
-#endif  //  MQTTSN_USE_DHCP
-            if(memcmp(vMQTTSN.GatewayAddr, &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)
-                vMQTTSN.Status = MQTTSN_STATUS_SEARCHGW;
-            else
-                vMQTTSN.Status = MQTTSN_STATUS_OFFLINE;
-
-            vMQTTSN.GwId = 0;
-            vMQTTSN.Radius = 1;
             vMQTTSN.Tretry = POLL_TMR_FREQ/10;
-            vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
-            vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
-            vMQTTSN.MsgId = 0;
             return;
         }
 #ifdef MQTTSN_USE_DHCP
@@ -895,8 +870,39 @@ void MQTTSN_Poll(void)
 // Initialise MQTTSN tasks
 void MQTTSN_Init(void)
 {
-    vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
-    vMQTTSN.Tretry = 0;
+    uint8_t uTmp = sizeof(PHY1_ADDR_t);
+    ReadOD(PHY1_GateId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.GatewayAddr);
+    ReadOD(PHY1_NodeId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.phy1addr);
+#ifdef PHY2_ADDR_t
+    uTmp = sizeof(PHY2_ADDR_t);
+    ReadOD(PHY2_NodeId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.phy2addr);
+#endif  //  PHY2_ADDR_t
+#ifdef MQTTSN_USE_DHCP
+    if(memcmp(vMQTTSN.phy1addr, &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)
+        vMQTTSN.Status = MQTTSN_STATUS_DHCP;
+    else
+#ifdef PHY2_ADDR_t
+    if(memcmp(vMQTTSN.phy2addr, &addr2_undef, sizeof(PHY2_ADDR_t)) == 0)
+        vMQTTSN.Status = MQTTSN_STATUS_DHCP;
+    else
+#endif  //  PHY2_ADDR_t
+#endif  //  MQTTSN_USE_DHCP
+    if(memcmp(vMQTTSN.GatewayAddr, &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)
+        vMQTTSN.Status = MQTTSN_STATUS_SEARCHGW;
+    else
+        vMQTTSN.Status = MQTTSN_STATUS_OFFLINE;
+
+    vMQTTSN.GwId = 0;
+    vMQTTSN.Radius = 1;
+    vMQTTSN.Tretry = POLL_TMR_FREQ;
+    vMQTTSN.Nretry = MQTTSN_DEF_NRETRY;
+    vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
+    vMQTTSN.MsgId = 0;
+    
+    vMQTTSN.tGWinfo1 = 0;
+#ifdef PHY2_ADDR_t
+    vMQTTSN.tGWinfo2 = 0;
+#endif  //  PHY2_ADDR_t
 }
 
 // Get MQTTSN Status

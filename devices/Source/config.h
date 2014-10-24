@@ -32,7 +32,7 @@ extern "C" {
 #define OD_MAX_INDEX_LIST       16      // Size of identificators list
 #define OD_DEV_SWVERSH          '2'     // Software Version
 #define OD_DEV_SWVERSM          '7'
-#define OD_DEV_SWVERSL          'a'     // Alfa
+#define OD_DEV_SWVERSL          '0'
 
 #define POLL_TMR_FREQ           100     // System Tick Period
 

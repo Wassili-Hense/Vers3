@@ -22,13 +22,18 @@ int main(void)
     mqInit();
     // Initialise Object's Dictionary
     InitOD();
+    // Initialise PHY's
+    PHY1_Init();
+#ifdef PHY2_ADDR_t
+    PHY2_Init();
+#endif  //  PHY2_ADDR_t
     // Initialize MQTTSN
     MQTTSN_Init();
 #ifdef DIAG_USED
     DIAG_Init();
 #endif  //  USE_DIAG
     
-    SystemTickCnt = 1;
+    SystemTickCnt = 0;
 
     StartSheduler();
   
@@ -36,7 +41,7 @@ int main(void)
     {
         if(SystemTickCnt)
         {
-            SystemTickCnt = 0;
+            SystemTickCnt--;
             OD_Poll();
 
             MQTTSN_Poll();
@@ -64,5 +69,5 @@ int main(void)
 
 void SystemTick(void)
 {
-    SystemTickCnt = 1;
+    SystemTickCnt++;
 }
