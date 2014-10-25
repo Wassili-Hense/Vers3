@@ -29,6 +29,8 @@ extern "C" {
 
 void StartSheduler(void);
 
+uint16_t halRNG();
+
 #ifdef __cplusplus
 }
 #endif

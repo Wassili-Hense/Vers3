@@ -17,6 +17,8 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+#define MQTTSN_PROTOCOLID           0x01
+
 typedef enum e_MQTTSN_RETURNS
 {
     MQTTSN_RET_ACCEPTED         =   0x00,       // Accepted

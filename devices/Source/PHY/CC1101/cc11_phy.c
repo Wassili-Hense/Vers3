@@ -37,6 +37,9 @@ See LICENSE file for license details.
 #define CC11_MDMCFG3_VAL        0x83    // Data Rate = 38,383 kBaud
 #define CC11_DEVIATN_VAL        0x33    // Deviation 17,46 kHz
 
+#define CC11_IO_IRQ             CC11_IOCFG0
+#define CC11_IO_NC              CC11_IOCFG2
+
 #else   // Fosc = 27M
 
 // 433 MHz
@@ -54,6 +57,9 @@ See LICENSE file for license details.
 #define CC11_MDMCFG3_VAL        0x75    // Data Rate = 38,4178 kBaud
 #define CC11_DEVIATN_VAL        0x32    // Deviation 16,5 kHz
 
+#define CC11_IO_IRQ             CC11_IOCFG2
+#define CC11_IO_NC              CC11_IOCFG0
+
 #endif  //  CC11_ANAREN
 
 #if (CC11_PHY == 1)
@@ -64,6 +70,7 @@ See LICENSE file for license details.
 #define CC11_RF_POWER           0xC0
 #endif
 
+// ToDo loop on problem
 #ifndef RF_WAIT_LOW_MISO
 #define RF_WAIT_LOW_MISO()      while(RF_PIN & (1<<RF_PIN_MISO))
 #endif  //  RF_WAIT_LOW_MISO
@@ -83,7 +90,9 @@ typedef enum
 
     CC11_STATE_RXIDLE,
     CC11_STATE_RXDATA,
+    CC11_STATE_RXRDY,
   
+    CC11_STATE_PRETX,
     CC11_STATE_TXHDR,
     CC11_STATE_TXDATA
 }CC11_STATE_e;
@@ -94,43 +103,39 @@ typedef struct
     uint8_t     SrcAddr;
     uint8_t     RSSI;
     uint8_t     LQI;
+//    int8_t      Foffs;
     uint8_t     data[MQTTSN_MSG_SIZE];
 }CC11_RX_DATA_t;
 
 static const uint8_t cc11config[][2] =
 {
-#ifndef CC11_ANAREN
-  {CC11_IOCFG2,   CC11_GDO_DISABLE},    // GDO2 - High impedance (3-State)
-  {CC11_IOCFG0,   CC11_GDO_SYNC},       // GDO0 - Asserts when sync word has been sent/received, and de-asserts at the end of the packet.
-#else
-  {CC11_IOCFG2,   CC11_GDO_SYNC},       // GDO2 - High impedance (3-State)
-  {CC11_IOCFG0,   CC11_GDO_DISABLE},    // GDO0 - Asserts when sync word has been sent/received, and de-asserts at the end of the packet.
-#endif
-  {CC11_FIFOTHR,  0x47},                // ADC_RETENTION, RX Attenuation: 0 dB, FIFO Threshold 33/32 bytes 
-  {CC11_PKTLEN,   0x3D},                // default packet length 61 byte
-  {CC11_PKTCTRL1, 0x06},                // Append Status, Check Address and Broadcast
-  {CC11_PKTCTRL0, 0x05},                // CRC calculation: enable, variable packet length
-  {CC11_FSCTRL1,  0x08},                // IF = 100 kHz
-  {CC11_FREQ2,    CC11_DEFVAL_FREQ2},   // Set default carrier frequency
-  {CC11_FREQ1,    CC11_DEFVAL_FREQ1},
-  {CC11_FREQ0,    CC11_DEFVAL_FREQ0},
-  {CC11_MDMCFG4,  0xCA},                // RX filter BW 101,6 kHz
-  {CC11_MDMCFG3,  CC11_MDMCFG3_VAL},    // Data Rate
-  {CC11_MDMCFG2,  0x93},                // Current optimized, GFSK, sync word 30/32 bit detected
-  {CC11_MDMCFG1,  0x00},                // Channel spacing 25 kHz
-  {CC11_MDMCFG0,  0x00},
-  {CC11_DEVIATN,  CC11_DEVIATN_VAL},    // Deviation 20 kHz
-  {CC11_MCSM0,    0x18},                // Automatically calibrate when going from IDLE to RX or TX,  PO_TIMEOUT: 150uS
-  {CC11_FOCCFG,   0x16},                // Frequency offset compensation 67,5 kHz
-  {CC11_AGCCTRL2, 0x43},                // The highest gain setting can not be used, Target amplitude from channel filter: 33 dB 
-  {CC11_WORCTRL,  0xFB},
-  {CC11_FSCAL3,   0xE9},
-  {CC11_FSCAL2,   0x2A},
-  {CC11_FSCAL1,   0x00},
-  {CC11_FSCAL0,   0x1F},
-  {CC11_TEST2,    0x81},
-  {CC11_TEST1,    0x35},
-  {CC11_TEST0,    0x09}
+    {CC11_IO_NC,    CC11_GDO_DISABLE},  // High impedance (3-State)
+    {CC11_IO_IRQ,   CC11_GDO_SYNC},     // Asserts when sync word has been sent/received, and de-asserts at the end of the packet.
+    {CC11_FIFOTHR,  0x47},              // ADC_RETENTION, RX Attenuation: 0 dB, FIFO Threshold 33/32 bytes 
+    {CC11_PKTLEN,   0x3D},              // default packet length 61 byte
+    {CC11_PKTCTRL1, 0x06},              // Append Status, Check Address and Broadcast
+    {CC11_PKTCTRL0, 0x05},              // CRC calculation: enable, variable packet length
+    {CC11_FSCTRL1,  0x08},              // IF = 100 kHz
+    {CC11_FREQ2,    CC11_DEFVAL_FREQ2}, // Set default carrier frequency
+    {CC11_FREQ1,    CC11_DEFVAL_FREQ1},
+    {CC11_FREQ0,    CC11_DEFVAL_FREQ0},
+    {CC11_MDMCFG4,  0xCA},              // RX filter BW 101,6 kHz
+    {CC11_MDMCFG3,  CC11_MDMCFG3_VAL},  // Data Rate
+    {CC11_MDMCFG2,  0x93},              // Current optimized, GFSK, sync word 30/32 bit detected
+    {CC11_MDMCFG1,  0x00},              // Channel spacing 25 kHz
+    {CC11_MDMCFG0,  0x00},
+    {CC11_DEVIATN,  CC11_DEVIATN_VAL},  // Deviation 20 kHz
+    {CC11_MCSM0,    0x18},              // Automatically calibrate when going from IDLE to RX or TX,  PO_TIMEOUT: 150uS
+    {CC11_FOCCFG,   0x16},              // Frequency offset compensation 67,5 kHz
+    {CC11_AGCCTRL2, 0x43},              // The highest gain setting can not be used, Target amplitude from channel filter: 33 dB 
+    {CC11_WORCTRL,  0xFB},
+    {CC11_FSCAL3,   0xE9},
+    {CC11_FSCAL2,   0x2A},
+    {CC11_FSCAL1,   0x00},
+    {CC11_FSCAL0,   0x1F},
+    {CC11_TEST2,    0x81},
+    {CC11_TEST1,    0x35},
+    {CC11_TEST0,    0x09}
 };
 
 static uint8_t          cc11s_NodeID;
@@ -177,19 +182,25 @@ static uint8_t cc11_readReg(uint8_t Addr)
 
 static void cc11_tx_task(void)
 {
-    if((cc11_tx_queue.pTail != NULL) && 
-      ((cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CCA) != 0))
+    static uint8_t cc11_tx_delay;
+    static uint8_t cc11_tx_retry;
+
+    if(cc11v_State == CC11_STATE_RXIDLE)
     {
+        if(cc11_tx_queue.pTail == NULL)
+            return;
+
+        ENTER_CRITICAL_SECTION();
+        {
+        TxLEDon();
+        RF_DISABLE_IRQ();
+        cc11_writeReg(CC11_IO_IRQ, CC11_GDO_CCA);   // High when channel clear;
+
         MQ_t * pTxBuf = mqDequeue(&cc11_tx_queue);
 
         // Fill Buffer
         uint8_t i, len;
-
-        cc11_cmdStrobe(CC11_SIDLE);                 // Switch to Idle state
-        cc11_cmdStrobe(CC11_SFTX);                  // Flush the TX FIFO buffer
-        cc11v_State = CC11_STATE_TXHDR;
-        TxLEDon();
-
+        
         len = pTxBuf->Length;
         // Send burst
         RF_SELECT();                                // Select CC1101
@@ -201,8 +212,51 @@ static void cc11_tx_task(void)
         for(i = 0; i < len; i++)                    // Send Payload
             hal_cc11_spiExch(pTxBuf->raw[i]);
         RF_RELEASE();                               // Release CC1101
-        cc11_cmdStrobe(CC11_STX);                   // Switch to TX state
+        
         mqFree(pTxBuf);
+        
+        cc11_tx_delay = 0;
+        cc11_tx_retry = 16;
+
+        cc11v_State = CC11_STATE_PRETX;
+        }
+        LEAVE_CRITICAL_SECTION();
+    }
+    else if(cc11v_State == CC11_STATE_PRETX)
+    {
+        if(cc11_tx_delay > 0)
+        {
+            cc11_tx_delay--;
+            return;
+        }
+
+        if(RF_GET_IRQ() == 0)                       // Channel busy
+        {
+            if(cc11_tx_retry > 0)
+            {
+                cc11_tx_retry--;
+                cc11_tx_delay = (cc11s_NodeID>>1) + (halRNG() & 0x7F);
+                return;
+            }
+/*
+            else    // drop packet
+            {
+                cc11_cmdStrobe(CC11_SIDLE);         // Enter to the IDLE state
+                cc11_cmdStrobe(CC11_SFRX);          // Clear RX Buffer
+                cc11_cmdStrobe(CC11_SFTX);          // Clear TX Buffer
+                cc11_writeReg(CC11_IO_IRQ, CC11_GDO_SYNC);
+                cc11v_State = CC11_STATE_RXIDLE;
+                RF_ENABLE_IRQ();
+            }
+            return;
+*/
+        }
+
+        cc11_writeReg(CC11_IO_IRQ, CC11_GDO_SYNC);
+        cc11_cmdStrobe(CC11_STX);                   // Switch to TX state
+
+        cc11v_State = CC11_STATE_TXHDR;
+        RF_ENABLE_IRQ();
     }
 }
 
@@ -213,26 +267,28 @@ void CC11_IRQ_Handler()
     switch(cc11v_State)
     {
         case CC11_STATE_RXIDLE:
-            if(marcs != CC11_MARCSTATE_RX)          // Synchro received
-                break;
-
-            RxLEDon();
-            cc11v_State = CC11_STATE_RXDATA;
-            return;
+            if(marcs == CC11_MARCSTATE_RX)          // Synchro received
+            {
+                RxLEDon();
+                cc11v_State = CC11_STATE_RXDATA;
+                return;
+            }
+            break;
         case CC11_STATE_RXDATA:                     // Data received
             if(marcs == CC11_MARCSTATE_IDLE)
             {
                 // read number of bytes in receive FIFO
                 // Due a chip bug, the RXBYTES register must read the same value twice in a row to guarantee an accurate value.
-                uint8_t frameLen, tmp, i;
-                frameLen = cc11_readReg(CC11_RXBYTES | CC11_STATUS_REGISTER);
+                uint8_t frameLen = 0xFF, tmp, i = 16;
                 do
                 {
                     tmp = frameLen;
                     frameLen = cc11_readReg(CC11_RXBYTES | CC11_STATUS_REGISTER);
-                } while (tmp != frameLen);
+                    i--;
+                }while((tmp != frameLen) && (i != 0));
 
-                if(((tmp & 0x7F) < 7) ||            // Packet is too small
+                if((i == 0) ||                      // Data invalid
+                   ((tmp & 0x7F) < 7) ||            // Packet is too small
                     (tmp & 0x80) ||                 // or Overflow
                     (tmp > (MQTTSN_MSG_SIZE + 3)))  // or Packet is too Big
                     break;
@@ -254,15 +310,31 @@ void CC11_IRQ_Handler()
                 cc11_rx_data.RSSI = hal_cc11_spiExch(0);        // Read RSSI
                 cc11_rx_data.LQI  = hal_cc11_spiExch(0);        // Read LQI 
                 RF_RELEASE();                                   // Release CC1101
-
+                
                 //cc11_rx_data.Foffs = cc11_readReg(CC11_FREQEST | CC11_STATUS_REGISTER);    // int8_t frequency offset
+                
+                cc11_cmdStrobe(CC11_SFRX);
+
+                if(cc11_rx_data.LQI & CC11_LQI_CRC_OK)
+                {
+                    cc11v_State = CC11_STATE_RXRDY;
+                }
+                else
+                {
+                    cc11_cmdStrobe(CC11_SRX);       // Enter to RX State
+                    cc11v_State = CC11_STATE_RXIDLE;
+                }
+                LEDsOff();
+                return;
             }
             break;
         case CC11_STATE_TXHDR:
-            if(marcs != CC11_MARCSTATE_TX)
-                break;
-            cc11v_State = CC11_STATE_TXDATA;
-            return;
+            if(marcs == CC11_MARCSTATE_TX)
+            {
+                cc11v_State = CC11_STATE_TXDATA;
+                return;
+            }
+            break;
         default:
             break;
     }
@@ -330,7 +402,7 @@ void CC11_Send(void *pBuf)
 {
     if(!mqEnqueue(&cc11_tx_queue, pBuf))
         mqFree(pBuf);
-    else if(cc11v_State == CC11_STATE_RXIDLE)
+    else 
         cc11_tx_task();
 }
 
@@ -346,23 +418,21 @@ void * CC11_Get(void)
         cc11_cmdStrobe(CC11_SRX);           // Enter to RX State
         cc11v_State = CC11_STATE_RXIDLE;
     }
-    else if(cc11v_State == CC11_STATE_RXIDLE)
+    else if(cc11v_State == CC11_STATE_RXRDY)
     {
-        if(cc11_rx_data.LQI & CC11_LQI_CRC_OK)
+        pMqBuf = mqAlloc(sizeof(MQ_t));
+        if(pMqBuf != NULL)
         {
-            cc11_rx_data.LQI = 0;
-            pMqBuf = mqAlloc(sizeof(MQ_t));
-            if(pMqBuf != NULL)
-            {
-                pMqBuf->Length = cc11_rx_data.Length;
-                memcpy(pMqBuf->raw, cc11_rx_data.data, cc11_rx_data.Length);
-                pMqBuf->cc11_adr[0] = cc11_rx_data.SrcAddr;
-                return pMqBuf;
-            }
+            pMqBuf->Length = cc11_rx_data.Length;
+            memcpy(pMqBuf->raw, cc11_rx_data.data, cc11_rx_data.Length);
+            pMqBuf->cc11_adr[0] = cc11_rx_data.SrcAddr;
         }
-        
-        cc11_tx_task();
+        cc11_cmdStrobe(CC11_SRX);
+        cc11v_State = CC11_STATE_RXIDLE;
+        return pMqBuf;
     }
+
+    cc11_tx_task();
 
     return NULL;
 }

@@ -96,6 +96,7 @@ extern "C" {
 #define RF_IRQ_PORT                 PORTB
 #define RF_IRQ_DDR                  DDRB
 #define RF_PIN_IRQ                  PB1
+#define RF_GET_IRQ()                (PINB & (1<<PB1))
 #define RF_IRQ_CFG()                {PCIFR = (1<<PCIF1); PCICR = (1<<PCIE1);}
 #define RF_DISABLE_IRQ()            PCMSK1 = 0
 #define RF_ENABLE_IRQ()             PCMSK1 = (1<<RF_PIN_IRQ)
