@@ -125,6 +125,7 @@ See LICENSE file for license details.
 enum e_CC11_IOCFG_GPO
 {
     CC11_GDO_SYNC           =   0x06,           // Sync/Packet Send/Received
+    CC11_GDO_RX_CRC_OK      =   0x07,           // Received packet CRC OK
     CC11_GDO_CCA            =   0x09,           // High when RSSI level is below threshold (dependent on the current CCA_MODE setting).
     CC11_GDO_CS             =   0x0E,           // Carrier sense. High if RSSI level is above threshold. Cleared when entering IDLE mode.
     CC11_GDO_CRC_OK         =   0x0F,           // The last CRC comparison matched. Cleared when entering/restarting RX mode.

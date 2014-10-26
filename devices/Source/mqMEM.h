@@ -23,8 +23,10 @@ extern "C" {
 
 typedef struct
 {
-    void * pHead;
-    void * pTail;
+    void *  pHead;
+    void *  pTail;
+    uint8_t MaxSize;
+    uint8_t Size;
 }Queue_t;
 
 void mqInit(void);

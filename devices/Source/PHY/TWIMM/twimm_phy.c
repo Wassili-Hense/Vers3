@@ -16,7 +16,7 @@ See LICENSE file for license details.
 
 #ifdef TWIMM_PHY
 
-static Queue_t  twimm_tx_queue = {NULL, NULL};
+static Queue_t  twimm_tx_queue = {NULL, NULL, 0, 0};
 
 void hal_twimm_init_hw(uint8_t addr);
 bool hal_twimm_can_send(void);

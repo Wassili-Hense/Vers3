@@ -42,7 +42,7 @@ extern "C" {
 //Optional modules
 #define EXTDIO_USED             1       // Use DIO
 
-//#define DIAG_USED               1       // Enable diagnostic messages
+#define DIAG_USED               1       // Enable diagnostic messages
 
 // Atmel
 // ATM328P

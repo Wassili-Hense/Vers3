@@ -24,7 +24,7 @@ See LICENSE file for license details.
 #define UART_ADDR_t             PHY2_ADDR_t
 #endif  //  UART_PHY
 
-static Queue_t  uart_tx_queue = {NULL, NULL};
+static Queue_t  uart_tx_queue = {NULL, NULL, 0, 0};
 
 static void uart_tx_task(void)
 {

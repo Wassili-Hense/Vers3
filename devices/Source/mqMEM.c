@@ -187,42 +187,60 @@ void mqGetHeapStat(uint16_t *pAct, uint16_t *pMax, uint16_t *pMin)
 
 
 /*
-Queue_t * MEM_Create_Queue(void)
+Queue_t * MEM_Create_Queue(uint8_t mSize)
 {
     Queue_t * pQueue;
     pQueue = mqAlloc(sizeof(Queue_t));
     if(pQueue != NULL)
     {
-        pQueue->pHead = NULL;
-        pQueue->pTail = NULL;
+        pQueue->pHead   = NULL;
+        pQueue->pTail   = NULL;
+        pQueue->MaxSize = mSize;
+        pQueue->Size    = 0;
     }
 
     return pQueue;
 }
 */
 
+static volatile bool mqQueueBusy = false;
+
 bool mqEnqueue(Queue_t * pQueue, void * pBuf)
 {
-    if((pQueue == NULL) || (pBuf == NULL))
+    if((pQueue == NULL) || (pBuf == NULL) || mqQueueBusy)
         return false;
-        
-    ((MQ_t *)pBuf)->pNext = NULL;
 
     ENTER_CRITICAL_SECTION();
+
+    mqQueueBusy = true;
+
+    ((MQ_t *)pBuf)->pNext = NULL;
     
     if(pQueue->pHead == NULL)       // 1st element
     {
         pQueue->pHead = pBuf;
         pQueue->pTail = pBuf;
+        pQueue->Size = 1;
     }
     else
     {
+        if(pQueue->MaxSize != 0)
+        {
+            if((pQueue->Size + 1) > pQueue->MaxSize)
+            {
+                return false;
+            }
+        }
+
         MQ_t * pTmp;
         pTmp = pQueue->pHead;
         pTmp->pNext = pBuf;
         pQueue->pHead = pBuf;
+        pQueue->Size++;
     }
-    
+
+    mqQueueBusy = false;
+
     LEAVE_CRITICAL_SECTION();
 
     return true;
@@ -230,24 +248,28 @@ bool mqEnqueue(Queue_t * pQueue, void * pBuf)
 
 void * mqDequeue(Queue_t * pQueue)
 {
-    if(pQueue == NULL)
+    if((pQueue == NULL) || mqQueueBusy)
         return NULL;
 
-    MQ_t * pBuf = NULL;
-
     ENTER_CRITICAL_SECTION();
+    mqQueueBusy = true;
 
-    pBuf = pQueue->pTail;
-    
+    MQ_t * pBuf = pQueue->pTail;
+
     if(pBuf != NULL)
     {
+        if(pQueue->Size > 0)
+            pQueue->Size--;
+
         pQueue->pTail = pBuf->pNext;
         if(pQueue->pTail == NULL)
         {
             pQueue->pHead = NULL;
+            pQueue->Size = 0;
         }
     }
 
+    mqQueueBusy = false;
     LEAVE_CRITICAL_SECTION();
     return pBuf;
 }

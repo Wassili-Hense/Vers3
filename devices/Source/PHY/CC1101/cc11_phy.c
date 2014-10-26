@@ -89,28 +89,16 @@ typedef enum
     CC11_STATE_IDLE = 0,
 
     CC11_STATE_RXIDLE,
-    CC11_STATE_RXDATA,
-    CC11_STATE_RXRDY,
-  
-    CC11_STATE_PRETX,
-    CC11_STATE_TXHDR,
+    //CC11_STATE_RXDATA,
+
+    //CC11_STATE_TXHDR,
     CC11_STATE_TXDATA
 }CC11_STATE_e;
-
-typedef struct
-{
-    uint8_t     Length;
-    uint8_t     SrcAddr;
-    uint8_t     RSSI;
-    uint8_t     LQI;
-//    int8_t      Foffs;
-    uint8_t     data[MQTTSN_MSG_SIZE];
-}CC11_RX_DATA_t;
 
 static const uint8_t cc11config[][2] =
 {
     {CC11_IO_NC,    CC11_GDO_DISABLE},  // High impedance (3-State)
-    {CC11_IO_IRQ,   CC11_GDO_SYNC},     // Asserts when sync word has been sent/received, and de-asserts at the end of the packet.
+    {CC11_IO_IRQ,   CC11_GDO_SYNC},     // Sync/Packet Send/Received
     {CC11_FIFOTHR,  0x47},              // ADC_RETENTION, RX Attenuation: 0 dB, FIFO Threshold 33/32 bytes 
     {CC11_PKTLEN,   0x3D},              // default packet length 61 byte
     {CC11_PKTCTRL1, 0x06},              // Append Status, Check Address and Broadcast
@@ -139,8 +127,11 @@ static const uint8_t cc11config[][2] =
 };
 
 static uint8_t          cc11s_NodeID;
-static CC11_RX_DATA_t   cc11_rx_data = {0, 0, 0, 0, {0,}};
-static Queue_t          cc11_tx_queue = {NULL, NULL};
+
+static Queue_t          cc11_tx_queue = {NULL, NULL, 0, 0};
+
+static uint8_t          cc11_tx_delay = 0;
+static uint8_t          cc11_tx_retry = 16;
 
 static volatile CC11_STATE_e cc11v_State = CC11_STATE_IDLE;
 
@@ -182,169 +173,124 @@ static uint8_t cc11_readReg(uint8_t Addr)
 
 static void cc11_tx_task(void)
 {
-    static uint8_t cc11_tx_delay;
-    static uint8_t cc11_tx_retry;
+    if(cc11_tx_queue.Size == 0)
+        return;
 
-    if(cc11v_State == CC11_STATE_RXIDLE)
+    // CDMA
+    if(cc11_tx_delay > 0)
     {
-        if(cc11_tx_queue.pTail == NULL)
-            return;
-
-        ENTER_CRITICAL_SECTION();
-        {
-        TxLEDon();
-        RF_DISABLE_IRQ();
-        cc11_writeReg(CC11_IO_IRQ, CC11_GDO_CCA);   // High when channel clear;
-
-        MQ_t * pTxBuf = mqDequeue(&cc11_tx_queue);
-
-        // Fill Buffer
-        uint8_t i, len;
-        
-        len = pTxBuf->Length;
-        // Send burst
-        RF_SELECT();                                // Select CC1101
-        RF_WAIT_LOW_MISO();                         // Wait until MISO goes low
-        hal_cc11_spiExch(CC11_BIT_BURST | CC11_TXFIFO);
-        hal_cc11_spiExch(len + 2);                  // Set data length at the first position of the TX FIFO
-        hal_cc11_spiExch(*pTxBuf->cc11_adr);        // Send destination address
-        hal_cc11_spiExch(cc11s_NodeID);             // Send Source address
-        for(i = 0; i < len; i++)                    // Send Payload
-            hal_cc11_spiExch(pTxBuf->raw[i]);
-        RF_RELEASE();                               // Release CC1101
-        
-        mqFree(pTxBuf);
-        
-        cc11_tx_delay = 0;
-        cc11_tx_retry = 16;
-
-        cc11v_State = CC11_STATE_PRETX;
-        }
-        LEAVE_CRITICAL_SECTION();
+        cc11_tx_delay--;
+        return;
     }
-    else if(cc11v_State == CC11_STATE_PRETX)
+
+    if((cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CCA) == 0) // Channel Busy
     {
-        if(cc11_tx_delay > 0)
+        if(cc11_tx_retry > 0)
         {
-            cc11_tx_delay--;
+            cc11_tx_retry--;
+            cc11_tx_delay = (cc11s_NodeID>>1) + (halRNG() & 0x7F);
             return;
         }
-
-        if(RF_GET_IRQ() == 0)                       // Channel busy
-        {
-            if(cc11_tx_retry > 0)
-            {
-                cc11_tx_retry--;
-                cc11_tx_delay = (cc11s_NodeID>>1) + (halRNG() & 0x7F);
-                return;
-            }
-/*
-            else    // drop packet
-            {
-                cc11_cmdStrobe(CC11_SIDLE);         // Enter to the IDLE state
-                cc11_cmdStrobe(CC11_SFRX);          // Clear RX Buffer
-                cc11_cmdStrobe(CC11_SFTX);          // Clear TX Buffer
-                cc11_writeReg(CC11_IO_IRQ, CC11_GDO_SYNC);
-                cc11v_State = CC11_STATE_RXIDLE;
-                RF_ENABLE_IRQ();
-            }
-            return;
-*/
-        }
-
-        cc11_writeReg(CC11_IO_IRQ, CC11_GDO_SYNC);
-        cc11_cmdStrobe(CC11_STX);                   // Switch to TX state
-
-        cc11v_State = CC11_STATE_TXHDR;
-        RF_ENABLE_IRQ();
+        cc11_cmdStrobe(CC11_SIDLE);     // Enter to the IDLE state
+        cc11_cmdStrobe(CC11_SFRX);
     }
+
+    cc11_tx_delay = 0;
+    cc11_tx_retry = 16;
+
+    MQ_t * pTxBuf = mqDequeue(&cc11_tx_queue);
+    if(pTxBuf == NULL)      // Queue Busy
+        return;
+
+    TxLEDon();
+
+//    cc11_cmdStrobe(CC11_SIDLE);     // Enter to the IDLE state
+//    cc11_cmdStrobe(CC11_SFTX);
+//    cc11_cmdStrobe(CC11_SFRX);
+    cc11_writeReg(CC11_IO_IRQ, CC11_GDO_SYNC);
+
+    // Fill Buffer
+    uint8_t i, len;
+
+    len = pTxBuf->Length;
+    // Send burst
+    RF_SELECT();                                // Select CC1101
+    RF_WAIT_LOW_MISO();                         // Wait until MISO goes low
+    hal_cc11_spiExch(CC11_BIT_BURST | CC11_TXFIFO);
+    hal_cc11_spiExch(len + 2);                  // Set data length at the first position of the TX FIFO
+    hal_cc11_spiExch(*pTxBuf->cc11_adr);        // Send destination address
+    hal_cc11_spiExch(cc11s_NodeID);             // Send Source address
+    for(i = 0; i < len; i++)                    // Send Payload
+        hal_cc11_spiExch(pTxBuf->raw[i]);
+    RF_RELEASE();                               // Release CC1101
+
+    mqFree(pTxBuf);
+
+    cc11_cmdStrobe(CC11_STX);                   // Switch to TX state
+    cc11v_State = CC11_STATE_TXDATA;
+
+    while(RF_GET_IRQ() == 0);
 }
 
-void CC11_IRQ_Handler()
+static MQ_t * cc11_rx_task(void)
 {
-    uint8_t marcs = cc11_readReg(CC11_MARCSTATE | CC11_STATUS_REGISTER);
-    
-    switch(cc11v_State)
+    if((cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CRC_OK) == 0)
+        return NULL;
+
+    // read number of bytes in receive FIFO
+    // Due a chip bug, the RXBYTES register must read the same value twice in a row to guarantee an accurate value.
+    uint8_t frameLen = 0xFF, tmp, i = 16;
+    do
     {
-        case CC11_STATE_RXIDLE:
-            if(marcs == CC11_MARCSTATE_RX)          // Synchro received
-            {
-                RxLEDon();
-                cc11v_State = CC11_STATE_RXDATA;
-                return;
-            }
-            break;
-        case CC11_STATE_RXDATA:                     // Data received
-            if(marcs == CC11_MARCSTATE_IDLE)
-            {
-                // read number of bytes in receive FIFO
-                // Due a chip bug, the RXBYTES register must read the same value twice in a row to guarantee an accurate value.
-                uint8_t frameLen = 0xFF, tmp, i = 16;
-                do
-                {
-                    tmp = frameLen;
-                    frameLen = cc11_readReg(CC11_RXBYTES | CC11_STATUS_REGISTER);
-                    i--;
-                }while((tmp != frameLen) && (i != 0));
+        tmp = frameLen;
+        frameLen = cc11_readReg(CC11_RXBYTES | CC11_STATUS_REGISTER);
+        i--;
+    }while((tmp != frameLen) && (i != 0));
 
-                if((i == 0) ||                      // Data invalid
-                   ((tmp & 0x7F) < 7) ||            // Packet is too small
-                    (tmp & 0x80) ||                 // or Overflow
-                    (tmp > (MQTTSN_MSG_SIZE + 3)))  // or Packet is too Big
-                    break;
+    if((i == 0) ||                      // Data invalid
+       ((tmp & 0x7F) < 7) ||            // Packet is too small
+        (tmp & 0x80) ||                 // or Overflow
+        (tmp > (MQTTSN_MSG_SIZE + 3)))  // or Packet is too Big
+        return NULL;
 
-                frameLen -= 5;
-                cc11_rx_data.Length = frameLen;
+    MQ_t * pRxBuf = mqAlloc(sizeof(MQ_t));
+    if(pRxBuf == NULL)
+        return NULL;
 
-                // Read Burst
-                RF_SELECT();                                    // Select CC1101
-                RF_WAIT_LOW_MISO();                             // Wait until MISO goes low
-                hal_cc11_spiExch(CC11_BIT_READ | CC11_BIT_BURST | CC11_RXFIFO);
-                hal_cc11_spiExch(0);                            // Read Length
-                hal_cc11_spiExch(0);                            // Read Destination address
-                cc11_rx_data.SrcAddr = hal_cc11_spiExch(0);     // Read Source address
+    RxLEDon();
 
-                for(i = 0; i < frameLen; i++)                   // Read Payload
-                    cc11_rx_data.data[i] = hal_cc11_spiExch(0);
+    frameLen -= 5;
+    pRxBuf->Length = frameLen;
 
-                cc11_rx_data.RSSI = hal_cc11_spiExch(0);        // Read RSSI
-                cc11_rx_data.LQI  = hal_cc11_spiExch(0);        // Read LQI 
-                RF_RELEASE();                                   // Release CC1101
-                
-                //cc11_rx_data.Foffs = cc11_readReg(CC11_FREQEST | CC11_STATUS_REGISTER);    // int8_t frequency offset
-                
-                cc11_cmdStrobe(CC11_SFRX);
+    // Read Burst
+    RF_SELECT();                                    // Select CC1101
+    RF_WAIT_LOW_MISO();                             // Wait until MISO goes low
+    hal_cc11_spiExch(CC11_BIT_READ | CC11_BIT_BURST | CC11_RXFIFO);
+    hal_cc11_spiExch(0);                            // Read Length
+    hal_cc11_spiExch(0);                            // Read Destination address
+    pRxBuf->cc11_adr[0] = hal_cc11_spiExch(0);      // Read Source address
 
-                if(cc11_rx_data.LQI & CC11_LQI_CRC_OK)
-                {
-                    cc11v_State = CC11_STATE_RXRDY;
-                }
-                else
-                {
-                    cc11_cmdStrobe(CC11_SRX);       // Enter to RX State
-                    cc11v_State = CC11_STATE_RXIDLE;
-                }
-                LEDsOff();
-                return;
-            }
-            break;
-        case CC11_STATE_TXHDR:
-            if(marcs == CC11_MARCSTATE_TX)
-            {
-                cc11v_State = CC11_STATE_TXDATA;
-                return;
-            }
-            break;
-        default:
-            break;
+    for(i = 0; i < frameLen; i++)                   // Read Payload
+        pRxBuf->raw[i] = hal_cc11_spiExch(0);
+
+    hal_cc11_spiExch(0);                            // Read RSSI
+    uint8_t LQI  = hal_cc11_spiExch(0);             // Read LQI 
+    RF_RELEASE();                                   // Release CC1101
+
+    //int8_t Foffs = cc11_readReg(CC11_FREQEST | CC11_STATUS_REGISTER);    // int8_t frequency offset
+
+    if((LQI & CC11_LQI_CRC_OK) == 0)
+    {
+        mqFree(pRxBuf);
+        pRxBuf = NULL;
     }
 
-    LEDsOff();
-    cc11_cmdStrobe(CC11_SIDLE);     // Enter to the IDLE state
-    cc11_cmdStrobe(CC11_SFTX);
     cc11_cmdStrobe(CC11_SFRX);
     cc11_cmdStrobe(CC11_SRX);       // Enter to RX State
     cc11v_State = CC11_STATE_RXIDLE;
+    
+    LEDsOff();
+    return pRxBuf;
 }
 
 void CC11_Init(void)
@@ -395,48 +341,48 @@ void CC11_Init(void)
     // Init Internal variables
     cc11v_State = CC11_STATE_IDLE;
     
-    RF_ENABLE_IRQ();                      // Enable IRQ
+    //RF_ENABLE_IRQ();                      // Enable IRQ
 }
 
 void CC11_Send(void *pBuf)
 {
     if(!mqEnqueue(&cc11_tx_queue, pBuf))
         mqFree(pBuf);
-    else 
+    else if(cc11v_State == CC11_STATE_RXIDLE)
         cc11_tx_task();
 }
 
 void * CC11_Get(void)
 {
-    MQ_t * pMqBuf;
+    if(cc11v_State == CC11_STATE_TXDATA)
+    {
+        if(RF_GET_IRQ() == 0)
+        {
+            cc11v_State = CC11_STATE_IDLE;
+        }
+    }
+    else if(cc11v_State == CC11_STATE_RXIDLE)
+    {
+        cc11_tx_task();
+        
+        return cc11_rx_task();
 
-    if(cc11v_State == CC11_STATE_IDLE)
+        // ToDo, Rx Task
+
+    }
+    else
     {
         cc11_cmdStrobe(CC11_SIDLE);         // Enter to the IDLE state
-        cc11_cmdStrobe(CC11_SFTX);
-        cc11_cmdStrobe(CC11_SFRX);
+        cc11_cmdStrobe(CC11_SFTX);          // Clear TX Buffer
+        cc11_cmdStrobe(CC11_SFRX);          // Clear RX Buffer
         cc11_cmdStrobe(CC11_SRX);           // Enter to RX State
         cc11v_State = CC11_STATE_RXIDLE;
+        LEDsOff();
     }
-    else if(cc11v_State == CC11_STATE_RXRDY)
-    {
-        pMqBuf = mqAlloc(sizeof(MQ_t));
-        if(pMqBuf != NULL)
-        {
-            pMqBuf->Length = cc11_rx_data.Length;
-            memcpy(pMqBuf->raw, cc11_rx_data.data, cc11_rx_data.Length);
-            pMqBuf->cc11_adr[0] = cc11_rx_data.SrcAddr;
-        }
-        cc11_cmdStrobe(CC11_SRX);
-        cc11v_State = CC11_STATE_RXIDLE;
-        return pMqBuf;
-    }
-
-    cc11_tx_task();
 
     return NULL;
 }
-
+/*
 uint8_t CC11_GetRSSI(void)
 {
     uint8_t rssi = cc11_rx_data.RSSI;
@@ -454,5 +400,5 @@ uint8_t CC11_GetRSSI(void)
     }
     return rssi;
 }
-
+*/
 #endif  //  CC11_PHY

@@ -39,7 +39,7 @@ static uint32_t         ip_gateway;
 static uint32_t         arp_ip_addr;
 static uint8_t          arp_mac_addr[6];
 
-static Queue_t          enc_out_queue = {NULL, NULL};
+static Queue_t          enc_out_queue = {NULL, NULL, 0, 0};
 
 //////////////////////////////////////////////////////////////////////
 // Ethernet Section
