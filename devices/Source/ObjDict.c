@@ -78,14 +78,6 @@ static uint8_t idxUpdate = 0;                                           // Poll 
 extern indextable_t PLCexchgOD;
 #endif  //PLC_USED
 
-// PLC and EXT data
-// Bitmap:
-// Internal 000..128 bits
-// DIO      128..255
-// AI       256..511
-// Pp       512..1023
-uint8_t exchg_data[128];
-
 // Callback functions
 #ifdef LAN_NODE
 // Convert raw data from mqtt-sn packet to LAN variables
@@ -403,12 +395,9 @@ void InitOD(void)
     // Clear Poll Variables
     idxUpdate = 0x00;
 
-    for(uiTmp = 0; uiTmp < sizeof(exchg_data); uiTmp++)
-        exchg_data[uiTmp] = 0;
-
-    extInit(exchg_data);
+    extInit();
 #ifdef PLC_USED
-    plcInit(exchg_data);
+    plcInit();
 #endif  //  PLC_USED
 
     // Load Saved Variables
@@ -550,9 +539,8 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
     }
     Subidx.Base = val;
     }
-    
-    uint16_t idx = extCheckIdx(&Subidx);
-    if(idx == 0xFFFF)
+
+    if(extCheckIdx(&Subidx) == 2)
         return MQTTSN_RET_REJ_NOT_SUPP;
 
     uint16_t TopicId = (pMsg->regist.TopicId[0]<<8) | pMsg->regist.TopicId[1];
@@ -587,8 +575,7 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
 
     if(ListOD[id].Index == 0xFFFF)                                      // New variable
     {
-        if((TopicId == 0xFFFF) ||                                       // Try to delete not exist variable
-          ((idx != 0) && ((TopicId & 0x3FFF) != idx)))                  // Incorrect mapping to the index
+        if(TopicId == 0xFFFF)                                           // Try to delete not exist variable
             return MQTTSN_RET_REJ_INV_ID;
 
         ListOD[id].sidx = Subidx;

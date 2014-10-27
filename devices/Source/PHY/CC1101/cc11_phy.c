@@ -116,8 +116,8 @@ static Queue_t          cc11_tx_queue = {NULL, NULL, 0, 0};
 static uint8_t          cc11_tx_delay = 0;
 static uint8_t          cc11_tx_retry = 16;
 
-extern void     hal_cc11_init_hw(void);
-extern uint8_t  hal_cc11_spiExch(uint8_t data);
+void     hal_cc11_init_hw(void);
+uint8_t  hal_cc11_spiExch(uint8_t data);
 
 // Send command strobe to the CC1101 IC via SPI
 static void cc11_cmdStrobe(uint8_t cmd) 

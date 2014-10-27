@@ -20,8 +20,8 @@ static uint8_t Enc28j60Bank;
 static int16_t gNextPacketPtr;
 
 // HAL
-extern void hal_enc28j60_init_hw(void);
-extern uint8_t hal_enc28j60exchg(uint8_t data);
+void hal_enc28j60_init_hw(void);
+uint8_t hal_enc28j60exchg(uint8_t data);
 
 // Generic SPI write command
 static void enc28j60WriteOp(uint8_t op, uint8_t address, uint8_t data)

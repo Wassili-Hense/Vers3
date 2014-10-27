@@ -22,19 +22,19 @@ See LICENSE file for license details.
 #endif  //  EXTAIN_USED
 
 // Initialise extensions
-void extInit(uint8_t *pBuf)
+void extInit(void)
 {
 #ifdef EXTDIO_USED
-    dioInit(&pBuf[EXTDIO_BASE>>3]);
+    dioInit();
 #endif  //  EXTDIO_USED
 
 #ifdef EXTAIN_USED
-    ainInit(&pBuf[EXTAIN_BASE>>3]);
+    ainInit();
 #endif  //  EXTAIN_USED
 }
 
-// Check Subindex ->free/busy/invalid
-uint16_t extCheckIdx(subidx_t * pSubidx)
+// Check Subindex: 0 - free / 1 - busy / 2 - invalid
+uint8_t extCheckIdx(subidx_t * pSubidx)
 {
     switch(pSubidx->Place)
     {
@@ -50,7 +50,7 @@ uint16_t extCheckIdx(subidx_t * pSubidx)
         default:
             break;
   }
-  return 0xFFFF;
+  return 2;
 }
 
 // Register Object

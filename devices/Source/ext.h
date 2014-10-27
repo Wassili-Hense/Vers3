@@ -17,8 +17,8 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-void extInit(uint8_t *pBuf);                                // Initialise extensions
-uint16_t extCheckIdx(subidx_t * pSubidx);                   // Check Subindex ->free/busy/invalid
+void extInit(void);                                         // Initialise extensions
+uint8_t extCheckIdx(subidx_t * pSubidx);                    // Check Subindex ->free/busy/invalid
 e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx);      // Register Object
 void extDeleteOD(subidx_t * pSubidx);                       // Delete Object
 void extProc(void);                                         // Update IO's
