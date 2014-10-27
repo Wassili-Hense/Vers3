@@ -85,6 +85,12 @@ extern "C" {
 #define EXTDIO_PORTNUM2MASK         {(uint16_t)0x0000, (uint16_t)0xF000, (uint16_t)0x0000}
 // End DIO Section
 
+// Analogue Inputs
+#define EXTAIN_MAXPORT_NR           9           // ADC0-ADC7, Vbg
+//#define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 14}
+#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+// End Analogue Inputs
+
 // ENC Section
 #define ENC_USE_SPI                 2   // 1 - SPI1 PA4-PA7, 2 - SPI2 PB12-PB15
 

@@ -41,9 +41,11 @@ extern "C" {
 
 //Optional modules
 #define EXTDIO_USED             1       // Use DIO
+#define EXTAIN_USED             1       // Use Analogue inputs
 
-#define DIAG_USED               1       // Enable diagnostic messages
+//#define DIAG_USED               1       // Enable diagnostic messages
 
+// Include Hardware definitions
 // Atmel
 // ATM328P
 #if     (defined CFG_A1Cn12)

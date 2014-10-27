@@ -472,10 +472,6 @@ uint8_t MakeTopicName(uint8_t RecNR, uint8_t *pBuf)
   *(uint8_t*)(pBuf++) = ListOD[RecNR].sidx.Type;
 
   uint16_t addr = ListOD[RecNR].sidx.Base;
-#ifdef EXTAIN_USED
-  if(ListOD[RecNR].sidx.Place == objAin)
-    addr &= EXTAIN_CHN_MASK;
-#endif  // EXTAIN_USED
   // sprintf(pBuf,"%d",addr);
   uint16_t div = 10000;
   uint8_t ch, fl = 0, len = 3;

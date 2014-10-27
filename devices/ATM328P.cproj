@@ -275,6 +275,12 @@
     <Compile Include="Source\ext.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\EXT\extain.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\EXT\extain.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\EXT\extdio.c">
       <SubType>compile</SubType>
     </Compile>

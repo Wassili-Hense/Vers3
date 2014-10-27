@@ -62,6 +62,12 @@ extern "C" {
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0x00}
 // End DIO Section
 
+// Analogue Inputs
+#define EXTAIN_MAXPORT_NR           9           // ADC0-ADC7, Vbg
+//#define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 14}
+#define EXTAIN_REF                  0x06        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+// End Analogue Inputs
+
 // LEDs
 #define LED1_On()                   PORTB &= ~(1<<PB0)
 #define LED1_Off()                  PORTB |= (1<<PB0)
