@@ -19,9 +19,25 @@ See LICENSE file for license details.
 #if (UART_PHY == 1)
 #define UART_ADDR               phy1addr
 #define UART_ADDR_t             PHY1_ADDR_t
+
+#ifdef LED1_On
+void SetLED1mask(uint16_t mask);
+#define uart_active()           SetLED1mask(1);
+#else
+#define uart_active()
+#endif  //  LED1_On
+
 #elif (UART_PHY == 2)
 #define UART_ADDR               phy2addr
 #define UART_ADDR_t             PHY2_ADDR_t
+
+#ifdef LED2_On
+void SetLED2mask(uint16_t mask);
+#define uart_active()           SetLED2mask(1);
+#else
+#define uart_active()
+#endif  //  LED1_On
+
 #endif  //  UART_PHY
 
 static Queue_t  uart_tx_queue = {NULL, NULL, 0, 0};
@@ -44,6 +60,8 @@ static void uart_tx_task(void)
         
             if(pTx_buf == NULL)
                 return;
+
+            uart_active();
 
             // Send Length
             data = pTx_buf->Length;
@@ -129,6 +147,7 @@ void * UART_Get(void)
 
                 pRetVal = pRx_buf;
                 pRx_buf = NULL;
+                uart_active();
             }
 
             rx_len = 0;

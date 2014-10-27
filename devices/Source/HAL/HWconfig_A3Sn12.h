@@ -67,6 +67,11 @@ extern "C" {
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0x10, (uint8_t)0xFC, (uint8_t)0x83}
 // End DIO Section
 
+// LEDs
+#define LED1_On()                   PORTA |= (1<<PA0)
+#define LED1_Off()                  PORTA &= ~(1<<PA0)
+#define LEDsInit()                  {DDRA |= ((1<<PA0) | (1<<PA1)); PORTA |= (1<<PA0) | (1<<PA1);}
+
 // UART Section
 #define UART_PORT                   PORTD
 #define UART_DDR                    DDRD

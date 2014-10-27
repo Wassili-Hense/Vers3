@@ -20,7 +20,7 @@ See LICENSE file for license details.
 
 // 0 - 7    PORTA - not exist
 // PORTB
-// --   PB0     --      LED
+// --   PB0     --      LED1
 // --   PB1     --      LAN_IRQ / NC
 // --   PB2     --      LAN_CSN
 // --   PB3     ISP-4   LAN_MOSI
@@ -62,6 +62,11 @@ extern "C" {
 #define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTC, (uint16_t)&PORTD}
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0xE0, (uint8_t)0x03}
 // End DIO Section
+
+// LEDs
+#define LED1_On()                   PORTB &= ~(1<<PB0)
+#define LED1_Off()                  PORTB |= (1<<PB0)
+#define LEDsInit()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // LAN Section
 #define LAN_PORT                    PORTB

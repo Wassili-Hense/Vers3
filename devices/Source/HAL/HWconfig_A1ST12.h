@@ -61,6 +61,11 @@ extern "C" {
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0xF0, (uint8_t)0x03}
 // End DIO Section
 
+// LEDs
+#define LED1_On()                   PORTB &= ~(1<<PB0)
+#define LED1_Off()                  PORTB |= (1<<PB0)
+#define LEDsInit()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
+
 // UART Section
 #define UART_PORT                   PORTD
 #define UART_DDR                    DDRD

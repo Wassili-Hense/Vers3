@@ -69,6 +69,13 @@ extern "C" {
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC3, (uint8_t)0xF0, (uint8_t)0xFC, (uint8_t)0x83}
 // End DIO Section
 
+// LEDs
+#define LED1_On()                   PORTA |= (1<<PA0)
+#define LED1_Off()                  PORTA &= ~(1<<PA0)
+#define LED2_On()                   PORTA |= (1<<PA1)
+#define LED2_Off()                  PORTA &= ~(1<<PA1)
+#define LEDsInit()                  {DDRA |= ((1<<PA0) | (1<<PA1)); PORTA |= (1<<PA0) | (1<<PA1);}
+
 // UART Section
 #define UART_PORT                   PORTD
 #define UART_DDR                    DDRD
@@ -79,11 +86,6 @@ extern "C" {
 // End UART Section
 
 // RF Section
-#define TxLEDon()                   PORTA |= (1<<PA1);
-#define RxLEDon()                   PORTA |= (1<<PA0);
-#define LEDsOff()                   PORTA &= ~((1<<PA0) | (1<<PA1));
-#define LEDsInit()                  DDRA |= ((1<<PA0) | (1<<PA1));
-
 #define RF_PORT                     PORTB
 #define RF_DDR                      DDRB
 #define RF_PIN                      PINB
@@ -126,6 +128,7 @@ extern "C" {
 #define PHY2_Init                   CC11_Init
 #define PHY2_Send                   CC11_Send
 #define PHY2_Get                    CC11_Get
+#define PHY2_GetRSSI                CC11_GetRSSI
 #define PHY2_NodeId                 objRFNodeId
 
 #ifdef __cplusplus

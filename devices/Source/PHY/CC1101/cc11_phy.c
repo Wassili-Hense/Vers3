@@ -59,10 +59,26 @@ See LICENSE file for license details.
 #if (CC11_PHY == 1)
 #define cc11_adr                phy1addr
 #define CC11_RF_POWER           0x50
+
+#ifdef LED1_On
+void SetLED1mask(uint16_t mask);
+#define cc11_active()           SetLED1mask(1);
+#else
+#define cc11_active()
+#endif  //  LED1_On
+
 #elif (CC11_PHY == 2)
 #define cc11_adr                phy2addr
 #define CC11_RF_POWER           0xC0
-#endif
+
+#ifdef LED2_On
+void SetLED2mask(uint16_t mask);
+#define cc11_active()           SetLED2mask(1);
+#else
+#define cc11_active()
+#endif  //  LED2_On
+
+#endif  // CC11_PHY
 
 // ToDo loop on problem
 #ifndef RF_WAIT_LOW_MISO
@@ -73,10 +89,6 @@ See LICENSE file for license details.
 #define RF_SELECT()             RF_PORT &= ~(1<<RF_PIN_SS)
 #define RF_RELEASE()            RF_PORT |= (1<<RF_PIN_SS)
 #endif  //  RF_SELECT()
-
-#ifndef RxLEDon
-#define RxLEDon()
-#endif  //  RxLEDon
 
 static const uint8_t cc11config[][2] =
 {
@@ -115,6 +127,8 @@ static Queue_t          cc11_tx_queue = {NULL, NULL, 0, 0};
 
 static uint8_t          cc11_tx_delay = 0;
 static uint8_t          cc11_tx_retry = 16;
+
+static uint8_t          cc11_rssi;
 
 void     hal_cc11_init_hw(void);
 uint8_t  hal_cc11_spiExch(uint8_t data);
@@ -182,8 +196,8 @@ static void cc11_tx_task(void)
     MQ_t * pTxBuf = mqDequeue(&cc11_tx_queue);
     if(pTxBuf == NULL)      // Queue Busy
         return;
-
-    TxLEDon();
+        
+    cc11_active();
 
     // Fill Buffer
     uint8_t i, len;
@@ -230,8 +244,6 @@ static MQ_t * cc11_rx_task(void)
         return NULL;
     }
 
-    RxLEDon();
-
     frameLen -= 5;
     pRxBuf->Length = frameLen;
 
@@ -246,22 +258,23 @@ static MQ_t * cc11_rx_task(void)
     for(i = 0; i < frameLen; i++)                   // Read Payload
         pRxBuf->raw[i] = hal_cc11_spiExch(0);
 
-    hal_cc11_spiExch(0);                            // Read RSSI
-    uint8_t LQI  = hal_cc11_spiExch(0);             // Read LQI 
+    cc11_rssi = hal_cc11_spiExch(0);                // Read RSSI
+    tmp  = hal_cc11_spiExch(0);                     // Read LQI 
     RF_RELEASE();                                   // Release CC1101
 
     //int8_t Foffs = cc11_readReg(CC11_FREQEST | CC11_STATUS_REGISTER);    // int8_t frequency offset
 
-    if((LQI & CC11_LQI_CRC_OK) == 0)
+    if((tmp & CC11_LQI_CRC_OK) == 0)
     {
         mqFree(pRxBuf);
         pRxBuf = NULL;
     }
+    else
+        cc11_active();
 
     cc11_cmdStrobe(CC11_SFRX);
     cc11_cmdStrobe(CC11_SRX);       // Enter to RX State
 
-    LEDsOff();
     return pRxBuf;
 }
 
@@ -332,7 +345,6 @@ void * CC11_Get(void)
         cc11_cmdStrobe(CC11_SFTX);          // Clear TX Buffer
         cc11_cmdStrobe(CC11_SFRX);          // Clear RX Buffer
         cc11_cmdStrobe(CC11_SRX);           // Enter to RX State
-        LEDsOff();
     }
     else if(marcs == CC11_MARCSTATE_RX)
     {
@@ -342,23 +354,21 @@ void * CC11_Get(void)
     return NULL;
 }
 
-/*
 uint8_t CC11_GetRSSI(void)
 {
-    uint8_t rssi = cc11_rx_data.RSSI;
-    if(rssi & 0x80)
+    if(cc11_rssi & 0x80)
     {
-        rssi = ~rssi;
-        rssi++;
-        rssi >>= 1;
-        rssi += 74;
+        cc11_rssi = ~cc11_rssi;
+        cc11_rssi++;
+        cc11_rssi >>= 1;
+        cc11_rssi += 74;
     }
     else
     {
-        rssi >>= 1;
-        rssi = 74 - rssi;
+        cc11_rssi >>= 1;
+        cc11_rssi = 74 - cc11_rssi;
     }
-    return rssi;
+    return cc11_rssi;
 }
-*/
+
 #endif  //  CC11_PHY

@@ -80,8 +80,7 @@ static const PHY2_ADDR_t addr2_undef = ADDR_UNDEF_PHY2;
 static const PHY2_ADDR_t addr2_broad = ADDR_BROADCAST_PHY2;
 #endif  //  PHY2_ADDR_t
 
-
-
+// Generate random from Min to Max
 static uint16_t mqttsn_get_random_delay(uint16_t delayMax, uint16_t delayMin)
 {
     uint32_t ulTmp = delayMax - delayMin;
@@ -538,12 +537,40 @@ void mqttsn_parser_phy2(MQ_t * pPHY2outBuf)
                 break;
             // Encapulate message to Forward Packet and send to Gateway
             case MQTTSN_MSGTYP_CONNECT:
+            case MQTTSN_MSGTYP_PINGREQ:
+#ifdef PHY2_GetRSSI
+            {
+                MQ_t * pRSSI = mqAlloc(sizeof(MQ_t));
+                if(pRSSI != NULL)
+                {
+                    uint8_t pos = (MQTTSN_SIZEOF_MSG_FORWARD + sizeof(PHY2_ADDR_t) + 1);
+                    // Make Forward message
+                    pRSSI->mq.Length = pos;
+                    pRSSI->mq.MsgType = MQTTSN_MSGTYP_FORWARD;
+                    pRSSI->mq.forward.Ctrl = 0;   // ?? TTL
+                    pRSSI->mq.forward.wNodeID[0] = 2;     // PHY2
+                    memcpy(&pRSSI->mq.forward.wNodeID[1], pPHY2outBuf->phy2addr, sizeof(PHY2_ADDR_t));
+                    // Make publish message
+                    pRSSI->raw[pos++] = (MQTTSN_SIZEOF_MSG_PUBLISH + 1);                // length of publish
+                    pRSSI->raw[pos++] = MQTTSN_MSGTYP_PUBLISH;                          // Message Type
+                    pRSSI->raw[pos++] = (MQTTSN_FL_QOS0 | MQTTSN_FL_TOPICID_PREDEF);    // Flags
+                    pRSSI->raw[pos++] = (objRSSI>>8);                                   // Topic ID
+                    pRSSI->raw[pos++] = (objRSSI & 0xFF);
+                    pRSSI->raw[pos++] = 0xBA;                                           // Message ID
+                    pRSSI->raw[pos++] = 0xBA;
+                    pRSSI->raw[pos++] = PHY2_GetRSSI();
+                    pRSSI->raw[pos++] = 0x00;                                           // RSSI < 0
+                    pRSSI->Length = pos;
+                    PHY1_Send(pRSSI);
+                }
+            }
+#endif
             case MQTTSN_MSGTYP_REGISTER:
             case MQTTSN_MSGTYP_REGACK:
             case MQTTSN_MSGTYP_PUBLISH:
             case MQTTSN_MSGTYP_PUBACK:
             case MQTTSN_MSGTYP_SUBSCRIBE:
-            case MQTTSN_MSGTYP_PINGREQ:
+
             case MQTTSN_MSGTYP_DISCONNECT:
             case MQTTSN_MSGTYP_DHCPREQ:
             case MQTTSN_MSGTYP_FORWARD:

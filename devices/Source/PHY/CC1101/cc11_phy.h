@@ -46,5 +46,6 @@ void CC11_Init(void);
 void CC11_Send(void *pBuf);
 void * CC11_Get(void);
 void CC11_IRQ_Handler();
+uint8_t CC11_GetRSSI(void);
 
 #endif  //  _CC11_PHY_H

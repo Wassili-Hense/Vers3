@@ -21,9 +21,6 @@ void hal_cc11_init_hw(void)
     RF_PORT |= (1<<RF_PIN_SS);
     RF_DDR |= (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) | (1<<RF_PIN_SS);
     RF_DDR &= ~(1<<RF_PIN_MISO);
-#ifdef  LEDsInit
-    LEDsInit();
-#endif  //  LEDsInit
 
 #if (F_CPU > 13000000UL)
     // F_CPU/4

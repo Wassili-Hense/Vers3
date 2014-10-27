@@ -62,11 +62,12 @@ extern "C" {
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0x00}
 // End DIO Section
 
-// RF Section
-#define TxLEDon()                   PORTB &= ~(1<<PB0);
-#define LEDsOff()                   PORTB |= (1<<PB0);
-#define LEDsInit()                  DDRB |= (1<<PB0);
+// LEDs
+#define LED1_On()                   PORTB &= ~(1<<PB0)
+#define LED1_Off()                  PORTB |= (1<<PB0)
+#define LEDsInit()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
+// RF Section
 #define RF_PORT                     PORTB
 #define RF_DDR                      DDRB
 #define RF_PIN                      PINB
