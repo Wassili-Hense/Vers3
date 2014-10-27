@@ -29,7 +29,7 @@ See LICENSE file for license details.
 // PA7  --
 // PORTB
 // PB0  CN30
-// PB1  CN22  RF_IRQ
+// PB1  CN22  RF_GDO0
 // PB2  CN24
 // PB3  CN25
 // PB4  --    RF_NCS
@@ -48,7 +48,7 @@ See LICENSE file for license details.
 // PORTD
 // PD0  CN3   RXD0
 // PD1  CN4   TXD0
-// PD2  CN23  RF_GDO2/Not Used
+// PD2  CN23  RF_GDO2
 // PD3  CN6
 // PD4  CN7
 // PD5  --    LEDB
@@ -91,16 +91,6 @@ extern "C" {
 #define RF_PIN_MOSI                 PB5
 #define RF_PIN_MISO                 PB6
 #define RF_PIN_SCK                  PB7
-
-// RF IRQ
-#define RF_IRQ_PORT                 PORTB
-#define RF_IRQ_DDR                  DDRB
-#define RF_PIN_IRQ                  PB1
-#define RF_GET_IRQ()                (PINB & (1<<PB1))
-#define RF_IRQ_CFG()                {PCIFR = (1<<PCIF1); PCICR = (1<<PCIE1);}
-#define RF_DISABLE_IRQ()            PCMSK1 = 0
-#define RF_ENABLE_IRQ()             PCMSK1 = (1<<RF_PIN_IRQ)
-#define RF_INT_vect                 PCINT1_vect
 //  End RF Section
 
 #define UART_PHY                    1

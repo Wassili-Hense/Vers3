@@ -20,7 +20,7 @@ See LICENSE file for license details.
 // 0 - 7    PORTA - not exist
 // PORTB
 // --   PB0     --          LED
-// --   PB1     --          RF_IRQ
+// --   PB1     --          RF_GDO
 // --   PB2     --          RF_CSN
 // --   PB3     ISP-4       RF_MOSI
 // --   PB4     ISP-1       RF_MISO
@@ -38,9 +38,9 @@ See LICENSE file for license details.
 // --   --      SV1-20      Ain6
 // --   --      SV1-19      Ain7
 // PORT D
-// 24   PD0     SV1-10      RXD - On gateway busy
-// 25   PD1     SV1-9       TXD - On gateway busy
-// 26   PD2     SV1-8       IRQ 0 //** RF-IRQ
+// 24   PD0     SV1-10      RXD
+// 25   PD1     SV1-9       TXD
+// 26   PD2     SV1-8       IRQ 0 //** RF-GDO
 // 27   PD3     SV1-7       IRQ 1
 // 28   PD4     SV1-6
 // 29   PD5     SV1-5       PWM0
@@ -74,16 +74,6 @@ extern "C" {
 #define RF_PIN_MOSI                 PB3
 #define RF_PIN_MISO                 PB4
 #define RF_PIN_SCK                  PB5
-
-// RF IRQ
-#define RF_IRQ_PORT                 PORTB
-#define RF_IRQ_DDR                  DDRB
-#define RF_PIN_IRQ                  PB1
-#define RF_GET_IRQ()                (PINB & (1<<PB1))
-#define RF_IRQ_CFG()                {PCIFR = (1<<PCIF0); PCICR = (1<<PCIE0);}
-#define RF_DISABLE_IRQ()            PCMSK0 = 0
-#define RF_ENABLE_IRQ()             PCMSK0 = (1<<RF_PIN_IRQ)
-#define RF_INT_vect                 PCINT0_vect
 //  End RF Section
 
 #define CC11_PHY                    1
