@@ -30,6 +30,8 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 void _delay_ms(uint32_t ms);
 void _delay_us(uint32_t us);
 
+uint16_t halRNG();
+
 #ifdef __cplusplus
 }
 #endif

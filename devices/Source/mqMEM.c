@@ -203,16 +203,12 @@ Queue_t * MEM_Create_Queue(uint8_t mSize)
 }
 */
 
-static volatile bool mqQueueBusy = false;
-
 bool mqEnqueue(Queue_t * pQueue, void * pBuf)
 {
-    if((pQueue == NULL) || (pBuf == NULL) || mqQueueBusy)
+    if((pQueue == NULL) || (pBuf == NULL))
         return false;
 
     ENTER_CRITICAL_SECTION();
-
-    mqQueueBusy = true;
 
     ((MQ_t *)pBuf)->pNext = NULL;
     
@@ -239,8 +235,6 @@ bool mqEnqueue(Queue_t * pQueue, void * pBuf)
         pQueue->Size++;
     }
 
-    mqQueueBusy = false;
-
     LEAVE_CRITICAL_SECTION();
 
     return true;
@@ -248,11 +242,10 @@ bool mqEnqueue(Queue_t * pQueue, void * pBuf)
 
 void * mqDequeue(Queue_t * pQueue)
 {
-    if((pQueue == NULL) || mqQueueBusy)
+    if(pQueue == NULL)
         return NULL;
 
     ENTER_CRITICAL_SECTION();
-    mqQueueBusy = true;
 
     MQ_t * pBuf = pQueue->pTail;
 
@@ -269,7 +262,6 @@ void * mqDequeue(Queue_t * pQueue)
         }
     }
 
-    mqQueueBusy = false;
     LEAVE_CRITICAL_SECTION();
     return pBuf;
 }

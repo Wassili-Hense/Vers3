@@ -12,7 +12,7 @@ static GPIO_TypeDef * dioPortNr2GPIOx(uint8_t PortNr)
     return NULL;
 }
 
-void dioConfigPort(uint8_t PortNr, DIO_PORT_TYPE Mask, eDIOmode_t Mode)
+void hal_dio_configure(uint8_t PortNr, DIO_PORT_TYPE Mask, eDIOmode_t Mode)
 {
     GPIO_InitTypeDef  GPIO_InitStructure;
 
@@ -68,7 +68,7 @@ void dioConfigPort(uint8_t PortNr, DIO_PORT_TYPE Mask, eDIOmode_t Mode)
     GPIO_Init(dioPortNr2GPIOx(PortNr), &GPIO_InitStructure);
 }
 
-DIO_PORT_TYPE dioReadPort(uint8_t PortNr)
+DIO_PORT_TYPE hal_dio_read(uint8_t PortNr)
 {
     GPIO_TypeDef * GPIOx = dioPortNr2GPIOx(PortNr);
     if(GPIOx == NULL)
@@ -77,16 +77,19 @@ DIO_PORT_TYPE dioReadPort(uint8_t PortNr)
     return ((uint16_t)GPIOx->IDR);
 }
 
-void dioWritePort(uint8_t PortNr, DIO_PORT_TYPE Mask, bool Value)
+void hal_dio_set(uint8_t PortNr, DIO_PORT_TYPE Mask)
 {
     GPIO_TypeDef * GPIOx = dioPortNr2GPIOx(PortNr);
     if(GPIOx != NULL)
-    {
-        if(Value)
-            GPIOx->BSRR = Mask;
-        else
-            GPIOx->BRR = Mask;
-    }
+        GPIOx->BSRR = Mask;
 }
+
+void hal_dio_reset(uint8_t PortNr, DIO_PORT_TYPE Mask, bool Value)
+{
+    GPIO_TypeDef * GPIOx = dioPortNr2GPIOx(PortNr);
+    if(GPIOx != NULL)
+        GPIOx->BRR = Mask;
+}
+
 
 #endif  //  EXTDIO_USED

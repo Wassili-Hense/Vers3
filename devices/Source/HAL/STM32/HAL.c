@@ -84,3 +84,20 @@ void _delay_us(uint32_t us)
   while(us > 0)
     us--;
 }
+
+// Generate pseudo random uint16
+uint16_t halRNG()
+{
+    static uint16_t rand16 = 0xA15E;
+
+    // Galois LFSRs
+    if(rand16 & 1)
+    {
+        rand16 >>= 1;
+        rand16 ^= 0xB400;
+    }
+    else
+        rand16 >>= 1;
+  
+    return rand16;
+}
