@@ -84,7 +84,7 @@ void hal_dio_set(uint8_t PortNr, DIO_PORT_TYPE Mask)
         GPIOx->BSRR = Mask;
 }
 
-void hal_dio_reset(uint8_t PortNr, DIO_PORT_TYPE Mask, bool Value)
+void hal_dio_reset(uint8_t PortNr, DIO_PORT_TYPE Mask)
 {
     GPIO_TypeDef * GPIOx = dioPortNr2GPIOx(PortNr);
     if(GPIOx != NULL)
