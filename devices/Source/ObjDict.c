@@ -24,6 +24,16 @@ static uint8_t eepromReadOD(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 static uint8_t eepromWriteOD(subidx_t *pSubidx, uint8_t Len, uint8_t *pBuf);
 static uint8_t readDeviceType(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 
+#ifdef EXTAIN_USED
+void ainLoadAverage(void);
+uint8_t cbWriteADCaverage(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    eepromWriteOD(pSubidx, Len, pBuf);
+    ainLoadAverage();
+    return MQTTSN_RET_ACCEPTED;
+}
+#endif  //  EXTAIN_USED
+
 // Callback functions
 #ifdef LAN_NODE
 static uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
@@ -38,6 +48,10 @@ static const indextable_t listPredefOD[] =
   {{objEEMEM, objUInt16, eeTAsleep},
     objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL},
 #endif  //  ASLEEP
+#ifdef EXTAIN_USED
+  {{objEEMEM, objUInt16, eeADCaverage},
+    objADCaverage, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteADCaverage, NULL},
+#endif  //  EXTAIN_USED
 #ifdef RF_ADDR_t
   {{objEEMEM, OD_ADDR_TYPE, eeNodeID},
     objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
@@ -97,7 +111,6 @@ uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
   return MQTTSN_RET_ACCEPTED;
 }
 
-//
 uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
   uint16_t Base = pSubidx->Base;
@@ -356,6 +369,10 @@ void InitOD(void)
         ucTmp = OD_DEFAULT_CHANNEL;
         WriteOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);             // Channel
 #endif  //  OD_DEFAULT_CHANNEL
+#ifdef EXTAIN_USED
+        uiTmp = 80;
+        WriteOD(objADCaverage, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);   // ADC conversion delay
+#endif  //  EXTAIN_USED
 #ifdef ASLEEP
         uiTmp = OD_DEFAULT_TASLEEP;
         WriteOD(objTAsleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    // Sleep Time

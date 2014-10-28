@@ -147,6 +147,12 @@
     <Compile Include="Source\ext.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\EXT\extain.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\EXT\extain.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\EXT\extdio.c">
       <SubType>compile</SubType>
     </Compile>
@@ -157,6 +163,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\HAL\Atmel\hal.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\HAL\Atmel\hal_ain.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\HAL\Atmel\hal_cc11.c">

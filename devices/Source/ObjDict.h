@@ -48,27 +48,28 @@ typedef enum
 typedef enum
 {
   // Global Settings
-  objNodeName     = (uint16_t)0xFF00, // _sName<String>
-  objTAsleep      = (uint16_t)0xFF01, // cfg/XD_SleepTime<UIint16>
+  objNodeName   = (uint16_t)0xFF00, // _sName<String>
+  objTAsleep    = (uint16_t)0xFF01, // cfg/XD_SleepTime<UIint16>
+  objADCaverage = (uint16_t)0xFF08, // --
   // RF Node
-  objRFNodeId     = (uint16_t)0xFF10, // cfg/XD_DeviceAddr<UInt8>
-  objRFGroup      = (uint16_t)0xFF11, // cfg/XD_GroupID<UInt16>
-  objRFChannel    = (uint16_t)0xFF12, // cfg/XD_Channel<UInt8>
-  objRSSI         = (uint16_t)0xFF13, // cfg/XD_RSSI<UInt8>
-  objGateID       = (uint16_t)0xFF14, // --
+  objRFNodeId   = (uint16_t)0xFF10, // cfg/XD_DeviceAddr<UInt8>
+  objRFGroup    = (uint16_t)0xFF11, // cfg/XD_GroupID<UInt16>
+  objRFChannel  = (uint16_t)0xFF12, // cfg/XD_Channel<UInt8>
+  objRSSI       = (uint16_t)0xFF13, // cfg/XD_RSSI<UInt8>
+  objGateID     = (uint16_t)0xFF14, // --
   // Lan Node 
-  objMACAddr      = (uint16_t)0xFF20, // cfg/Xa_MACAddr   - Array - Len 6
-  objIPAddr       = (uint16_t)0xFF21, // cfg/Xa_IPAddr    - Array - Len 4
-  objIPMask       = (uint16_t)0xFF22, // cfg/Xa_IPMask    - Array - Len 4
-  objIPRouter     = (uint16_t)0xFF23, // cfg/Xa_IPRouter  - Array - Len 4
-  objIPBroker     = (uint16_t)0xFF24, // cfg/Xa_IPBroker  - Array - Len 4
+  objMACAddr    = (uint16_t)0xFF20, // cfg/Xa_MACAddr   - Array - Len 6
+  objIPAddr     = (uint16_t)0xFF21, // cfg/Xa_IPAddr    - Array - Len 4
+  objIPMask     = (uint16_t)0xFF22, // cfg/Xa_IPMask    - Array - Len 4
+  objIPRouter   = (uint16_t)0xFF23, // cfg/Xa_IPRouter  - Array - Len 4
+  objIPBroker   = (uint16_t)0xFF24, // cfg/Xa_IPBroker  - Array - Len 4
   // Read Only Variables
-  objDeviceTyp    = (uint16_t)0xFFC0, // _declarer<String>
+  objDeviceTyp  = (uint16_t)0xFFC0, // _declarer<String>
   // Debug Variables
-  objLogD         = (uint16_t)0xFFE0, // Data logging, log level - Debug
-  objLogI         = (uint16_t)0xFFE1, // Data logging, log level - Info
-  objLogW         = (uint16_t)0xFFE2, // Data logging, log level - Warning
-  objLogE         = (uint16_t)0xFFE3  // Data logging, log level - Error
+  objLogD       = (uint16_t)0xFFE0, // Data logging, log level - Debug
+  objLogI       = (uint16_t)0xFFE1, // Data logging, log level - Info
+  objLogW       = (uint16_t)0xFFE2, // Data logging, log level - Warning
+  objLogE       = (uint16_t)0xFFE3  // Data logging, log level - Error
 }eObjList_t;
 
 typedef enum
@@ -140,35 +141,37 @@ typedef struct
 enum
 {
 // Global
-  eeNodeName = 2,
-  eeNodeNamebody = eeNodeName + MQTTSN_SIZEOF_CLIENTID - 2,
+    eeNodeName = 2,
+    eeNodeNamebody = eeNodeName + MQTTSN_SIZEOF_CLIENTID - 2,
 // ASLEEP
-  eeTAsleep,
-  eeTAsleepbody = eeTAsleep + sizeof(uint16_t) - 1,
+    eeTAsleep,
+    eeTAsleepbody = eeTAsleep + sizeof(uint16_t) - 1,
 // BackUp Objects
-  eelistOdbu,
-  eelistOdbubody = eelistOdbu + OD_MAX_INDEX_LIST * sizeof(subidx_t) - 1,
+    eelistOdbu,
+    eelistOdbubody = eelistOdbu + OD_MAX_INDEX_LIST * sizeof(subidx_t) - 1,
 // LAN NODE
-  eeMACAddr,
-  eeMACAddrBody = eeMACAddr + 5,
-  eeIPAddr,
-  eeIPAddrbody = eeIPAddr + sizeof(uint32_t) - 1,
-  eeIPMask,
-  eeIPMaskbody = eeIPMask + sizeof(uint32_t) - 1,
-  eeIPRouter,
-  eeIPRouterbody = eeIPRouter + sizeof(uint32_t) - 1,
-  eeIPBroker,
-  eeIPBrokerbody = eeIPBroker + sizeof(uint32_t) - 1,
+    eeMACAddr,
+    eeMACAddrBody = eeMACAddr + 5,
+    eeIPAddr,
+    eeIPAddrbody = eeIPAddr + sizeof(uint32_t) - 1,
+    eeIPMask,
+    eeIPMaskbody = eeIPMask + sizeof(uint32_t) - 1,
+    eeIPRouter,
+    eeIPRouterbody = eeIPRouter + sizeof(uint32_t) - 1,
+    eeIPBroker,
+    eeIPBrokerbody = eeIPBroker + sizeof(uint32_t) - 1,
 // RF NODE
 #if (defined RF_ADDR_t)
-  eeNodeID,
-  eeNodeIDbody = eeNodeID + sizeof(RF_ADDR_t) - 1,
-  eeGateID,
-  eeGateIDbody = eeGateID + sizeof(RF_ADDR_t) - 1,
-  eeGroupID,
-  eeGroupIDbody = eeGroupID + sizeof(uint16_t) - 1,
-  eeChannel,
+    eeNodeID,
+    eeNodeIDbody = eeNodeID + sizeof(RF_ADDR_t) - 1,
+    eeGateID,
+    eeGateIDbody = eeGateID + sizeof(RF_ADDR_t) - 1,
+    eeGroupID,
+    eeGroupIDbody = eeGroupID + sizeof(uint16_t) - 1,
+    eeChannel,
 #endif  //  RF_ADDR_t
+    eeADCaverage,
+    eeADCaveragebody = eeADCaverage + sizeof(uint16_t) - 1,
   eeNextFreeAddress
 } eEEPROMAddr;
 

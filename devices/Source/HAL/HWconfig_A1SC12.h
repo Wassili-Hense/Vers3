@@ -13,47 +13,39 @@ See LICENSE file for license details.
 #ifndef HWCONFIG_A3SC12_H
 #define HWCONFIG_A3SC12_H
 
-// Busware CSM V2.0
-// uc ATMega1284p
-// Phy1: UART
-// Phy2: RF - CC1101
+// uNode Version 2.0
+// uc ATMega328p
+// Phy1: CC1101
 
-// PORTA
-// PA0  --    LEDG
-// PA1  --    LEDR
-// PA2  --    Loopback to PA3
-// PA3  --    Loopback to PA2
-// PA4  CN9
-// PA5  CN8
-// PA6  --
-// PA7  --
+// 0 - 7    PORTA - not exist
 // PORTB
-// PB0  CN30
-// PB1  CN22  RF_GDO0
-// PB2  CN24
-// PB3  CN25
-// PB4  --    RF_NCS
-// PB5  CN28  RF_MOSI
-// PB6  CN27  RF_MISO
-// PB7  CN29  RF_SCK
-// PORTC
-// PC0  CN15  SCL
-// PC1  CN14  SDA
-// PC2  CN13  JTAG_TCK
-// PC3  CN11  JTAG_TMS
-// PC4  CN10  JTAG_TDO
-// PC5  CN12  JTAG_TDI
-// PC6  --
-// PC7  --
-// PORTD
-// PD0  CN3   RXD0
-// PD1  CN4   TXD0
-// PD2  CN23  RF_GDO2
-// PD3  CN6
-// PD4  CN7
-// PD5  --    LEDB
-// PD6  --    LEDY
-// PD7  --
+// --   PB0     --          LED
+// --   PB1     --          RF_GDO
+// --   PB2     --          RF_CSN
+// --   PB3     ISP-4       RF_MOSI
+// --   PB4     ISP-1       RF_MISO
+// --   PB5     ISP-3       RF_SCK
+// --   PB6     --          OSC
+// --   PB7     --          OSC
+// PORT C
+// 16   PC0     SV1-18      Ain0
+// 17   PC1     SV1-17      Ain1
+// 18   PC2     SV1-16      Ain2
+// 19   PC3     SV1-15      Ain3
+// 20   PC4     SV1-14      SDA
+// 21   PC5     SV1-13      SCL
+// --   PC6     ISP-5       RESET
+// --   --      SV1-20      Ain6
+// --   --      SV1-19      Ain7
+// PORT D
+// 24   PD0     SV1-10      RXD
+// 25   PD1     SV1-9       TXD
+// 26   PD2     SV1-8       IRQ 0 //** RF-GDO
+// 27   PD3     SV1-7       IRQ 1
+// 28   PD4     SV1-6
+// 29   PD5     SV1-5       PWM0
+// 30   PD6     SV1-4       PWM1
+// 31   PD7     SV1-3
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,24 +56,23 @@ extern "C" {
 
 // DIO Section
 #define DIO_PORT_SIZE               8
-#define EXTDIO_MAXPORT_NR           4                                     // Number of digital Ports
-#define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
-#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC3, (uint8_t)0xF0, (uint8_t)0xFC, (uint8_t)0x83}
+#define EXTDIO_BASE_OFFSET          2
+#define EXTDIO_MAXPORT_NR           2                                     // Number of digital Ports
+#define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTC, (uint16_t)&PORTD}
+#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0x00}
 // End DIO Section
 
 // Analogue Inputs
-#define EXTAIN_MAXPORT_NR           3           // ADC0-ADC7, Vbg
-#define EXTAIN_BASE_2_APIN          {4, 5, 14}
-#define EXTAIN_BASE_2_DIO           {4, 5, 0xFF}
-#define EXTAIN_REF                  0x0E        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define EXTAIN_MAXPORT_NR           9           // ADC0-ADC7, Vbg
+#define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 14}
+#define EXTAIN_BASE_2_DIO           {16, 17, 18, 19, 20, 21, 0xFF, 0xFF, 0xFF}
+#define EXTAIN_REF                  0x06        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
 // LEDs
-#define LED1_On()                   PORTA |= (1<<PA0)
-#define LED1_Off()                  PORTA &= ~(1<<PA0)
-#define LED2_On()                   PORTA |= (1<<PA1)
-#define LED2_Off()                  PORTA &= ~(1<<PA1)
-#define LEDsInit()                  {DDRA |= ((1<<PA0) | (1<<PA1)); PORTA |= (1<<PA0) | (1<<PA1);}
+#define LED1_On()                   PORTB &= ~(1<<PB0)
+#define LED1_Off()                  PORTB |= (1<<PB0)
+#define LEDsInit()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // UART Section
 #define UART_PORT                   PORTD
@@ -96,10 +87,10 @@ extern "C" {
 #define RF_PORT                     PORTB
 #define RF_DDR                      DDRB
 #define RF_PIN                      PINB
-#define RF_PIN_SS                   PB4
-#define RF_PIN_MOSI                 PB5
-#define RF_PIN_MISO                 PB6
-#define RF_PIN_SCK                  PB7
+#define RF_PIN_SS                   PB2
+#define RF_PIN_MOSI                 PB3
+#define RF_PIN_MISO                 PB4
+#define RF_PIN_SCK                  PB5
 //  End RF Section
 
 #define UART_PHY                    1
@@ -115,7 +106,7 @@ extern "C" {
 
 // Object's Dictionary Section
 #define OD_DEV_UC_TYPE              'A'
-#define OD_DEV_UC_SUBTYPE           '3'
+#define OD_DEV_UC_SUBTYPE           '1'
 #define OD_DEV_PHY1                 'S'
 #define OD_DEV_PHY2                 'C'
 #define OD_DEV_HW_TYP_H             '1'

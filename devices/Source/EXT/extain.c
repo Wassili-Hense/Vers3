@@ -18,7 +18,17 @@ See LICENSE file for license details.
 
 #include "extain.h"
 
+#define AIN_MASK_SIZE   (uint8_t)(EXTAIN_MAXPORT_NR/8)
+
+// Global variable
+int16_t ain_act_val[EXTAIN_MAXPORT_NR];
+
+static uint8_t ain_mask[AIN_MASK_SIZE];
 static uint8_t ain_ref[EXTAIN_MAXPORT_NR];
+static uint16_t ain_average;
+
+void hal_ain_select(uint8_t apin, uint8_t aref);
+bool hal_ain_get(int16_t *pVal);
 
 static uint8_t ainCheckAnalogBase(uint16_t base)
 {
@@ -56,6 +66,35 @@ static uint8_t ainSubidx2Ref(subidx_t * pSubidx)
     }
 }
 
+static void ain_mask_rs(uint8_t apin, uint8_t set)
+{
+    uint8_t mask = 1;
+    uint8_t pos;
+
+    for(pos = (apin & 7); pos > 0; pos--)
+        mask <<= 1;
+        
+    pos = (apin >> 3);
+
+    if(set)
+        ain_mask[pos] |= mask;
+    else
+        ain_mask[pos] &= ~mask;
+}
+
+static uint8_t ain_check_mask(uint8_t apin)
+{
+    uint8_t mask = 1;
+    uint8_t pos;
+
+    for(pos = (apin & 7); pos > 0; pos--)
+        mask <<= 1;
+
+    pos = (apin >> 3);
+
+    return ((ain_mask[pos] & mask) != 0);
+}
+
 // Check Index analogue inputs
 uint8_t ainCheckIdx(subidx_t * pSubidx)
 {
@@ -65,58 +104,65 @@ uint8_t ainCheckIdx(subidx_t * pSubidx)
     return ainCheckAnalogBase(pSubidx->Base);
 }
 
+void ainLoadAverage(void)
+{
+    uint8_t len = sizeof(ain_average);
+    ReadOD(objADCaverage, MQTTSN_FL_TOPICID_PREDEF, &len, (uint8_t *)&ain_average);
+    
+    if(ain_average > 65000)
+        ain_average = 65000;
+}
+
 void ainInit()
 {
     uint8_t apin;
     for(apin = 0; apin < EXTAIN_MAXPORT_NR; apin++)
     {
         ain_ref[apin] = 0xFF;
+        ain_act_val[apin] = 0;
     }
+    
+    for(apin = 0; apin < AIN_MASK_SIZE; apin++)
+        ain_mask[apin] = 0;
+
+    ainLoadAverage();
 }
 
-/*
-// Read digital Inputs
-e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+// Read analogue inputs
+e_MQTTSN_RETURNS_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    uint16_t base = pSubidx->Base;
-    DIO_PORT_TYPE state = dio_status[dioBase2Port(base)];
-    DIO_PORT_TYPE mask = dioBase2Mask(base);
-    dio_change_flag[dioBase2Port(base)] &= ~mask;
-  
-    if(pSubidx->Type == objPinNPN)
-        state = ~state;
-    *pLen = 1;
-    *pBuf = ((state & mask) != 0) ? 1 : 0;
+    uint8_t apin = (uint8_t)(pSubidx->Base & 0xFF);
+
+    ain_mask_rs(apin, 0);   // Reset change mask
+
+    *pLen = 2;
+    // Prevent hard fault on ARM
+    pBuf[0] = (uint8_t)(ain_act_val[apin] & 0xFF);
+    pBuf[1] = (uint8_t)(ain_act_val[apin] >> 8);
     return MQTTSN_RET_ACCEPTED;
 }
 
-// Write DIO Object's
-e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
-    uint16_t base = pSubidx->Base;
-    uint8_t state = *pBuf;
-    uint8_t port = dioBase2Port(base);
-    DIO_PORT_TYPE mask = dioBase2Mask(base);
-    dio_change_flag[dioBase2Port(base)] &= ~mask;
+    // Prevent hard fault on ARM
+    uint16_t val = pBuf[1];
+    val <<= 8;
+    val |= pBuf[0];
+    
+    uint8_t apin = (uint8_t)(pSubidx->Base & 0xFF);
 
-    if(pSubidx->Type == objPinNPN)
-        state = ~state;
-
-    if(state & 1)
-        dio_status[port] |= mask;
-    else
-        dio_status[port] &= ~mask;
+    ain_mask_rs(apin, 0);   // Reset change mask
+    
+    ain_act_val[apin] = val;
 
     return MQTTSN_RET_ACCEPTED;
 }
 
 // Poll Procedure
-uint8_t dioPollOD(subidx_t * pSubidx, uint8_t sleep)
+uint8_t ainPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
-    uint16_t base = pSubidx->Base;
-    return ((dio_change_flag[dioBase2Port(base)] & dioBase2Mask(base)) != 0) ? 1 : 0;
+    return ain_check_mask((uint8_t)(pSubidx->Base & 0xFF));
 }
-*/
 
 // Register analogue input
 e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx)
@@ -129,9 +175,9 @@ e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx)
 
     ain_ref[apin] = ainSubidx2Ref(&pIdx->sidx);
 
-    pIdx->cbRead  = NULL;
-    pIdx->cbWrite = NULL;
-    pIdx->cbPoll  = NULL;
+    pIdx->cbRead  = &ainReadOD;
+    pIdx->cbWrite = &ainWriteOD;
+    pIdx->cbPoll  = &ainPollOD;
 
     return MQTTSN_RET_ACCEPTED;
 }
@@ -147,5 +193,53 @@ void ainDeleteOD(subidx_t * pSubidx)
 
 void ainProc(void)
 {
+    static int32_t ain_val;
+    static uint16_t ain_cnt = 0;
+    static uint8_t ain_pos = 0;
+    
+    int16_t ain_tmp;
+    
+    if(ain_cnt == 0)
+    {
+        if(ain_ref[ain_pos] == 0xFF)
+        {
+            ain_pos++;
+            if(ain_pos == EXTAIN_MAXPORT_NR)
+                ain_pos = 0;
+            return;
+        }
+        
+        hal_ain_select(ain_pos, ain_ref[ain_pos]);
+        ain_cnt = 1;
+        ain_val = 0;
+    }
+    else if(ain_cnt < 4)
+    {
+        if(hal_ain_get(&ain_tmp))
+            ain_cnt++;
+    }
+    else if(ain_cnt < (ain_average + 5))
+    {
+        if(hal_ain_get(&ain_tmp))
+        {
+            ain_cnt++;
+            ain_val += ain_tmp;
+        }
+    }
+    else
+    {
+        ain_val /= (ain_average + 1);
+
+        if(ain_act_val[ain_pos] != ain_val)
+        {
+            ain_act_val[ain_pos] = ain_val;
+            ain_mask_rs(ain_pos, 1);    // Set change mask
+        }
+        
+        ain_cnt = 0;
+        ain_pos++;
+        if(ain_pos == EXTAIN_MAXPORT_NR)
+            ain_pos = 0;
+    }
 }
 #endif    //  EXTAIN_USED

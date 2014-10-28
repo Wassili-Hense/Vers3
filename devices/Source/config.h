@@ -54,12 +54,10 @@ extern "C" {
 #include "HAL/HWconfig_A1En12.h"
 #elif   (defined CFG_A1ES12)
 #include "HAL/HWconfig_A1ES12.h"
+#elif   (defined CFG_A1SC12)
+#include "HAL/HWconfig_A1SC12.h"
 #elif   (defined CFG_A1Sn12)
 #include "HAL/HWconfig_A1Sn12.h"
-#elif   (defined CFG_A1Tn12)
-#include "HAL/HWconfig_A1Tn12.h"
-#elif   (defined CFG_A1ST12)
-#include "HAL/HWconfig_A1ST12.h"
 // ATM1284P
 #elif   (defined CFG_A3SC12)
 #include "HAL/HWconfig_A3SC12.h"
