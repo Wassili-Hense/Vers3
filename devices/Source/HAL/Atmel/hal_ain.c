@@ -30,12 +30,10 @@ void hal_ain_select(uint8_t apin, uint8_t aref)
     ADCSRA |= (1<<ADSC);
 }
 
-bool hal_ain_get(int16_t *pVal)
+int16_t hal_ain_get(void)
 {
-    if(ADCSRA & (1<<ADSC))
-        return false;
-
-    *pVal = ADC>>1; // int16_t
-    return true;
+    int16_t retval = ADC>>1;
+    ADCSRA |= (1<<ADSC);
+    return retval;
 }
 #endif  //EXTAIN_USED

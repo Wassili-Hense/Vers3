@@ -20,16 +20,19 @@ See LICENSE file for license details.
 
 #define AIN_MASK_SIZE   (uint8_t)(EXTAIN_MAXPORT_NR/8)
 
-// Global variable
+// Global variable, used in PLC
 int16_t ain_act_val[EXTAIN_MAXPORT_NR];
 
+// Local Variables
 static uint8_t ain_mask[AIN_MASK_SIZE];
 static uint8_t ain_ref[EXTAIN_MAXPORT_NR];
 static uint16_t ain_average;
 
+// HAL Section
 void hal_ain_select(uint8_t apin, uint8_t aref);
-bool hal_ain_get(int16_t *pVal);
+int16_t hal_ain_get(void);
 
+// Local procedures
 static uint8_t ainCheckAnalogBase(uint16_t base)
 {
     if(base >= EXTAIN_MAXPORT_NR)
@@ -196,9 +199,7 @@ void ainProc(void)
     static int32_t ain_val;
     static uint16_t ain_cnt = 0;
     static uint8_t ain_pos = 0;
-    
-    int16_t ain_tmp;
-    
+
     if(ain_cnt == 0)
     {
         if(ain_ref[ain_pos] == 0xFF)
@@ -208,23 +209,18 @@ void ainProc(void)
                 ain_pos = 0;
             return;
         }
-        
+
         hal_ain_select(ain_pos, ain_ref[ain_pos]);
         ain_cnt = 1;
         ain_val = 0;
     }
-    else if(ain_cnt < 4)
-    {
-        if(hal_ain_get(&ain_tmp))
-            ain_cnt++;
-    }
     else if(ain_cnt < (ain_average + 5))
     {
-        if(hal_ain_get(&ain_tmp))
-        {
-            ain_cnt++;
+        int16_t ain_tmp = hal_ain_get();
+    
+        ain_cnt++;
+        if(ain_cnt > 4)
             ain_val += ain_tmp;
-        }
     }
     else
     {
