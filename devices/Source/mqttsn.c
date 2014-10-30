@@ -354,7 +354,8 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
         case MQTTSN_MSGTYP_PUBACK:
             if(msg_from_gw)
             {
-                if(vMQTTSN.Status == MQTTSN_STATUS_CONNECT)
+                if((vMQTTSN.Status == MQTTSN_STATUS_CONNECT) || 
+                   (vMQTTSN.Status == MQTTSN_STATUS_PRE_CONNECT))
                 {
                     if((vMQTTSN.MsgBuf.MsgType == MQTTSN_MSGTYP_PUBLISH) &&
                        (vMQTTSN.MsgBuf.MsgId == ((pPHY1outBuf->mq.puback.MsgId[0]<<8) |
@@ -379,10 +380,6 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                                                   pPHY1outBuf->mq.suback.MsgId[1])))
                     {
                         vMQTTSN.Status = MQTTSN_STATUS_CONNECT;
-                        // Send Device Info
-                        MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
-                                   (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_PREDEF),
-                                   objDeviceTyp);
                     }
                 }
             }
@@ -553,13 +550,15 @@ void mqttsn_parser_phy2(MQ_t * pPHY2outBuf)
                     // Make publish message
                     pRSSI->raw[pos++] = (MQTTSN_SIZEOF_MSG_PUBLISH + 1);                // length of publish
                     pRSSI->raw[pos++] = MQTTSN_MSGTYP_PUBLISH;                          // Message Type
-                    pRSSI->raw[pos++] = (MQTTSN_FL_QOS0 | MQTTSN_FL_TOPICID_PREDEF);    // Flags
+                    pRSSI->raw[pos++] = (MQTTSN_FL_QOSN1 | MQTTSN_FL_TOPICID_PREDEF);   // Flags
                     pRSSI->raw[pos++] = (objRSSI>>8);                                   // Topic ID
                     pRSSI->raw[pos++] = (objRSSI & 0xFF);
                     pRSSI->raw[pos++] = 0xBA;                                           // Message ID
                     pRSSI->raw[pos++] = 0xBA;
-                    pRSSI->raw[pos++] = PHY2_GetRSSI();
-                    pRSSI->raw[pos++] = 0x00;                                           // RSSI < 0
+                    uint8_t rssi = PHY2_GetRSSI();
+                    pRSSI->raw[pos++] = rssi;
+                    if((rssi & 0x80) == 0)
+                        pRSSI->raw[pos++] = 0xFF;                                       // RSSI < 0
                     pRSSI->Length = pos;
                     PHY1_Send(pRSSI);
                 }
@@ -689,6 +688,33 @@ static void mqttsn_send_gwinfo(uint8_t phy)
 #endif
 }
 
+static uint8_t mqttsn_make_publish(MQ_t * pMessage)
+{
+    pMessage->mq.MsgType = MQTTSN_MSGTYP_PUBLISH;
+    pMessage->mq.publish.Flags = vMQTTSN.MsgBuf.Flags;
+    pMessage->mq.publish.TopicId[0] = vMQTTSN.MsgBuf.TopicId>>8;
+    pMessage->mq.publish.TopicId[1] = vMQTTSN.MsgBuf.TopicId & 0xFF;
+    pMessage->mq.publish.MsgId[0] = vMQTTSN.MsgBuf.MsgId>>8;
+    pMessage->mq.publish.MsgId[1] = vMQTTSN.MsgBuf.MsgId & 0xFF;
+    uint8_t Length = (MQTTSN_MSG_SIZE - 5);
+    ReadODpack(vMQTTSN.MsgBuf.TopicId, vMQTTSN.MsgBuf.Flags, &Length, pMessage->mq.publish.Data);
+
+    if((vMQTTSN.MsgBuf.Flags & MQTTSN_FL_QOS_MASK) == MQTTSN_FL_QOS1)
+    {
+        vMQTTSN.Tretry = MQTTSN_T_RETR_BASED;
+        vMQTTSN.MsgBuf.Flags |= MQTTSN_FL_DUP;
+    }
+    else    // QOS0, QOS-1, ToDo QoS2 not supported
+    {
+        vMQTTSN.Tretry = (MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
+        vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
+    }
+
+    Length += MQTTSN_SIZEOF_MSG_PUBLISH;
+    return Length;
+}
+
+
 void MQTTSN_Poll(void)
 {
     MQ_t * pMessage;
@@ -741,27 +767,7 @@ void MQTTSN_Poll(void)
             // Make Publish message
             if(vMQTTSN.MsgBuf.MsgType == MQTTSN_MSGTYP_PUBLISH)
             {
-                pMessage->mq.MsgType = MQTTSN_MSGTYP_PUBLISH;
-                pMessage->mq.publish.Flags = vMQTTSN.MsgBuf.Flags;
-                pMessage->mq.publish.TopicId[0] = vMQTTSN.MsgBuf.TopicId>>8;
-                pMessage->mq.publish.TopicId[1] = vMQTTSN.MsgBuf.TopicId & 0xFF;
-                pMessage->mq.publish.MsgId[0] = vMQTTSN.MsgBuf.MsgId>>8;
-                pMessage->mq.publish.MsgId[1] = vMQTTSN.MsgBuf.MsgId & 0xFF;
-                Length = (MQTTSN_MSG_SIZE - 5);
-                ReadODpack(vMQTTSN.MsgBuf.TopicId, vMQTTSN.MsgBuf.Flags, &Length, pMessage->mq.publish.Data);
-
-                if((vMQTTSN.MsgBuf.Flags & MQTTSN_FL_QOS_MASK) == MQTTSN_FL_QOS1)
-                {
-                    vMQTTSN.Tretry = MQTTSN_T_RETR_BASED;
-                    vMQTTSN.MsgBuf.Flags |= MQTTSN_FL_DUP;
-                }
-                else    // QOS0, QOS-1, ToDo QoS2 not supported
-                {
-                    vMQTTSN.Tretry = (MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
-                    vMQTTSN.MsgBuf.MsgType = MQTTSN_MSGTYP_PINGREQ;
-                }
-
-                Length += MQTTSN_SIZEOF_MSG_PUBLISH;
+                Length = mqttsn_make_publish(pMessage);
             }
             else    // No messages, send PingReq
             {
@@ -877,6 +883,7 @@ void MQTTSN_Poll(void)
             if(pMessage == NULL)
                 return;
 
+            // Make connect message
             pMessage->mq.MsgType = MQTTSN_MSGTYP_CONNECT;
             pMessage->mq.connect.Flags = MQTTSN_FL_CLEANSESSION;
             pMessage->mq.connect.ProtocolId = MQTTSN_PROTOCOLID;
@@ -902,7 +909,7 @@ void MQTTSN_Poll(void)
             pMessage = mqAlloc(sizeof(MQ_t));
             if(pMessage == NULL)
                 return;
-            
+
             // Make Register message
             if(vMQTTSN.MsgBuf.MsgType == MQTTSN_MSGTYP_REGISTER)
             {
@@ -913,6 +920,11 @@ void MQTTSN_Poll(void)
                 pMessage->mq.regist.MsgId[1] = vMQTTSN.MsgBuf.MsgId & 0xFF;
                 Length = MakeTopicName(vMQTTSN.MsgBuf.Flags, pMessage->mq.regist.TopicName);
                 Length += MQTTSN_SIZEOF_MSG_REGISTER;
+            }
+            // Make Publish message
+            else if(vMQTTSN.MsgBuf.MsgType == MQTTSN_MSGTYP_PUBLISH)
+            {
+                Length = mqttsn_make_publish(pMessage);
             }
             // Make Subscribe message
             else

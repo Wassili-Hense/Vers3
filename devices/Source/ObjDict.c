@@ -22,7 +22,7 @@ See LICENSE file for license details.
 // Local subroutines
 static uint8_t eepromReadOD(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 static uint8_t eepromWriteOD(subidx_t *pSubidx, uint8_t Len, uint8_t *pBuf);
-static uint8_t readDeviceType(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
+static uint8_t readDeviceInfo(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 
 #ifdef EXTAIN_USED
 void ainLoadAverage(void);
@@ -42,44 +42,51 @@ static uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 
 static const indextable_t listPredefOD[] = 
 {
-  {{objEEMEM, objString, eeNodeName},
-    objNodeName, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+    {{objEEMEM, objString, eeNodeName},
+        objNodeName, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #ifdef ASLEEP
-  {{objEEMEM, objUInt16, eeTAsleep},
-    objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL},
+    {{objEEMEM, objUInt16, eeTAsleep},
+        objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL},
 #endif  //  ASLEEP
 #ifdef EXTAIN_USED
-  {{objEEMEM, objUInt16, eeADCaverage},
-    objADCaverage, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteADCaverage, NULL},
+    {{objEEMEM, objUInt16, eeADCaverage},
+        objADCaverage, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteADCaverage, NULL},
 #endif  //  EXTAIN_USED
 #ifdef RF_ADDR_t
-  {{objEEMEM, OD_ADDR_TYPE, eeNodeID},
-    objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
-  {{objEEMEM, OD_ADDR_TYPE, eeGateID},
-    objGateID, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+    {{objEEMEM, OD_ADDR_TYPE, eeNodeID},
+        objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+    {{objEEMEM, OD_ADDR_TYPE, eeGateID},
+        objGateID, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #ifdef OD_DEFAULT_GROUP
-  {{objEEMEM, objUInt16, eeGroupID},
-    objRFGroup, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+    {{objEEMEM, objUInt16, eeGroupID},
+        objRFGroup, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #endif  //  OD_DEFAULT_GROUP
 #ifdef OD_DEFAULT_CHANNEL
-  {{objEEMEM, objUInt8, eeChannel},
-    objRFChannel, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+    {{objEEMEM, objUInt8, eeChannel},
+        objRFChannel, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #endif  //  OD_DEFAULT_CHANNEL
 #endif  //  RF_ADDR_t
 #ifdef LAN_NODE
-  {{objEEMEM, objArray, eeMACAddr},
-    objMACAddr, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
-  {{objEEMEM, objArray, eeIPAddr},
-    objIPAddr, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
-  {{objEEMEM, objArray, eeIPMask},
-    objIPMask, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
-  {{objEEMEM, objArray, eeIPRouter},
-    objIPRouter, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
-  {{objEEMEM, objArray, eeIPBroker},
-    objIPBroker, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
+    {{objEEMEM, objArray, eeMACAddr},
+        objMACAddr, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
+    {{objEEMEM, objArray, eeIPAddr},
+        objIPAddr, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
+    {{objEEMEM, objArray, eeIPMask},
+        objIPMask, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
+    {{objEEMEM, objArray, eeIPRouter},
+        objIPRouter, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
+    {{objEEMEM, objArray, eeIPBroker},
+        objIPBroker, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
 #endif  //  LAN_NODE
-  {{objPROGMEM, objString, 0},
-    objDeviceTyp, (cbRead_t)&readDeviceType, NULL, NULL}
+    // Read Only Objects
+    {{objPROGMEM, objString, 0},
+        objDeviceTyp, (cbRead_t)&readDeviceInfo, NULL, NULL},
+    {{objPROGMEM, objArray, 1},
+        objPHY1addr, (cbRead_t)&readDeviceInfo, NULL, NULL},
+#ifdef PHY2_NodeId
+    {{objPROGMEM, objArray, 2},
+        objPHY2addr, (cbRead_t)&readDeviceInfo, NULL, NULL}
+#endif  //  objPHY1addr
 };
 // End Objects List
 //////////////////////////
@@ -282,15 +289,38 @@ static const uint8_t psDeviceTyp[] = {
                                 OD_DEV_SWVERSM,
                                 OD_DEV_SWVERSL};
 
-static uint8_t readDeviceType(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
+static uint8_t readDeviceInfo(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-  uint8_t Len = sizeof(psDeviceTyp);
-  if(Len > *pLen)
-    Len = *pLen;
+    uint16_t Base = pSubidx->Base;
 
-  memcpy((void *)pBuf, (const void *)psDeviceTyp, Len);
-  *pLen = Len;
-  return MQTTSN_RET_ACCEPTED;
+    if(Base == 0)           // Read Device type
+    {
+        uint16_t Len = sizeof(psDeviceTyp);
+        if(Len > *pLen)
+            Len = *pLen;
+
+        memcpy((void *)pBuf, (const void *)psDeviceTyp, Len);
+        *pLen = Len;
+
+        return MQTTSN_RET_ACCEPTED;
+    }
+    
+    // Read PHY address
+
+    uint16_t index = 0xFFFF;
+
+    if(Base == 1)
+    {
+        index = PHY1_NodeId;
+    }
+#ifdef PHY2_NodeId
+    else if(Base == 2)
+    {
+        index = PHY2_NodeId;
+    }
+#endif  //  PHY2_NodeId
+
+    return ReadOD(index, MQTTSN_FL_TOPICID_PREDEF, pLen, pBuf);
 }
 
 static void RestoreSubindex(uint16_t sidxn, subidx_t *pSubidx)
@@ -751,8 +781,27 @@ void OD_Poll(void)
             else
                 idxUpdate++;
         }
-        // Send Subscribe & Publish Device Info
-        else if(idxUpdate == OD_MAX_INDEX_LIST)
+        // Publish device info
+        else if(idxUpdate < 0xFF)
+        {
+            if(idxUpdate < 0xC0)
+                idxUpdate = 0xC0;
+                
+            if(MQTTSN_CanSend())
+            {
+                if(scanIndexOD(0xFF00 + idxUpdate, MQTTSN_FL_TOPICID_PREDEF) != NULL)
+                {
+                    MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
+                               (MQTTSN_FL_QOS1 | MQTTSN_FL_RETAIN | MQTTSN_FL_TOPICID_PREDEF),
+                                0xFF00 + idxUpdate);
+                    idxUpdate++;
+                }
+                else
+                    idxUpdate = 0xFF;
+            }
+        }
+        // Send Subscribe
+        else
         {
             if(MQTTSN_CanSend())
                 MQTTSN_Send(MQTTSN_MSGTYP_SUBSCRIBE, (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM), 0);

@@ -19,10 +19,6 @@ extern "C" {
 
 #define OD_DEV_TYP_LEN          6
 
-#define EXTDIO_BASE             0x0080
-#define EXTAIN_BASE             0x0100
-#define EXTPWM_BASE             0x0200
-
 #ifdef EXTDIO_USED
 #if (DIO_PORT_SIZE == 8)
 #define DIO_PORT_TYPE           uint8_t
@@ -50,13 +46,12 @@ typedef enum
   // Global Settings
   objNodeName   = (uint16_t)0xFF00, // _sName<String>
   objTAsleep    = (uint16_t)0xFF01, // cfg/XD_SleepTime<UIint16>
-  objADCaverage = (uint16_t)0xFF08, // --
+  objADCaverage = (uint16_t)0xFF08, // cfg/XD_ADCintegrate<UIint16>
   // RF Node
   objRFNodeId   = (uint16_t)0xFF10, // cfg/XD_DeviceAddr<UInt8>
   objRFGroup    = (uint16_t)0xFF11, // cfg/XD_GroupID<UInt16>
   objRFChannel  = (uint16_t)0xFF12, // cfg/XD_Channel<UInt8>
-  objRSSI       = (uint16_t)0xFF13, // cfg/XD_RSSI<UInt8>
-  objGateID     = (uint16_t)0xFF14, // --
+  objGateID     = (uint16_t)0xFF14, // cfg/XD_GateId
   // Lan Node 
   objMACAddr    = (uint16_t)0xFF20, // cfg/Xa_MACAddr   - Array - Len 6
   objIPAddr     = (uint16_t)0xFF21, // cfg/Xa_IPAddr    - Array - Len 4
@@ -65,6 +60,15 @@ typedef enum
   objIPBroker   = (uint16_t)0xFF24, // cfg/Xa_IPBroker  - Array - Len 4
   // Read Only Variables
   objDeviceTyp  = (uint16_t)0xFFC0, // _declarer<String>
+  objPHY1addr   = (uint16_t)0xFFC1, // cfg/_a_phy1
+  objPHY2addr   = (uint16_t)0xFFC2, // cfg/_a_phy2
+  objPHY3addr   = (uint16_t)0xFFC3, // cfg/_a_phy3
+  objPHY4addr   = (uint16_t)0xFFC4, // cfg/_a_phy4
+  
+  objRSSI       = (uint16_t)0xFFC8, // cfg/XD_RSSI<UInt8>
+  /*
+  FFD0 .. FFDF - system variables
+  */  
   // Debug Variables
   objLogD       = (uint16_t)0xFFE0, // Data logging, log level - Debug
   objLogI       = (uint16_t)0xFFE1, // Data logging, log level - Info

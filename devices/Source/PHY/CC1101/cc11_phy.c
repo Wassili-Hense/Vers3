@@ -368,7 +368,7 @@ uint8_t CC11_GetRSSI(void)
         cc11_rssi >>= 1;
         cc11_rssi = 74 - cc11_rssi;
     }
-    return cc11_rssi;
+    return (~cc11_rssi + 1);
 }
 
 #endif  //  CC11_PHY

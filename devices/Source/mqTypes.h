@@ -68,7 +68,7 @@ typedef enum e_MQTTSN_MSGTYPE
                                             //  set to “1” if retransmitted 
                                             //  (only relevant within PUBLISH messages);
 #define MQTTSN_FL_QOS_MASK          0x60
-#define MQTTSN_FL_QOS3              0x60    // QoS level -1 (only relevant within
+#define MQTTSN_FL_QOSN1             0x60    // QoS level -1 (only relevant within
                                             //  PUBLISH messages sent by a client);
 #define MQTTSN_FL_QOS2              0x40    // QoS: meaning as with MQTT for QoS level 0, 1, and 2;
 #define MQTTSN_FL_QOS1              0x20
