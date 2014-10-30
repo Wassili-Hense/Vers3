@@ -110,6 +110,12 @@
     <Compile Include="Source\EXT\extdio.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\EXT\exttwi.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\EXT\exttwi.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\HAL\Atmel\HAL.c">
       <SubType>compile</SubType>
     </Compile>

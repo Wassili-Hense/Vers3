@@ -21,6 +21,10 @@ See LICENSE file for license details.
 #include "EXT/extain.h"
 #endif  //  EXTAIN_USED
 
+#ifdef EXTTWI_USED
+#include "EXT/exttwi.h"
+#endif  //  EXTTWI_USED
+
 // Initialise extensions
 void extInit(void)
 {
@@ -31,6 +35,10 @@ void extInit(void)
 #ifdef EXTAIN_USED
     ainInit();
 #endif  //  EXTAIN_USED
+
+#ifdef EXTTWI_USED
+    twiInit();
+#endif
 }
 
 // Check Subindex: 0 - free / 1 - busy / 2 - invalid
@@ -104,7 +112,12 @@ void extProc(void)
 #ifdef EXTDIO_USED
     dioProc();
 #endif  //  EXTDIO_USED
+
 #ifdef EXTAIN_USED
     ainProc();
 #endif  //  EXTAIN_USED
+
+#ifdef EXTTWI_USED
+    twiProc();
+#endif  //  EXTTWI_USED
 }

@@ -41,7 +41,10 @@ extern "C" {
 
 //Optional modules
 #define EXTDIO_USED             1       // Use DIO
-#define EXTAIN_USED             1       // Use Analogue inputs
+//#define EXTAIN_USED             1       // Use Analogue inputs
+#define EXTTWI_USED             1       // Use TWI Devices
+
+#define EXTTWI_BLINKM           1
 
 //#define DIAG_USED               1       // Enable diagnostic messages
 
