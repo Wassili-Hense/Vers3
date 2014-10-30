@@ -22,6 +22,8 @@ See LICENSE file for license details.
 #include "TWI/twi_blinkm.h"
 #endif  //  EXTTWI_BLINKM
 
+// HAL
+bool hal_twi_configure(uint8_t enable);
 
 e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {

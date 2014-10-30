@@ -1746,33 +1746,5 @@
                 <item name="_description" value="Digital inverted output, PD2" saved="True" type="System.String" />
             </item>
         </item>
-        <item name="20">
-            <item name="Ip25" value="AzX25" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PD1" saved="True" type="System.String" />
-            </item>
-            <item name="In25" value="BzX25" saved="True" type="System.String">
-                <item name="_description" value="Digital Pull-Up inverted input, PD1" saved="True" type="System.String" />
-            </item>
-            <item name="Op25" value="CzX25" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PD1" saved="True" type="System.String" />
-            </item>
-            <item name="On25" value="DzX25" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PD1" saved="True" type="System.String" />
-            </item>
-        </item>
-        <item name="21">
-            <item name="Ip24" value="AzX24" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PD0" saved="True" type="System.String" />
-            </item>
-            <item name="In24" value="BzX24" saved="True" type="System.String">
-                <item name="_description" value="Digital Pull-Up inverted input, PD0" saved="True" type="System.String" />
-            </item>
-            <item name="Op24" value="CzX24" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PD0" saved="True" type="System.String" />
-            </item>
-            <item name="On24" value="DzX24" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PD0" saved="True" type="System.String" />
-            </item>
-        </item>
     </item>
 </root>

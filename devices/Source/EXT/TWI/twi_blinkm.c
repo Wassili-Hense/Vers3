@@ -12,7 +12,7 @@ See LICENSE file for license details.
 
 // Extensions TWI, Blinky
 
-#include "../config.h"
+#include "../../config.h"
 
 #if ((defined EXTTWI_USED) && (defined EXTTWI_BLINKM))
 
