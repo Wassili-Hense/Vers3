@@ -78,17 +78,17 @@ typedef enum
 
 typedef enum
 {
-  objPROGMEM  = 'F',  // FLASH
-  objEEMEM    = 'E',  // EEPROM
-  objAin      = 'A',  // Analog Input
-  objAout     = 'D',  // Analog Output
-  objDin      = 'I',  // Digital Input
-  objDout     = 'O',  // Digital Output
-  objPWM      = 'P',  // LED PWM out
-  objSer      = 'S',  // Serial port, S.0-5 (1200-38400)
-  objMerker   = 'M',  // PLC variables
-  objTWI      = 'T',  // TWI
-  objUsrExt   = 'X',  // User extensions
+    objPROGMEM  = 'F',  // FLASH
+    objEEMEM    = 'E',  // EEPROM
+    objAin      = 'A',  // Analog Input
+    objAout     = 'D',  // Analog Output
+    objDin      = 'I',  // Digital Input
+    objDout     = 'O',  // Digital Output
+    objPWM      = 'P',  // LED PWM out
+    objSer      = 'S',  // Serial port, S.0-5 (1200-38400)
+    objMerker   = 'M',  // PLC variables
+    objTWI      = 'T',  // TWI
+    objUsrExt   = 'X',  // User extensions
 }eObjPlace_t;
 
 typedef enum

@@ -24,22 +24,17 @@ static uint8_t eepromReadOD(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 static uint8_t eepromWriteOD(subidx_t *pSubidx, uint8_t Len, uint8_t *pBuf);
 static uint8_t readDeviceInfo(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 
+// Prototypes for callback functions
 #ifdef EXTAIN_USED
-void ainLoadAverage(void);
-uint8_t cbWriteADCaverage(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
-{
-    eepromWriteOD(pSubidx, Len, pBuf);
-    ainLoadAverage();
-    return MQTTSN_RET_ACCEPTED;
-}
+static uint8_t cbWriteADCaverage(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 #endif  //  EXTAIN_USED
 
-// Callback functions
 #ifdef LAN_NODE
 static uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 static uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 #endif  //  LAN_NODE
 
+// List of pre defined objects
 static const indextable_t listPredefOD[] = 
 {
     {{objEEMEM, objString, eeNodeName},
@@ -88,18 +83,32 @@ static const indextable_t listPredefOD[] =
         objPHY2addr, (cbRead_t)&readDeviceInfo, NULL, NULL}
 #endif  //  objPHY1addr
 };
+
+// User objects list
+static indextable_t ListOD[OD_MAX_INDEX_LIST];
+
+#ifdef PLC_USED
+extern indextable_t PLCexchgOD;                                         // PLC exchange object
+#endif  //PLC_USED
+
 // End Objects List
 //////////////////////////
 
 // Local variables
-static indextable_t ListOD[OD_MAX_INDEX_LIST];                          // Object's List
 static uint8_t idxUpdate = 0;                                           // Poll pointer
 
-#ifdef PLC_USED
-extern indextable_t PLCexchgOD;
-#endif  //PLC_USED
-
+//////////////////////////
 // Callback functions
+#ifdef EXTAIN_USED
+void ainLoadAverage(void);
+static uint8_t cbWriteADCaverage(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    eepromWriteOD(pSubidx, Len, pBuf);
+    ainLoadAverage();
+    return MQTTSN_RET_ACCEPTED;
+}
+#endif  //  EXTAIN_USED
+
 #ifdef LAN_NODE
 // Convert raw data from mqtt-sn packet to LAN variables
 uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
@@ -131,6 +140,8 @@ uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
   return MQTTSN_RET_ACCEPTED;
 }
 #endif  //  LAN_NODE
+// End callback's
+//////////////////////////
 
 //////////////////////////
 // Local Subroutines
@@ -164,7 +175,7 @@ static indextable_t * scanIndexOD(uint16_t index, uint8_t flags)
   return NULL;
 }
 
-// Convert Subindex to Length
+// Convert Subindex to Length - pack/unpack objects
 static uint8_t cvtSubidx2Len(subidx_t * pSubIdx)
 {
   switch(pSubIdx->Place)
@@ -451,6 +462,14 @@ void InitOD(void)
     uint16_t pos = 0;
     for(uiTmp = 0; uiTmp < OD_MAX_INDEX_LIST; uiTmp++)
     {
+        // Skip PNP objects
+        while(ListOD[pos].Index != 0xFFFF)
+        {
+            pos++;
+            if(pos == OD_MAX_INDEX_LIST)
+                return;
+        }
+
         RestoreSubindex(uiTmp, &ListOD[pos].sidx);
 
         if((ListOD[pos].sidx.Place == 0xFF) || (ListOD[pos].sidx.Place == 0x00) ||
@@ -459,25 +478,25 @@ void InitOD(void)
 
         ListOD[pos++].Index = 0x0000;
     }
-
-    // Configure extensions & PnP devices
-//    extConfig();
 }
 
-/*
 // Register PnP objects, get pointer to a free ListOD record
 indextable_t * getFreeIdxOD(void)
 {
-  uint8_t id;
-  for(id = 0; id < OD_MAX_INDEX_LIST; id++)
-    if(ListOD[id].Index == 0xFFFF)
+    uint8_t id;
+    for(id = 0; id < OD_MAX_INDEX_LIST; id++)
     {
-      ListOD[id].Index = 0;
-      return &ListOD[id];
+        if(ListOD[id].Index == 0xFFFF)
+        {
+            ListOD[id].cbRead   = NULL;
+            ListOD[id].cbWrite  = NULL;
+            ListOD[id].cbPoll   = NULL;
+            ListOD[id].Index    = 0x0000;
+            return &ListOD[id];
+        }
     }
-  return NULL;
+    return NULL;
 }
-*/
 
 e_MQTTSN_RETURNS_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf)
 {

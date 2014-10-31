@@ -69,6 +69,10 @@ extern "C" {
 #define EXTAIN_REF                  0x06        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
+// TWI Section
+#define TWIM_SCL_STAT()             (PINC & (1<<PC5))
+// End TWI Section
+
 // LEDs
 #define LED1_On()                   PORTB &= ~(1<<PB0)
 #define LED1_Off()                  PORTB |= (1<<PB0)

@@ -64,17 +64,21 @@ extern "C" {
 
 // DIO Section
 #define DIO_PORT_SIZE               8
-#define EXTDIO_MAXPORT_NR           4                                     // Number of digital Ports
-#define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
-#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC3, (uint8_t)0xF0, (uint8_t)0xFC, (uint8_t)0x83}
+#define EXTDIO_MAXPORT_NR           3                                     // Number of digital Ports
+#define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTD}
+#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC3, (uint8_t)0xF0, (uint8_t)0x83}
 // End DIO Section
 
 // Analogue Inputs
-#define EXTAIN_MAXPORT_NR           3           // ADC0-ADC7, Vbg
+#define EXTAIN_MAXPORT_NR           3           // ADC4-ADC5, Vbg
 #define EXTAIN_BASE_2_APIN          {4, 5, 14}
 #define EXTAIN_BASE_2_DIO           {4, 5, 0xFF}
 #define EXTAIN_REF                  0x0E        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
+
+// TWI Section
+#define TWIM_SCL_STAT()             (PINC & (1<<PC0))
+// End TWI Section
 
 // LEDs
 #define LED1_On()                   PORTA |= (1<<PA0)
@@ -100,7 +104,7 @@ extern "C" {
 #define RF_PIN_MOSI                 PB5
 #define RF_PIN_MISO                 PB6
 #define RF_PIN_SCK                  PB7
-//  End RF Section
+// End RF Section
 
 #define UART_PHY                    1
 #define CC11_PHY                    2

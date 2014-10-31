@@ -133,16 +133,15 @@ extern "C" {
 // End DIO Section
 
 // Analogue Inputs
-#define EXTAIN_MAXPORT_NR           16           // ADC0-ADC7, ADC8-ADC15
-#define EXTAIN_BASE_2_APIN          {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, \
+#define EXTAIN_MAXPORT_NR           12           // ADC0-ADC3, ADC8-ADC15
+#define EXTAIN_BASE_2_APIN          {0x00, 0x01, 0x02, 0x03, \
                                      0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}
-//#define EXTAIN_BASE_2_DIO           {4, 5, 0xFF}
 #define EXTAIN_REF                  0x0F        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
-// TWIMM Section
+// TWI Section
 #define TWIM_SCL_STAT()             (PIND & (1<<PD0))
-// End TWIMM Section
+// End TWI Section
 
 // LEDs
 #define LED1_On()                   PORTA |= (1<<PA0)

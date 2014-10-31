@@ -116,8 +116,4 @@ void extProc(void)
 #ifdef EXTAIN_USED
     ainProc();
 #endif  //  EXTAIN_USED
-
-#ifdef EXTTWI_USED
-    twiProc();
-#endif  //  EXTTWI_USED
 }
