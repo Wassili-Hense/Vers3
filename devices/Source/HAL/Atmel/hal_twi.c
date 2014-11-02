@@ -41,21 +41,22 @@ void hal_twi_tick(void)
     static uint8_t twi_wd = 0;
 
     uint8_t access = twi_exchange.access;
-
-    if(access & 0xF0)   // Complete, or Error
+    
+    if((access & 0xF8) == 0)
     {
         twi_wd = 0;
-        return;
     }
-
-    twi_wd--;
-    if(twi_wd == 0) // Timeout
+    else
     {
-        twi_exchange.access |= TWI_WD;
-        if(access & TWI_BUSY)
+        twi_wd--;
+        if(twi_wd == 0) // Timeout
         {
-            TWCR &= ~((1<<TWEN) | (1<<TWSTO));
-            TWCR |= (1<<TWINT) | (1<<TWEN);
+            twi_exchange.access |= TWI_WD;
+            if(access & TWI_BUSY)
+            {
+                TWCR &= ~((1<<TWEN) | (1<<TWSTO));
+                TWCR |= (1<<TWINT) | (1<<TWEN);
+            }
         }
     }
 
@@ -113,7 +114,7 @@ ISR(TWI_vect)
             twi_exchange.access &= ~(TWI_WRITE | TWI_BUSY);
             if((twi_exchange.access & TWI_READ) == 0)
             {
-                twi_exchange.access |= TWI_RDY;
+                twi_exchange.access = 0;
                 TWCR = (1<<TWINT) | (1<<TWSTO) | (1<<TWEN) | (1<<TWIE); // Send Stop
             }
             else

@@ -56,7 +56,7 @@ void hal_uart_init_hw(void)
     GPIOA->AFR[0]  |= 0x1100;                       // PA2, PA3  - AF1
 #endif  //  USART_USE_PORT
 
-#elif ((defined STM32F10X_MD) || (defined STM32F10X_MD_VL))     // STM32F1
+#elif (defined __STM32F10x_H)                       // STM32F1xx
     #define HAL_USART_GET_ITSTAT()      (UARTx->SR & UARTx->CR1)
     #define HAL_USART_RX_DATA           (UARTx->DR & 0xFF)
     #define HAL_USART_TX_DATA           UARTx->DR
