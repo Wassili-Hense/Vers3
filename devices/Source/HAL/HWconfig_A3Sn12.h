@@ -58,13 +58,13 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#include "Atmel/hal.h"
+#include "AVR/hal.h"
 
 // DIO Section
 #define DIO_PORT_SIZE               8
 #define EXTDIO_MAXPORT_NR           4                                     // Number of digital Ports
-#define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
-#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0x10, (uint8_t)0xFC, (uint8_t)0x83}
+#define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTD}
+#define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0x10, (uint8_t)0x83}
 // End DIO Section
 
 // Analogue Inputs
@@ -89,7 +89,7 @@ extern "C" {
 #define UART_RX_PIN                 PD0
 #define UART_TX_PIN                 PD1
 
-#define USART_USE_PORT              1
+#define USART_USE_PORT              0
 // End UART Section
 
 #define UART_PHY                    1

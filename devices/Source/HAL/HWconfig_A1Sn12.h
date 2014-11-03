@@ -51,7 +51,7 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#include "Atmel/hal.h"
+#include "AVR/hal.h"
 
 // DIO Section
 #define DIO_PORT_SIZE               8
@@ -82,8 +82,6 @@ extern "C" {
 #define UART_DDR                    DDRD
 #define UART_RX_PIN                 PD0
 #define UART_TX_PIN                 PD1
-
-#define USART_USE_PORT              1
 // End UART Section
 
 #define UART_PHY                    1

@@ -77,7 +77,7 @@
     <Folder Include="Source" />
     <Folder Include="Source\EXT" />
     <Folder Include="Source\HAL" />
-    <Folder Include="Source\HAL\Atmel" />
+    <Folder Include="Source\HAL\AVR" />
     <Folder Include="Source\PHY" />
     <Folder Include="Source\PHY\CC1101" />
     <Folder Include="Source\PHY\ENC28J60" />
@@ -117,28 +117,28 @@
     <Compile Include="Source\EXT\exttwi.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\HAL\Atmel\HAL.c">
+    <Compile Include="Source\HAL\AVR\HAL.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\HAL\Atmel\hal.h">
+    <Compile Include="Source\HAL\AVR\hal.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\HAL\Atmel\hal_ain.c">
+    <Compile Include="Source\HAL\AVR\hal_ain.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\HAL\Atmel\hal_cc11.c">
+    <Compile Include="Source\HAL\AVR\hal_cc11.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\HAL\Atmel\hal_dio.c">
+    <Compile Include="Source\HAL\AVR\hal_dio.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\HAL\Atmel\hal_enc28j60.c">
+    <Compile Include="Source\HAL\AVR\hal_enc28j60.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\HAL\Atmel\hal_twi.c">
+    <Compile Include="Source\HAL\AVR\hal_twi.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\HAL\Atmel\hal_uart.c">
+    <Compile Include="Source\HAL\AVR\hal_uart.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\HAL\HWconfig_A4Sn12.h">

@@ -119,7 +119,7 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#include "Atmel/hal.h"
+#include "AVR/hal.h"
 
 // DIO Section
 #define DIO_PORT_SIZE               8
@@ -149,12 +149,12 @@ extern "C" {
 #define LEDsInit()                  {DDRA |= ((1<<PA0) | (1<<PA1)); PORTA |= (1<<PA0) | (1<<PA1);}
 
 // UART Section
-#define UART_PORT                   PORTD
-#define UART_DDR                    DDRD
-#define UART_RX_PIN                 PD0
-#define UART_TX_PIN                 PD1
+#define UART_PORT                   PORTE
+#define UART_DDR                    DDRE
+#define UART_RX_PIN                 PE0
+#define UART_TX_PIN                 PE1
 
-#define USART_USE_PORT              1
+#define USART_USE_PORT              0
 // End UART Section
 
 #define UART_PHY                    1

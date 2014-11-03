@@ -59,7 +59,7 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#include "Atmel/hal.h"
+#include "AVR/hal.h"
 #include <util/delay.h>
 
 // DIO Section
@@ -93,7 +93,7 @@ extern "C" {
 #define UART_RX_PIN                 PD0
 #define UART_TX_PIN                 PD1
 
-#define USART_USE_PORT              1
+#define USART_USE_PORT              0
 // End UART Section
 
 // RF Section

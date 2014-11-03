@@ -51,7 +51,7 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#include "Atmel/hal.h"
+#include "AVR/hal.h"
 #include <util/delay.h>
 
 // DIO Section
