@@ -13,9 +13,10 @@ See LICENSE file for license details.
 // Extensions digital inputs/outputs
 
 #include "../config.h"
-#include "extdio.h"
 
 #ifdef EXTDIO_USED
+
+#include "extdio.h"
 
 #if (DIO_PORT_SIZE == 8)
 #define DIO_PORT_POS        3
@@ -31,7 +32,6 @@ See LICENSE file for license details.
 static const DIO_PORT_TYPE dio_portnum2mask[EXTDIO_MAXPORT_NR] = EXTDIO_PORTNUM2MASK;
 
 static DIO_PORT_TYPE dio_write_mask[EXTDIO_MAXPORT_NR];
-
 static DIO_PORT_TYPE dio_read_mask[EXTDIO_MAXPORT_NR];
 static DIO_PORT_TYPE dio_state_flag[EXTDIO_MAXPORT_NR];
 static DIO_PORT_TYPE dio_change_flag[EXTDIO_MAXPORT_NR];
@@ -43,6 +43,7 @@ void hal_dio_configure(uint8_t PortNr, DIO_PORT_TYPE Mask, eDIOmode_t Mode);
 DIO_PORT_TYPE hal_dio_read(uint8_t PortNr);
 void hal_dio_set(uint8_t PortNr, DIO_PORT_TYPE Mask);
 void hal_dio_reset(uint8_t PortNr, DIO_PORT_TYPE Mask);
+void hal_pwm_write(uint16_t base, uint16_t value);
 
 // Convert Base to Mask
 static DIO_PORT_TYPE dioBase2Mask(uint16_t base)
@@ -86,14 +87,24 @@ static uint8_t dioCheckBase(uint16_t base)
 // Check Index digital inp/out
 uint8_t dioCheckIdx(subidx_t * pSubidx)
 {
-    if(
+    if((pSubidx->Place == objDin) || (pSubidx->Place == objDout))
+    {
+        if((pSubidx->Type == objPinNPN) || (pSubidx->Type == objPinPNP)
 #ifdef ASLEEP
-       (pSubidx->Type != objActPNP) && (pSubidx->Type != objActNPN) &&
+           || (pSubidx->Type == objActPNP) || (pSubidx->Type == objActNPN)
 #endif  //  ASLEEP
-       (pSubidx->Type != objPinNPN) && (pSubidx->Type != objPinPNP))
-        return 2;
+        )
+            return dioCheckBase(pSubidx->Base);
+    }
+#ifdef EXTPWM_USED
+    else if(pSubidx->Place == objPWM)
+    {
+        if((pSubidx->Type == objPinNPN) || (pSubidx->Type == objPinPNP))
+            return dioCheckBase(pSubidx->Base);
+    }
+#endif  //  EXTPWM_USED
 
-    return dioCheckBase(pSubidx->Base);
+    return 2;
 }
 
 void dioInit()
@@ -144,6 +155,22 @@ e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTSN_RET_ACCEPTED;
 }
 
+#ifdef EXTPWM_USED
+e_MQTTSN_RETURNS_t pwmWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    uint16_t base = pSubidx->Base;
+    uint16_t value = pBuf[1];
+    value <<= 8;
+    value |= pBuf[0];
+    if(pSubidx->Type == objPinNPN)
+        value = ~value;
+        
+    hal_pwm_write(base, value);
+
+    return MQTTSN_RET_ACCEPTED;
+}
+#endif  //  EXTPWM_USED
+
 // Poll Procedure
 uint8_t dioPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
@@ -164,6 +191,7 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
 
     if(pIdx->sidx.Place == objDout)
     {
+        pIdx->cbWrite = &dioWriteOD;
         hal_dio_configure(port, mask, DIO_MODE_OUT);
         dio_write_mask[port] |= mask;
 
@@ -180,6 +208,8 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
     }
     else if(pIdx->sidx.Place == objDin)
     {
+        pIdx->cbRead = &dioReadOD;
+        pIdx->cbWrite = &dioWriteOD;
         pIdx->cbPoll = &dioPollOD;
         dio_read_mask[port] |= mask;
 
@@ -196,6 +226,28 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
             dio_status[port] |= mask;
         }
     }
+#ifdef EXTPWM_USED
+    else if(pIdx->sidx.Place == objPWM)
+    {
+        pIdx->cbWrite = &pwmWriteOD;
+        
+        dio_write_mask[port] |= mask;
+
+        if(pIdx->sidx.Type == objPinPNP)
+        {
+            hal_pwm_write(base, 0);
+            dio_status[port] &= ~mask;
+        }
+        else
+        {
+            hal_pwm_write(base, 0xFFFF);
+            dio_status[port] |= mask;
+        }
+    }
+#endif  //  EXTPWM_USED
+    
+    
+/*
 #ifdef EXTAIN_USED
     else if(pIdx->sidx.Place == objAin)
     {
@@ -204,9 +256,7 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
         return MQTTSN_RET_ACCEPTED;
     }
 #endif  //  EXTAIN_USED
-
-    pIdx->cbRead = &dioReadOD;
-    pIdx->cbWrite = &dioWriteOD;
+*/
     return MQTTSN_RET_ACCEPTED;
 }
 

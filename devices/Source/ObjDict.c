@@ -178,38 +178,37 @@ static indextable_t * scanIndexOD(uint16_t index, uint8_t flags)
 // Convert Subindex to Length - pack/unpack objects
 static uint8_t cvtSubidx2Len(subidx_t * pSubIdx)
 {
-  switch(pSubIdx->Place)
-  {
-    case objAin:
-      return 2;
-    case objPWM:
-      return 1;
-    case objDin:
-    case objDout:
-    case objSer:
-      return 0;
-    default:
-      break;
-  }
+    switch(pSubIdx->Place)
+    {
+        case objAin:
+        case objPWM:
+            return 2;
+        case objDin:
+        case objDout:
+        case objSer:
+            return 0;
+        default:
+            break;
+    }
 
-  switch(pSubIdx->Type)
-  {
-    case objUInt8:
-      return 1;
-    case objInt16:
-      return 0x82;
-    case objUInt16:
-      return 2;
-    case objInt32:
-      return 0x84;
-    case objUInt32:
-      return 4;
-    case objInt64:
-      return 0x88;
-    default:
-      break;
-  }
-  return 0;
+    switch(pSubIdx->Type)
+    {
+        case objUInt8:
+            return 1;
+        case objInt16:
+            return 0x82;
+        case objUInt16:
+            return 2;
+        case objInt32:
+            return 0x84;
+        case objUInt32:
+            return 4;
+        case objInt64:
+            return 0x88;
+        default:
+            break;
+    }
+    return 0;
 }
 
 // Read predefined object from EEPROM

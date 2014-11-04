@@ -47,4 +47,8 @@ void hal_dio_reset(uint8_t PortNr, DIO_PORT_TYPE Mask)
     uint8_t * pPORT = (uint8_t *)dio_portnum2port[PortNr];
     *pPORT &= ~Mask;
 }
+
+void hal_pwm_write(uint16_t base, uint16_t value)
+{
+}
 #endif  //  EXTDIO_USED

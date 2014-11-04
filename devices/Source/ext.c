@@ -49,12 +49,17 @@ uint8_t extCheckIdx(subidx_t * pSubidx)
 #ifdef EXTDIO_USED
         case objDin:
         case objDout:
+#ifdef EXTPWM_USED
+        case objPWM:
+#endif  //  EXTPWM_USED
             return dioCheckIdx(pSubidx);
 #endif  //  EXTDIO_USED
+
 #ifdef EXTAIN_USED
         case objAin:
             return ainCheckIdx(pSubidx);
 #endif  //  EXTAIN_USED
+
         default:
             break;
   }
@@ -73,8 +78,12 @@ e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx)
 #ifdef EXTDIO_USED
         case objDin:        // Digital(bool) Input's
         case objDout:       // Digital(bool) Output's
+#ifdef EXTPWM_USED
+        case objPWM:
+#endif  //  EXTPWM_USED        
             return dioRegisterOD(pIdx);
 #endif  //  EXTDIO_USED
+
 #ifdef EXTAIN_USED
         case objAin:        // Analog(int16_t) Input's
             return ainRegisterOD(pIdx);
@@ -94,9 +103,13 @@ void extDeleteOD(subidx_t * pSubidx)
 #ifdef EXTDIO_USED
         case objDin:
         case objDout:
+#ifdef EXTPWM_USED
+        case objPWM:
+#endif  //  EXTPWM_USED        
             dioDeleteOD(pSubidx);
             break;
 #endif  //  EXTDIO_USED
+
 #ifdef EXTAIN_USED
         case objAin:
             ainDeleteOD(pSubidx);
