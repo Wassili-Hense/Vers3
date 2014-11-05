@@ -71,6 +71,8 @@ extern "C" {
 // STM32F051
 #elif   (defined CFG_S2En12)
 #include "HAL/HWconfig_S2En12.h"
+#elif   (defined CFG_S2SC12)
+#include "HAL/HWconfig_S2SC12.h"
 #elif   (defined CFG_S2Sn12)
 #include "HAL/HWconfig_S2Sn12.h"
 // STM32F10x
