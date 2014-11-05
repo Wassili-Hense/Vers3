@@ -10,7 +10,7 @@ BSD New License
 See LICENSE file for license details.
 */
 
-// MQTT-SN Library, Version 2.7.0
+// MQTT-SN Library, Version 3.0.0
 
 #include "config.h"
 

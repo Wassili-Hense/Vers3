@@ -78,10 +78,11 @@ e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx)
 #ifdef EXTDIO_USED
         case objDin:        // Digital(bool) Input's
         case objDout:       // Digital(bool) Output's
-#ifdef EXTPWM_USED
-        case objPWM:
-#endif  //  EXTPWM_USED        
             return dioRegisterOD(pIdx);
+#ifdef EXTPWM_USED
+        case objPWM:        // PWM
+            return pwmRegisterOD(pIdx);
+#endif  //  EXTPWM_USED
 #endif  //  EXTDIO_USED
 
 #ifdef EXTAIN_USED

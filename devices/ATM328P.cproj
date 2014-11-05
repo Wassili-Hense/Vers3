@@ -56,8 +56,6 @@
             <Value>DEBUG</Value>
             <Value>F_CPU=8000000UL</Value>
             <Value>CFG_A1Sn12</Value>
-            <Value>EXTAIN_USED=1</Value>
-            <Value>EXTTWI_USED=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -92,8 +90,6 @@
             <Value>DEBUG</Value>
             <Value>F_CPU=12500000UL</Value>
             <Value>CFG_A1En12=1</Value>
-            <Value>EXTAIN_USED=1</Value>
-            <Value>EXTTWI_USED=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -129,8 +125,6 @@
             <Value>DEBUG</Value>
             <Value>F_CPU=12500000UL</Value>
             <Value>CFG_A1ES12=1</Value>
-            <Value>EXTAIN_USED=1</Value>
-            <Value>EXTTWI_USED=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -166,8 +160,6 @@
             <Value>DEBUG</Value>
             <Value>F_CPU=8000000UL</Value>
             <Value>CFG_A1Cn12</Value>
-            <Value>EXTAIN_USED=1</Value>
-            <Value>EXTTWI_USED=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -203,8 +195,6 @@
             <Value>DEBUG</Value>
             <Value>F_CPU=8000000UL</Value>
             <Value>CFG_A1SC12</Value>
-            <Value>EXTAIN_USED=1</Value>
-            <Value>EXTTWI_USED=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
@@ -284,6 +274,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\HAL\AVR\hal_enc28j60.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\HAL\AVR\hal_pwm.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\HAL\AVR\hal_twi.c">

@@ -122,6 +122,7 @@ extern "C" {
 #include "AVR/hal.h"
 
 // DIO Section
+#define EXTDIO_USED                 1
 #define DIO_PORT_SIZE               8
 #define EXTDIO_MAXPORT_NR           11                                     // Number of digital Ports
 #define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD,  \
@@ -133,6 +134,7 @@ extern "C" {
 // End DIO Section
 
 // Analogue Inputs
+#define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           12           // ADC0-ADC3, ADC8-ADC15
 #define EXTAIN_BASE_2_APIN          {0x00, 0x01, 0x02, 0x03, \
                                      0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}
@@ -140,6 +142,7 @@ extern "C" {
 // End Analogue Inputs
 
 // TWI Section
+#define EXTTWI_USED                 1
 #define TWIM_SCL_STAT()             (PIND & (1<<PD0))
 // End TWI Section
 

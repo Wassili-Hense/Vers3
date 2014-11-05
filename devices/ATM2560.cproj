@@ -55,8 +55,6 @@
             <Value>DEBUG</Value>
             <Value>F_CPU=16000000UL</Value>
             <Value>CFG_A4Sn12=1</Value>
-            <Value>EXTAIN_USED=1</Value>
-            <Value>EXTTWI_USED=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
