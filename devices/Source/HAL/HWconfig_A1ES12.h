@@ -105,10 +105,12 @@ extern "C" {
 // End LAN Section
 
 // UART Section
-#define UART_PORT                   PORTD
-#define UART_DDR                    DDRD
-#define UART_RX_PIN                 PD0
-#define UART_TX_PIN                 PD1
+#define UART0_PORT                  PORTD
+#define UART0_DDR                   DDRD
+#define UART0_RX_PIN                PD0
+#define UART0_TX_PIN                PD1
+
+#define UART_PHY_PORT               0
 // End UART Section
 
 #define ENC28J60_PHY                1

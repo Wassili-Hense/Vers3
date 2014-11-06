@@ -94,12 +94,12 @@ extern "C" {
 #define LEDsInit()                  {DDRA |= ((1<<PA0) | (1<<PA1)); PORTA |= (1<<PA0) | (1<<PA1);}
 
 // UART Section
-#define UART_PORT                   PORTD
-#define UART_DDR                    DDRD
-#define UART_RX_PIN                 PD0
-#define UART_TX_PIN                 PD1
+#define UART0_PORT                  PORTD
+#define UART0_DDR                   DDRD
+#define UART0_RX_PIN                PD0
+#define UART0_TX_PIN                PD1
 
-#define USART_USE_PORT              0
+#define UART_PHY_PORT               0
 // End UART Section
 
 #define UART_PHY                    1

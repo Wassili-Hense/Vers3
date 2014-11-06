@@ -56,7 +56,7 @@ void hal_pwm_write(uint8_t Config, uint16_t value)
             break;
 #endif  // TCCR3A
 #ifdef TCCR5A
-        case 3:         //  Timer 5
+        case 5:         //  Timer 5
             pTIM = &TCCR5A;
             break;
 #endif  // TCCR3A

@@ -40,6 +40,13 @@ void SetLED2mask(uint16_t mask);
 
 #endif  //  UART_PHY
 
+// HAL Section
+void hal_uart_init_hw(uint8_t port, uint8_t nBaud);
+bool hal_uart_tx_busy(uint8_t port);
+void hal_uart_send(uint8_t port, uint8_t data);
+bool hal_uart_get(uint8_t port, uint8_t * pData);
+
+
 static Queue_t  uart_tx_queue = {NULL, NULL, 0, 0};
 
 static void uart_tx_task(void)
@@ -51,7 +58,7 @@ static void uart_tx_task(void)
 
     uint8_t data;
 
-    while(hal_uart_tx_busy() == 0)
+    while(hal_uart_tx_busy(UART_PHY_PORT) == 0)
     {
         if(tx_pos == 0xFF)
         {
@@ -79,7 +86,7 @@ static void uart_tx_task(void)
                 pTx_buf = NULL;
             }
 
-            hal_uart_send(0xC0);
+            hal_uart_send(UART_PHY_PORT, 0xC0);
             tx_pos = 0xFF;
             return;
         }
@@ -94,13 +101,13 @@ static void uart_tx_task(void)
             }
             else
             {
-                hal_uart_send(0xDB);
+                hal_uart_send(UART_PHY_PORT, 0xDB);
                 tx_db = true;
                 continue;
             }
         }
 
-        hal_uart_send(data);
+        hal_uart_send(UART_PHY_PORT, data);
         tx_pos++;
     }
 }
@@ -111,7 +118,7 @@ void UART_Init(void)
     while((pBuf = mqDequeue(&uart_tx_queue)) != NULL)
         mqFree(pBuf);
 
-    hal_uart_init_hw();
+    hal_uart_init_hw(UART_PHY_PORT, 4);
 }
 
 void UART_Send(void *pBuf)
@@ -135,7 +142,7 @@ void * UART_Get(void)
     uint8_t data;
     MQ_t * pRetVal = NULL;
 
-    while(hal_uart_get(&data))
+    while(hal_uart_get(UART_PHY_PORT, &data))
     {
         // Convert from SLEEP to RAW data
         if(data == 0xC0)

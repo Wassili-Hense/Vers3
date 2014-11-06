@@ -87,7 +87,7 @@ extern "C" {
 // End DIO Section
 
 // UART Section
-#define USART_USE_PORT              1   //  1 - USART1 PA9,PA10 GPIOA MASK 0x0600, 2 - USART2 PA2,PA3 GPIO MASK 0x000C
+#define UART_PHY_PORT               1   //  1 - USART1 PA9,PA10 GPIOA MASK 0x0600, 2 - USART2 PA2,PA3 GPIO MASK 0x000C
 // End UART Section
 
 #define UART_PHY                    1

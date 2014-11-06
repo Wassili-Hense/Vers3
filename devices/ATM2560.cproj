@@ -133,6 +133,9 @@
     <Compile Include="Source\HAL\AVR\hal_enc28j60.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\HAL\AVR\hal_pwm.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\HAL\AVR\hal_twi.c">
       <SubType>compile</SubType>
     </Compile>

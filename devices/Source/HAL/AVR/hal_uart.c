@@ -1,142 +1,275 @@
 #include "../../config.h"
 
-#ifdef UART_PHY
+#if (defined UART0_PORT) || (defined UART1_PORT) || (defined UART2_PORT) || (defined UART3_PORT)
 
 #include <avr/interrupt.h>
 
 #define HAL_SIZEOF_UART_RX_FIFO     16      // Should be 2^n
 #define HAL_SIZEOF_UART_TX_FIFO     16      // Should be 2^n
 
-#if (!(defined USART_USE_PORT) || (USART_USE_PORT == 0))            // USART0
+typedef struct
+{
+    uint8_t             rx_fifo[HAL_SIZEOF_UART_RX_FIFO];
+    volatile uint8_t    rx_head;
+    uint8_t             rx_tail;
+    
+    uint8_t             tx_fifo[HAL_SIZEOF_UART_TX_FIFO];
+    uint8_t             tx_head;
+    volatile uint8_t    tx_tail;
+}HAL_UART_t;
 
-#define UARTx                       &UCSR0A
+static HAL_UART_t * hal_UARTv[4] = {NULL, NULL, NULL, NULL};
 
-#ifndef USART_RX_vect
-#define USART_RX_vect               USART0_RX_vect
+#if (defined UCSR0A) && (defined UART0_PORT)
+
+#ifndef USART0_RX_vect
+#define USART0_RX_vect              USART_RX_vect
 #endif  //  USART_RX_vect
 
-#ifndef USART_UDRE_vect
-#define USART_UDRE_vect             USART0_UDRE_vect
+#ifndef USART0_UDRE_vect
+#define USART0_UDRE_vect            USART_UDRE_vect
 #endif  //  USART_UDRE_vect
 
-#elif ((USART_USE_PORT == 1) && (defined UCSR1A))                   // USART1
-
-#define UARTx                       &UCSR1A
-
-#define USART_RX_vect               USART1_RX_vect
-#define USART_UDRE_vect             USART1_UDRE_vect
-
-#elif ((USART_USE_PORT == 2) && (defined UCSR2A))                   // USART2
-
-#define UARTx                       &UCSR2A
-
-#define USART_RX_vect               USART2_RX_vect
-#define USART_UDRE_vect             USART2_UDRE_vect
-
-#elif ((USART_USE_PORT == 3) && (defined UCSR3A))                   // USART3
-
-#define UARTx                       &UCSR3A
-
-#define USART_RX_vect               USART3_RX_vect
-#define USART_UDRE_vect             USART3_UDRE_vect
-
-#else
-#error unknown USART configuration
-#endif  //  USART_USE_PORT
-
-#define UCSRB                       *(uint8_t *)(UARTx + 1)
-#define UCSRC                       *(uint8_t *)(UARTx + 2)
-#define UBRRL                       *(uint8_t *)(UARTx + 4)
-#define UBRRH                       *(uint8_t *)(UARTx + 5)
-#define UDR                         *(uint8_t *)(UARTx + 6)
-
-static uint8_t          hal_uart_rx_fifo[HAL_SIZEOF_UART_RX_FIFO];
-static volatile uint8_t hal_uart_rx_head;
-static uint8_t          hal_uart_rx_tail;
-
-static uint8_t          hal_uart_tx_fifo[HAL_SIZEOF_UART_TX_FIFO];
-static uint8_t          hal_uart_tx_head;
-static volatile uint8_t hal_uart_tx_tail;
-
-void hal_uart_init_hw(void)
+ISR(USART0_RX_vect)
 {
-    UART_PORT |= (1<<UART_RX_PIN) | (1<<UART_TX_PIN);
-    UART_DDR |= (1<<UART_TX_PIN);
-    UART_DDR &= ~(1<<UART_RX_PIN);
+    uint8_t data = UDR0;
+    uint8_t tmp_head = (hal_UARTv[0]->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
+    if(tmp_head == hal_UARTv[0]->rx_tail)        // Overflow
+        return;
 
-    UBRRH = (((F_CPU/16/38400) - 1)>>8);
-    UBRRL = (((F_CPU/16/38400) - 1) & 0xFF);
-
-    UCSRB = ((1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0));
-    UCSRC = (3<<UCSZ00);
-
-    hal_uart_rx_head = 0;
-    hal_uart_rx_tail = 0;
-    hal_uart_tx_head = 0;
-    hal_uart_tx_tail = 0;
+    hal_UARTv[0]->rx_fifo[hal_UARTv[0]->rx_head] = data;
+    hal_UARTv[0]->rx_head = tmp_head;
 }
 
-bool hal_uart_tx_busy(void)
+ISR(USART0_UDRE_vect)
 {
-    if(hal_uart_tx_head == hal_uart_tx_tail)
+    if(hal_UARTv[0]->tx_head == hal_UARTv[0]->tx_tail)
+    {
+        UCSR0B &= ~(1<<UDRIE0);
+        return;
+    }
+
+    UDR0 = hal_UARTv[0]->tx_fifo[hal_UARTv[0]->tx_tail];
+    hal_UARTv[0]->tx_tail++;
+    hal_UARTv[0]->tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
+}
+#endif  //  UCSR0A
+
+#if (defined UCSR1A) && (defined UART1_PORT)
+ISR(USART1_RX_vect)
+{
+    uint8_t data = UDR1;
+    uint8_t tmp_head = (hal_UARTv[1]->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
+    if(tmp_head == hal_UARTv[1]->rx_tail)        // Overflow
+        return;
+
+    hal_UARTv[1]->rx_fifo[hal_UARTv[1]->rx_head] = data;
+    hal_UARTv[1]->rx_head = tmp_head;
+}
+
+ISR(USART1_UDRE_vect)
+{
+    if(hal_UARTv[1]->tx_head == hal_UARTv[1]->tx_tail)
+    {
+        UCSR1B &= ~(1<<UDRIE1);
+        return;
+    }
+
+    UDR1 = hal_UARTv[1]->tx_fifo[hal_UARTv[1]->tx_tail];
+    hal_UARTv[1]->tx_tail++;
+    hal_UARTv[1]->tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
+}
+#endif  //  UCSR1A
+
+#if (defined UCSR2A) && (defined UART2_PORT)
+ISR(USART2_RX_vect)
+{
+    uint8_t data = UDR2;
+    uint8_t tmp_head = (hal_UARTv[2]->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
+    if(tmp_head == hal_UARTv[2]->rx_tail)        // Overflow
+        return;
+
+    hal_UARTv[2]->rx_fifo[hal_UARTv[2]->rx_head] = data;
+    hal_UARTv[2]->rx_head = tmp_head;
+}
+
+ISR(USART2_UDRE_vect)
+{
+    if(hal_UARTv[2]->tx_head == hal_UARTv[2]->tx_tail)
+    {
+        UCSR2B &= ~(1<<UDRIE2);
+        return;
+    }
+
+    UDR2 = hal_UARTv[2]->tx_fifo[hal_UARTv[2]->tx_tail];
+    hal_UARTv[2]->tx_tail++;
+    hal_UARTv[2]->tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
+}
+#endif  //  UCSR2A
+
+#if (defined UCSR3A) && (defined UART3_PORT)
+ISR(USART3_RX_vect)
+{
+    uint8_t data = UDR3;
+    uint8_t tmp_head = (hal_UARTv[3]->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
+    if(tmp_head == hal_UARTv[3]->rx_tail)        // Overflow
+        return;
+
+    hal_UARTv[3]->rx_fifo[hal_UARTv[3]->rx_head] = data;
+    hal_UARTv[3]->rx_head = tmp_head;
+}
+
+ISR(USART3_UDRE_vect)
+{
+    if(hal_UARTv[3]->tx_head == hal_UARTv[3]->tx_tail)
+    {
+        UCSR3B &= ~(1<<UDRIE3);
+        return;
+    }
+
+    UDR3 = hal_UARTv[3]->tx_fifo[hal_UARTv[3]->tx_tail];
+    hal_UARTv[3]->tx_tail++;
+    hal_UARTv[3]->tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
+}
+#endif  //  UCSR3A
+
+static volatile uint8_t *hal_pUART[4] =
+            {
+            #ifdef UCSR0A
+                &UCSR0A,
+            #else
+                NULL,
+            #endif  //  UCSR0A
+            #ifdef UCSR1A
+                &UCSR1A, 
+            #else
+                NULL,
+            #endif  //  UCSR1A
+            #ifdef UCSR2A
+                &UCSR2A, 
+            #else
+                NULL,
+            #endif  //  UCSR2A
+            #ifdef UCSR3A
+                &UCSR3A
+            #else
+                NULL
+            #endif  //  UCSR3A
+            };
+
+static const uint16_t hal_baud_list[] = {((F_CPU/16/2400) - 1),
+                                         ((F_CPU/16/4800) - 1),
+                                         ((F_CPU/16/9600) - 1),
+                                         ((F_CPU/16/19200) - 1),
+                                         ((F_CPU/16/38400) - 1)};
+// HAL API
+
+void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
+{
+    assert(nBaud <= 4);
+
+    switch(port)
+    {
+#if (defined UCSR0A) && (defined UART0_PORT)
+        case 0:
+            {
+            UCSR0B = 0;
+            UART0_PORT |= (1<<UART0_RX_PIN) | (1<<UART0_TX_PIN);
+            UART0_DDR |= (1<<UART0_TX_PIN);
+            UART0_DDR &= ~(1<<UART0_RX_PIN);
+            }
+            break;
+#endif  //  (defined UCSR0A) && (defined UART0_PORT)
+#if (defined UCSR1A) && (defined UART1_PORT)
+        case 1:
+            {
+            UCSR1B = 0;
+            UART1_PORT |= (1<<UART1_RX_PIN) | (1<<UART1_TX_PIN);
+            UART1_DDR |= (1<<UART1_TX_PIN);
+            UART1_DDR &= ~(1<<UART1_RX_PIN);
+            }
+            break;
+#endif  //  (defined UCSR1A) && (defined UART1_PORT)
+#if (defined UCSR2A) && (defined UART2_PORT)
+        case 2:
+            {
+            UCSR2B = 0;
+            UART2_PORT |= (1<<UART2_RX_PIN) | (1<<UART2_TX_PIN);
+            UART2_DDR |= (1<<UART2_TX_PIN);
+            UART2_DDR &= ~(1<<UART2_RX_PIN);
+            }
+            break;
+#endif  //  (defined UCSR2A) && (defined UART2_PORT)
+#if (defined UCSR3A) && (defined UART3_PORT)
+        case 3:
+            {
+            UCSR3B = 0;
+            UART3_PORT |= (1<<UART3_RX_PIN) | (1<<UART3_TX_PIN);
+            UART3_DDR |= (1<<UART3_TX_PIN);
+            UART3_DDR &= ~(1<<UART3_RX_PIN);
+            }
+            break;
+#endif  //  (defined UCSR0A) && (defined UART0_PORT)
+        default:
+            assert(0);
+    }
+
+    if(hal_UARTv[port] == NULL)
+    {
+        hal_UARTv[port] = mqAlloc(sizeof(HAL_UART_t));
+        assert(hal_UARTv[port] != NULL);
+    }
+
+    hal_UARTv[port]->rx_head = 0;
+    hal_UARTv[port]->rx_tail = 0;
+    hal_UARTv[port]->tx_head = 0;
+    hal_UARTv[port]->tx_tail = 0;
+
+    uint16_t baud = hal_baud_list[nBaud];
+
+    *(hal_pUART[port] + 5) = (baud >> 8);                                 // UBRRH
+    *(hal_pUART[port] + 4) = (baud & 0xFF);                               // UBRRL
+    *(hal_pUART[port] + 1) = ((1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0));     // UCSRB
+    *(hal_pUART[port] + 2) = (3<<UCSZ00);                                 // UCSRC
+}
+
+bool hal_uart_tx_busy(uint8_t port)
+{
+    if(hal_UARTv[port]->tx_head == hal_UARTv[port]->tx_tail)
         return false;
 
-    if((UCSRB & (1<<UDRIE0)) == 0)
+    if((*(hal_pUART[port] + 1) & (1<<UDRIE0)) == 0)
     {
-        UDR = hal_uart_tx_fifo[hal_uart_tx_tail];
-        hal_uart_tx_tail++;
-        hal_uart_tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
-        UCSRB |= (1<<UDRIE0);
+        *(hal_pUART[port] + 6) = hal_UARTv[port]->tx_fifo[hal_UARTv[port]->tx_tail];
+        hal_UARTv[port]->tx_tail++;
+        hal_UARTv[port]->tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
+        *(hal_pUART[port] + 1) |= (1<<UDRIE0);
         return false;
     }
 
-    return (((hal_uart_tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1)) == hal_uart_tx_tail);
+    return (((hal_UARTv[port]->tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1)) == hal_UARTv[port]->tx_tail);
 }
 
-void hal_uart_send(uint8_t data)
+void hal_uart_send(uint8_t port, uint8_t data)
 {
-    uint8_t tmp_head = (hal_uart_tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
-    if(tmp_head == hal_uart_tx_tail)        // Overflow
+    uint8_t tmp_head = (hal_UARTv[port]->tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
+    if(tmp_head == hal_UARTv[port]->tx_tail)        // Overflow
         return;
 
-    hal_uart_tx_fifo[hal_uart_tx_head] = data;
-    hal_uart_tx_head = tmp_head;
+    hal_UARTv[port]->tx_fifo[hal_UARTv[port]->tx_head] = data;
+    hal_UARTv[port]->tx_head = tmp_head;
 }
 
-bool hal_uart_get(uint8_t * pData)
+bool hal_uart_get(uint8_t port, uint8_t * pData)
 {
-    if(hal_uart_rx_head == hal_uart_rx_tail)
+    if(hal_UARTv[port]->rx_head == hal_UARTv[port]->rx_tail)
         return false;
     
-    *pData = hal_uart_rx_fifo[hal_uart_rx_tail];
-    hal_uart_rx_tail++;
-    hal_uart_rx_tail &= (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
+    *pData = hal_UARTv[port]->rx_fifo[hal_UARTv[port]->rx_tail];
+    hal_UARTv[port]->rx_tail++;
+    hal_UARTv[port]->rx_tail &= (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
 
     return true;
 }
 
-ISR(USART_RX_vect)
-{
-    uint8_t data = UDR;
-    uint8_t tmp_head = (hal_uart_rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
-    if(tmp_head == hal_uart_rx_tail)        // Overflow
-        return;
-
-    hal_uart_rx_fifo[hal_uart_rx_head] = data;
-    hal_uart_rx_head = tmp_head;
-}
-
-ISR(USART_UDRE_vect)
-{
-    if(hal_uart_tx_head == hal_uart_tx_tail)
-    {
-        UCSRB &= ~(1<<UDRIE0);
-        return;
-    }
-
-    UDR = hal_uart_tx_fifo[hal_uart_tx_tail];
-    hal_uart_tx_tail++;
-    hal_uart_tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
-}
-
-#endif  //  UART_PHY
+#endif  //  (defined UART0_PORT) || (defined UART1_PORT) || (defined UART2_PORT) || (defined UART3_PORT)

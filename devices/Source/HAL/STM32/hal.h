@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <assert.h>
+
 #if   (defined STM32F0XX_MD)
 #include "stm32f0xx.h"
 #elif defined (STM32F10X_LD) || defined (STM32F10X_LD_VL) || \

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- device configuration file for Atmel devices  -->
 <root head="/etc/declarers/dev">
-    <item name="A1Cn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="2.7.1">
+    <item name="A1Cn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.0">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
@@ -183,8 +183,63 @@
                 <item name="_description" value="Digital inverted output, PD7" saved="True" type="System.String" />
             </item>
         </item>
+        <item name="Analog Inputs">
+            <item name="Ai0" value="AiX16" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC0" saved="True" type="System.String" />
+            </item>
+            <item name="Av0" value="BiX16" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC0" saved="True" type="System.String" />
+            </item>
+            <item name="Ai1" value="CiX17" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC1" saved="True" type="System.String" />
+            </item>
+            <item name="Av1" value="DiX17" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC1" saved="True" type="System.String" />
+            </item>
+            <item name="Ai2" value="EiX18" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC2" saved="True" type="System.String" />
+            </item>
+            <item name="Av2" value="FiX18" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC2" saved="True" type="System.String" />
+            </item>
+            <item name="Ai3" value="GiX19" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC3" saved="True" type="System.String" />
+            </item>
+            <item name="Av3" value="HiX19" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC3" saved="True" type="System.String" />
+            </item>
+            <item name="Ai6" value="IiX96" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, Ain6" saved="True" type="System.String" />
+            </item>
+            <item name="Av6" value="JiX96" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, Ain6" saved="True" type="System.String" />
+            </item>
+            <item name="Ai7" value="KiX97" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, Ain7" saved="True" type="System.String" />
+            </item>
+            <item name="Av7" value="LiX97" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, Ain7" saved="True" type="System.String" />
+            </item>
+            <item name="Av8" value="MiX98" saved="True" type="System.String">
+                <item name="_description" value="Analog input Vcc" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="PWM">
+            <item name="Pp0" value="AiX29" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PD5" saved="True" type="System.String" />
+            </item>
+            <item name="Pn0" value="BiX29" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PD5" saved="True" type="System.String" />
+            </item>
+            <item name="Pp1" value="CiX30" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PD6" saved="True" type="System.String" />
+            </item>
+            <item name="Pn1" value="DiX30" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PD6" saved="True" type="System.String" />
+            </item>
+        </item>
     </item>
-    <item name="A1En12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="2.7.1">
+    <item name="A1En12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.0">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
@@ -366,8 +421,63 @@
                 <item name="_description" value="Digital inverted output, PD7" saved="True" type="System.String" />
             </item>
         </item>
+        <item name="Analog Inputs">
+            <item name="Ai0" value="AiX16" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC0" saved="True" type="System.String" />
+            </item>
+            <item name="Av0" value="BiX16" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC0" saved="True" type="System.String" />
+            </item>
+            <item name="Ai1" value="CiX17" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC1" saved="True" type="System.String" />
+            </item>
+            <item name="Av1" value="DiX17" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC1" saved="True" type="System.String" />
+            </item>
+            <item name="Ai2" value="EiX18" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC2" saved="True" type="System.String" />
+            </item>
+            <item name="Av2" value="FiX18" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC2" saved="True" type="System.String" />
+            </item>
+            <item name="Ai3" value="GiX19" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC3" saved="True" type="System.String" />
+            </item>
+            <item name="Av3" value="HiX19" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC3" saved="True" type="System.String" />
+            </item>
+            <item name="Ai6" value="IiX96" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, Ain6" saved="True" type="System.String" />
+            </item>
+            <item name="Av6" value="JiX96" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, Ain6" saved="True" type="System.String" />
+            </item>
+            <item name="Ai7" value="KiX97" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, Ain7" saved="True" type="System.String" />
+            </item>
+            <item name="Av7" value="LiX97" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, Ain7" saved="True" type="System.String" />
+            </item>
+            <item name="Av8" value="MiX98" saved="True" type="System.String">
+                <item name="_description" value="Analog input Vcc" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="PWM">
+            <item name="Pp0" value="AiX29" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PD5" saved="True" type="System.String" />
+            </item>
+            <item name="Pn0" value="BiX29" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PD5" saved="True" type="System.String" />
+            </item>
+            <item name="Pp1" value="CiX30" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PD6" saved="True" type="System.String" />
+            </item>
+            <item name="Pn1" value="DiX30" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PD6" saved="True" type="System.String" />
+            </item>
+        </item>
     </item>
-    <item name="A1ES12" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String" ver="2.7.1">
+    <item name="A1ES12" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String" ver="3.0.0">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
@@ -525,8 +635,63 @@
                 <item name="_description" value="Digital inverted output, PD7" saved="True" type="System.String" />
             </item>
         </item>
+        <item name="Analog Inputs">
+            <item name="Ai0" value="AiX16" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC0" saved="True" type="System.String" />
+            </item>
+            <item name="Av0" value="BiX16" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC0" saved="True" type="System.String" />
+            </item>
+            <item name="Ai1" value="CiX17" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC1" saved="True" type="System.String" />
+            </item>
+            <item name="Av1" value="DiX17" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC1" saved="True" type="System.String" />
+            </item>
+            <item name="Ai2" value="EiX18" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC2" saved="True" type="System.String" />
+            </item>
+            <item name="Av2" value="FiX18" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC2" saved="True" type="System.String" />
+            </item>
+            <item name="Ai3" value="GiX19" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC3" saved="True" type="System.String" />
+            </item>
+            <item name="Av3" value="HiX19" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC3" saved="True" type="System.String" />
+            </item>
+            <item name="Ai6" value="IiX96" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, Ain6" saved="True" type="System.String" />
+            </item>
+            <item name="Av6" value="JiX96" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, Ain6" saved="True" type="System.String" />
+            </item>
+            <item name="Ai7" value="KiX97" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, Ain7" saved="True" type="System.String" />
+            </item>
+            <item name="Av7" value="LiX97" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, Ain7" saved="True" type="System.String" />
+            </item>
+            <item name="Av8" value="MiX98" saved="True" type="System.String">
+                <item name="_description" value="Analog input Vcc" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="PWM">
+            <item name="Pp0" value="AiX29" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PD5" saved="True" type="System.String" />
+            </item>
+            <item name="Pn0" value="BiX29" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PD5" saved="True" type="System.String" />
+            </item>
+            <item name="Pp1" value="CiX30" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PD6" saved="True" type="System.String" />
+            </item>
+            <item name="Pn1" value="DiX30" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PD6" saved="True" type="System.String" />
+            </item>
+        </item>
     </item>
-    <item name="A1Sn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="2.7.1">
+    <item name="A1Sn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.0">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
@@ -756,8 +921,75 @@
                 <item name="_description" value="Digital inverted output, PD7" saved="True" type="System.String" />
             </item>
         </item>
+        <item name="Analog Inputs">
+            <item name="Ai0" value="AiX16" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC0" saved="True" type="System.String" />
+            </item>
+            <item name="Av0" value="BiX16" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC0" saved="True" type="System.String" />
+            </item>
+            <item name="Ai1" value="CiX17" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC1" saved="True" type="System.String" />
+            </item>
+            <item name="Av1" value="DiX17" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC1" saved="True" type="System.String" />
+            </item>
+            <item name="Ai2" value="EiX18" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC2" saved="True" type="System.String" />
+            </item>
+            <item name="Av2" value="FiX18" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC2" saved="True" type="System.String" />
+            </item>
+            <item name="Ai3" value="GiX19" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, PC3" saved="True" type="System.String" />
+            </item>
+            <item name="Av3" value="HiX19" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PC3" saved="True" type="System.String" />
+            </item>
+            <item name="Ai6" value="IiX96" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, Ain6" saved="True" type="System.String" />
+            </item>
+            <item name="Av6" value="JiX96" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, Ain6" saved="True" type="System.String" />
+            </item>
+            <item name="Ai7" value="KiX97" saved="True" type="System.String">
+                <item name="_description" value="Analog input internal reference, Ain7" saved="True" type="System.String" />
+            </item>
+            <item name="Av7" value="LiX97" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, Ain7" saved="True" type="System.String" />
+            </item>
+            <item name="Av8" value="MiX98" saved="True" type="System.String">
+                <item name="_description" value="Analog input Vcc" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="PWM">
+            <item name="Pp0" value="AiX29" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PD5" saved="True" type="System.String" />
+            </item>
+            <item name="Pn0" value="BiX29" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PD5" saved="True" type="System.String" />
+            </item>
+            <item name="Pp1" value="CiX30" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PD6" saved="True" type="System.String" />
+            </item>
+            <item name="Pn1" value="DiX30" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PD6" saved="True" type="System.String" />
+            </item>
+            <item name="Pp2" value="EiX9" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB1" saved="True" type="System.String" />
+            </item>
+            <item name="Pn2" value="FiX9" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PB1" saved="True" type="System.String" />
+            </item>
+            <item name="Pp3" value="GiX10" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB2" saved="True" type="System.String" />
+            </item>
+            <item name="Pn3" value="HiX10" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PB2" saved="True" type="System.String" />
+            </item>
+        </item>
     </item>
-    <item name="A3SC12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="2.7.1">
+    <item name="A3SC12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.0">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
@@ -971,7 +1203,7 @@
             </item>
         </item>
     </item>
-    <item name="A3Sn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="2.7.1">
+    <item name="A3Sn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.0">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
@@ -1251,7 +1483,7 @@
             </item>
         </item>
     </item>
-    <item name="A4Sn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="2.7.1">
+    <item name="A4Sn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.0">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
@@ -1582,6 +1814,12 @@
             <item name="On36" value="DzX36" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PE4" saved="True" type="System.String" />
             </item>
+            <item name="Pp0" value="EiX36" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PE4" saved="True" type="System.String" />
+            </item>
+            <item name="Pn0" value="FiX36" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PE4" saved="True" type="System.String" />
+            </item>
         </item>
         <item name="3">
             <item name="Ip37" value="AzX37" saved="True" type="System.String">
@@ -1595,6 +1833,12 @@
             </item>
             <item name="On37" value="DzX37" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PE5" saved="True" type="System.String" />
+            </item>
+            <item name="Pp1" value="EiX37" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PE5" saved="True" type="System.String" />
+            </item>
+            <item name="Pn1" value="FiX37" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PE5" saved="True" type="System.String" />
             </item>
         </item>
         <item name="4">
@@ -1610,6 +1854,12 @@
             <item name="On53" value="DzX53" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PG5" saved="True" type="System.String" />
             </item>
+            <item name="Pp2" value="EiX53" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PG5" saved="True" type="System.String" />
+            </item>
+            <item name="Pn2" value="FiX53" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PG5" saved="True" type="System.String" />
+            </item>
         </item>
         <item name="5">
             <item name="Ip35" value="AzX35" saved="True" type="System.String">
@@ -1624,7 +1874,13 @@
             <item name="On35" value="DzX35" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PE3" saved="True" type="System.String" />
             </item>
-        </item>    
+            <item name="Pp3" value="EiX35" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PE3" saved="True" type="System.String" />
+            </item>
+            <item name="Pn3" value="FiX35" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PE3" saved="True" type="System.String" />
+            </item>
+        </item>
         <item name="6">
             <item name="Ip59" value="AzX59" saved="True" type="System.String">
                 <item name="_description" value="Digital input, PH3" saved="True" type="System.String" />
@@ -1637,6 +1893,12 @@
             </item>
             <item name="On59" value="DzX59" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PH3" saved="True" type="System.String" />
+            </item>
+            <item name="Pp4" value="EiX59" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PH3" saved="True" type="System.String" />
+            </item>
+            <item name="Pn4" value="FiX59" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PH3" saved="True" type="System.String" />
             </item>
         </item>
         <item name="7">
@@ -1652,6 +1914,12 @@
             <item name="On60" value="DzX60" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PH4" saved="True" type="System.String" />
             </item>
+            <item name="Pp5" value="EiX60" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PH4" saved="True" type="System.String" />
+            </item>
+            <item name="Pn5" value="FiX60" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PH4" saved="True" type="System.String" />
+            </item>
         </item>
         <item name="8">
             <item name="Ip61" value="AzX61" saved="True" type="System.String">
@@ -1665,6 +1933,12 @@
             </item>
             <item name="On61" value="DzX61" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PH5" saved="True" type="System.String" />
+            </item>
+            <item name="Pp6" value="EiX61" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PH4" saved="True" type="System.String" />
+            </item>
+            <item name="Pn6" value="FiX61" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PH4" saved="True" type="System.String" />
             </item>
         </item>
         <item name="9">
@@ -1708,6 +1982,12 @@
             <item name="On13" value="DzX13" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PB5" saved="True" type="System.String" />
             </item>
+            <item name="Pp7" value="EiX13" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB5" saved="True" type="System.String" />
+            </item>
+            <item name="Pn7" value="FiX13" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PB5" saved="True" type="System.String" />
+            </item>
         </item>
         <item name="12">
             <item name="Ip14" value="AzX14" saved="True" type="System.String">
@@ -1722,6 +2002,12 @@
             <item name="On14" value="DzX14" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PB6" saved="True" type="System.String" />
             </item>
+            <item name="Pp8" value="EiX14" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB6" saved="True" type="System.String" />
+            </item>
+            <item name="Pn8" value="FiX14" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PB6" saved="True" type="System.String" />
+            </item>
         </item>
         <item name="13">
             <item name="Ip15" value="AzX15" saved="True" type="System.String">
@@ -1735,6 +2021,12 @@
             </item>
             <item name="On15" value="DzX15" saved="True" type="System.String">
                 <item name="_description" value="Digital inverted output, PB7 - LED_L" saved="True" type="System.String" />
+            </item>
+            <item name="Pp9" value="EiX15" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB7" saved="True" type="System.String" />
+            </item>
+            <item name="Pn9" value="FiX15" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PB7" saved="True" type="System.String" />
             </item>
         </item>
         <item name="14">

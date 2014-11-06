@@ -17,103 +17,94 @@ See LICENSE file for license details.
 // uc ATMega2560
 // PHY: UART
 
-// PORTA
-// PA0  22
-// PA1  23
-// PA2  24
-// PA3  25
-// PA4  26
-// PA5  27
-// PA6  28
-// PA7  29
-// PORTB
-// PB0  53      SS
-// PB1  52      SCK       ICSP-3
-// PB2  51      MOSI      ICSP-4
-// PB3  50      MISO      ICSP-1
-// PB4  10      OC2A
-// PB5  11      OC1A
-// PB6  12      OC1B
-// PB7  13      OC0A/OC1C       LED_L
-// PORTC
-// PC0  37
-// PC1  36
-// PC2  35
-// PC3  34
-// PC4  33
-// PC5  32
-// PC6  31
-// PC7  30
-// PORTD
-// PD0  21      SCL
-// PD1  20      SDA
-// PD2  19      RXD1
-// PD3  18      TXD1
-// PD4  --
-// PD5  --
-// PD6  --
-// PD7  38
-// PORTE
-// PE0  0       RXD0
-// PE1  1       TXD0
-// PE2  --
-// PE3  5       OC3A
-// PE4  2       OC3B
-// PE5  3       OC3C
-// PE6  --
-// PE7  --
-// PORTF
-// PF0  A0
-// PF1  A1
-// PF2  A2
-// PF3  A3
-// PF4  A4      JTAG-TCK
-// PF5  A5      JTAG-TMS
-// PF6  A6      JTAG-TDO
-// PF7  A7      JTAG-TDO
-// PORTG
-// PG0  41
-// PG1  40
-// PG2  39
-// PG3  --
-// PG4  --
-// PG5  4       OC0B
-// PORTH
-// PH0  17      RXD2
-// PH1  16      TXD2
-// PH2  --
-// PH3  6       OC4A
-// PH4  7       OC4B
-// PH5  8       OC4C
-// PH6  9       OC2B
-// PH7  --
-// PORTJ
-// PJ0  15      RXD3
-// PJ1  14      TXD3
-// PJ2  --
-// PJ3  --
-// PJ4  --
-// PJ5  --
-// PJ6  --
-// PJ7  --
-// PORTK
-// PK0  A8
-// PK1  A9
-// PK2  A10
-// PK3  A11
-// PK4  A12
-// PK5  A13
-// PK6  A14
-// PK7  A15
-// PORTL
-// PL0  49
-// PL1  48
-// PL2  47
-// PL3  46      OC5A
-// PL4  45      OC5B
-// PL5  44      OC5C
-// PL6  43
-// PL7  42
+// Dio  Prt CN          FN1     FN2
+
+//  0   PA0 22
+//  1   PA1 23
+//  2   PA2 24
+//  3   PA3 25
+//  4   PA4 26
+//  5   PA5 27
+//  6   PA6 28
+//  7   PA7 29
+//  8   PB0 53          SS
+//  9   PB1 52/ICSP-3   SCK
+//  10  PB2 51/ICSP-4   MOSI
+//  11  PB3 50/ICSP-1   MISO
+//  12  PB4 10
+//  13  PB5 11          PWM7
+//  14  PB6 12          PWM8
+//  15  PB7 13          PWM9    LED_L
+//  16  PC0 37
+//  17  PC1 36
+//  18  PC2 35
+//  19  PC3 34
+//  20  PC4 33
+//  21  PC5 32
+//  22  PC6 31
+//  23  PC7 30
+//  24  PD0 21          SCL
+//  25  PD1 20          SDA
+//  26  PD2 19          RXD1
+//  27  PD3 18          TXD1
+//  28  PD4 --
+//  29  PD5 --
+//  30  PD6 --
+//  31  PD7 38
+//  32  PE0 0           RXD0
+//  33  PE1 1           TXD0
+//  34  PE2 --
+//  35  PE3 5           PWM3
+//  36  PE4 2           PWM0
+//  37  PE5 3           PWM1
+//  38  PE6 --
+//  39  PE7 --
+//  40  PF0 A0          Ain0
+//  41  PF1 A1          Ain1
+//  42  PF2 A2          Ain2
+//  43  PF3 A3          Ain3
+//  44  PF4 A4          JTAG-TCK
+//  45  PF5 A5          JTAG-TMS
+//  46  PF6 A6          JTAG-TDO
+//  47  PF7 A7          JTAG-TDO
+//  48  PG0 41
+//  49  PG1 40
+//  50  PG2 39
+//  51  PG3 --
+//  52  PG4 --
+//  53  PG5 4           PWM2
+//  56  PH0 17          RXD2
+//  57  PH1 16          TXD2
+//  58  PH2 --
+//  59  PH3 6           PWM4
+//  60  PH4 7           PWM5
+//  61  PH5 8           PWM6
+//  62  PH6 9
+//  63  PH7 --
+//  64  PJ0 15          RXD3
+//  65  PJ1 14          TXD3
+//  66  PJ2 --
+//  67  PJ3 --
+//  68  PJ4 --
+//  69  PJ5 --
+//  70  PJ6 --
+//  71  PJ7 --
+//  72  PK0 A8          Ain8
+//  73  PK1 A9          Ain9
+//  74  PK2 A10         Ain10
+//  75  PK3 A11         Ain11
+//  76  PK4 A12         Ain12
+//  77  PK5 A13         Ain13
+//  78  PK6 A14         Ain14
+//  79  PK7 A15         Ain15
+//  80  PL0 49
+//  81  PL1 48
+//  82  PL2 47
+//  83  PL3 46          PWM10
+//  84  PL4 45          PWM11
+//  85  PL5 44          PWM12
+//  86  PL6 43
+//  87  PL7 42
 
 #ifdef __cplusplus
 extern "C" {
@@ -132,6 +123,11 @@ extern "C" {
                                      (uint8_t)0xC7, (uint8_t)0xF0, (uint8_t)0xD8, (uint8_t)0x84,  \
                                      (uint8_t)0xFC, (uint8_t)0x00, (uint8_t)0x00}
 // End DIO Section
+#define EXTPWM_USED                 1
+#define EXTPWM_MAXPORT_NR           13
+#define EXTPWM_PORT2CFG             {0x19, 0x1A, 0x01, 0x18, 0x20, 0x21, 0x22, 0x08, 0x09, 0x0A, 0x28, 0x29, 0x2A}  // bits 7-3 Timer, bits 2-0 Channel
+#define EXTPWM_PORT2DIO             {36, 37, 53, 35, 59, 60, 61, 13, 14, 15, 83, 84, 85}    // Mapping PWM channel to DIO
+// End PWM Section
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
@@ -146,18 +142,13 @@ extern "C" {
 #define TWIM_SCL_STAT()             (PIND & (1<<PD0))
 // End TWI Section
 
-// LEDs
-#define LED1_On()                   PORTA |= (1<<PA0)
-#define LED1_Off()                  PORTA &= ~(1<<PA0)
-#define LEDsInit()                  {DDRA |= ((1<<PA0) | (1<<PA1)); PORTA |= (1<<PA0) | (1<<PA1);}
-
 // UART Section
-#define UART_PORT                   PORTE
-#define UART_DDR                    DDRE
-#define UART_RX_PIN                 PE0
-#define UART_TX_PIN                 PE1
+#define UART0_PORT                  PORTE
+#define UART0_DDR                   DDRE
+#define UART0_RX_PIN                PE0
+#define UART0_TX_PIN                PE1
 
-#define USART_USE_PORT              0
+#define UART_PHY_PORT               0
 // End UART Section
 
 #define UART_PHY                    1
