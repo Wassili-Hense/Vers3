@@ -25,6 +25,7 @@ bool en28j60_DataRdy(void);
 
 uint16_t enc28j60_GetPacketLen(void);
 void enc28j60_GetPacket(uint8_t * pBuf, uint16_t len);
+void enc28j60_Skip(uint16_t len);
 void enc28j60_ClosePacket(void);
 
 

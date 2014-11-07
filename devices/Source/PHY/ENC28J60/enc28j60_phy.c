@@ -324,6 +324,8 @@ static void udp_send(uint16_t len, eth_frame_t *pFrame)
   ip_send(len, pFrame);
 }
 
+void dhcp_filter(uint8_t len, eth_frame_t *pFrame);
+
 // process UDP packet
 static void udp_filter(uint16_t len, eth_frame_t * pFrame)
 {
@@ -357,10 +359,43 @@ static void udp_filter(uint16_t len, eth_frame_t * pFrame)
         if(!mqEnqueue(&enc_out_queue, pRx_buf))
             mqFree(pRx_buf);
     }
+#ifdef NET_WITH_DHCP
+    else if(udp->target_port == MQTTSN_UDP_PORT)
+    {
+        dhcp_filter(len, pFrame);
+    }
+#endif  //  NET_WITH_DHCP
 }
 // End UDP Section
 //////////////////////////////////////////////////////////////////////
 
+#ifdef NET_WITH_DHCP
+//////////////////////////////////////////////////////////////////////
+// DHCP Section
+
+void dhcp_filter(uint8_t len, eth_frame_t *pFrame)
+{
+    if(len < 240) // sizeof dhcp_message w/o options
+        return;
+  
+    ip_packet_t *ip = (void*)pFrame->data;
+    udp_packet_t *udp = (void*)(ip->data);
+    dhcp_message_t *dhcp = (void*)(udp->data);
+  
+    uint32_t magic_cookie;
+  
+    enc28j60_GetPacket((void *)dhcp, sizeof(dhcp_message_t));
+    enc28j60_Skip(192);
+    enc28j60_GetPacket((void *)&magic_cookie, 4);
+
+
+}
+// End DHCP Section
+//////////////////////////////////////////////////////////////////////
+#endif  //  NET_WITH_DHCP
+
+//////////////////////////////////////////////////////////////////////
+// PHY_API
 void ENC28J60_Init(void)
 {
     MQ_t * pBuf;
@@ -412,7 +447,7 @@ void * ENC28J60_Get(void)
     if(en28j60_DataRdy())
     {
         uint16_t len = enc28j60_GetPacketLen();
-       if(len > sizeof(eth_frame_t))
+        if(len > sizeof(eth_frame_t))
         {
             eth_frame_t * pFrame = (void *)mqAlloc(MAX_FRAME_BUF);
             if(pFrame != NULL)
@@ -423,7 +458,7 @@ void * ENC28J60_Get(void)
                     arp_filter(len - sizeof(eth_frame_t), pFrame);
                 else if(pFrame->type == ETH_TYPE_IP)
                     ip_filter(len - sizeof(eth_frame_t), pFrame);
-            
+
                 mqFree(pFrame);
             }
         }

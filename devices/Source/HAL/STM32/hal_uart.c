@@ -26,7 +26,7 @@ typedef struct
     volatile uint8_t    tx_tail;
 }HAL_UART_t;
 
-static HAL_UART_t * hal_UARTv[] = {NULL, NULL, NULL};
+static HAL_UART_t * hal_UARTv[] = {NULL, NULL};
 
 static const uint16_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400};
 
@@ -38,22 +38,16 @@ static USART_TypeDef * hal_pUART[] =
                 NULL,
             #endif  //  USART1
             #ifdef USART2
-                USART2, 
-            #else
-                NULL,
-            #endif  //  USART2
-            #ifdef USART3
-                USART3
+                USART2
             #else
                 NULL
-            #endif  //  USART3
+            #endif  //  USART2
             };
 
 
 void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
 {
-    if(nBaud > 4)
-        while(1);
+    assert(nBaud < 5);
     
     IRQn_Type           UARTx_IRQn;
     RCC_ClocksTypeDef   RCC_ClocksStatus;
@@ -66,7 +60,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
     switch(port)
     {
 #ifdef USART1
-        case 1:
+        case 0:
             {
             UARTx_IRQn = USART1_IRQn;
             
@@ -94,7 +88,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
             break;
 #endif  //  USART1
 #ifdef USART2
-        case 2:
+        case 1:
             {
             UARTx_IRQn = USART2_IRQn;
             
@@ -119,27 +113,20 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
             }
             break;
 #endif  //  USART2
-#ifdef USART3
-        case 3:
-            {
-            UARTx_IRQn = USART3_IRQn;
-            
-#if (defined __STM32F10x_H)
-            // Enable Clock
-            RCC->APB1ENR |= RCC_APB1ENR_USART3EN;           // Enable Clock on USART3
-            // Configure GPIO, Tx on PB10, Rx on PB11
-            GPIOB->CRH &= ~GPIO_CRH_CNF10_0;
-            GPIOA->CRH |= GPIO_CRH_CNF10_1 | GPIO_CRH_MODE10;   // AF Push-Pull out (TX)
-
-            uart_clock = RCC_ClocksStatus.PCLK1_Frequency;
-#endif
-            }
-#endif  //  USART3
         default:
-            while(1);
+            assert(0);
     }
-    
-    port--;
+
+    if(hal_UARTv[port] == NULL)
+    {
+        hal_UARTv[port] = mqAlloc(sizeof(HAL_UART_t));
+        assert(hal_UARTv[port] != NULL);
+    }
+
+    hal_UARTv[port]->rx_head = 0;
+    hal_UARTv[port]->rx_tail = 0;
+    hal_UARTv[port]->tx_head = 0;
+    hal_UARTv[port]->tx_tail = 0;
 
     hal_pUART[port]->CR1 = 0;                               // Disable USART1
     hal_pUART[port]->CR2 = 0;                               // 8N1
@@ -154,6 +141,8 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
 
 bool hal_uart_tx_busy(uint8_t port)
 {
+    assert(hal_UARTv[port] != NULL);
+
     if(hal_UARTv[port]->tx_head == hal_UARTv[port]->tx_tail)
         return false;
 
@@ -172,7 +161,7 @@ bool hal_uart_tx_busy(uint8_t port)
 
 void hal_uart_send(uint8_t port, uint8_t data)
 {
-    port--;
+    assert(hal_UARTv[port] != NULL);
 
     uint8_t tmp_head = (hal_UARTv[port]->tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
     if(tmp_head == hal_UARTv[port]->tx_tail)        // Overflow
@@ -184,7 +173,7 @@ void hal_uart_send(uint8_t port, uint8_t data)
 
 bool hal_uart_get(uint8_t port, uint8_t * pData)
 {
-    port--;
+    assert(hal_UARTv[port] != NULL);
 
     if(hal_UARTv[port]->rx_head == hal_UARTv[port]->rx_tail)
         return false;
@@ -196,9 +185,12 @@ bool hal_uart_get(uint8_t port, uint8_t * pData)
     return true;
 }
 
-#ifdef USART1_IRQHandler
-void(USART1_IRQHandler)
+#ifdef USART1
+void USART1_IRQHandler(void)
 {
+    assert(hal_UARTv[0] != NULL);
+
+
 #if (defined STM32F0XX_MD)                          // STM32F0
     uint32_t itstat = USART1->ISR;
 #elif (defined __STM32F10x_H)                       // STM32F1xx    
@@ -236,9 +228,11 @@ void(USART1_IRQHandler)
 }
 #endif  // USART1_IRQHandler
 
-#ifdef USART2_IRQHandler
-void(USART2_IRQHandler)
+#ifdef USART2
+void USART2_IRQHandler(void)
 {
+    assert(hal_UARTv[1] != NULL);
+
 #if (defined STM32F0XX_MD)                      // STM32F0
     uint32_t itstat = USART2->ISR;
 #elif (defined __STM32F10x_H)                   // STM32F1xx    
@@ -275,11 +269,5 @@ void(USART2_IRQHandler)
     }
 }
 #endif  //  USART2_IRQHandler
-
-#ifdef USART3_IRQHandler
-void(USART3_IRQHandler)
-{
-}
-#endif  //  USART3_IRQHandler
 
 #endif  //  UART_PHY

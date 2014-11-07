@@ -362,6 +362,15 @@ void enc28j60_GetPacket(uint8_t * pBuf, uint16_t len)
   enc28j60ReadBuffer(len, pBuf);
 }
 
+void enc28j60_Skip(uint16_t len)
+{
+    ENC_SELECT();
+    hal_enc28j60exchg(ENC28J60_READ_BUF_MEM);   // issue read command
+    while(len--)
+        hal_enc28j60exchg(0);                   // skip data
+    ENC_RELEASE();
+}
+
 void enc28j60_ClosePacket(void)
 {
   // Move the RX read pointer to the start of the next received packet
