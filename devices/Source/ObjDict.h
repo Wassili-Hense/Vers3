@@ -151,6 +151,8 @@ enum
 // ASLEEP
     eeTAsleep,
     eeTAsleepbody = eeTAsleep + sizeof(uint16_t) - 1,
+    eeADCaverage,
+    eeADCaveragebody = eeADCaverage + sizeof(uint16_t) - 1,
 // BackUp Objects
     eelistOdbu,
     eelistOdbubody = eelistOdbu + OD_MAX_INDEX_LIST * sizeof(subidx_t) - 1,
@@ -175,8 +177,7 @@ enum
     eeGroupIDbody = eeGroupID + sizeof(uint16_t) - 1,
     eeChannel,
 #endif  //  RF_ADDR_t
-    eeADCaverage,
-    eeADCaveragebody = eeADCaverage + sizeof(uint16_t) - 1,
+
   eeNextFreeAddress
 } eEEPROMAddr;
 

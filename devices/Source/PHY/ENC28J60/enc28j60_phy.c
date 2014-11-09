@@ -26,8 +26,24 @@ See LICENSE file for license details.
 
 #if (ENC28J60_PHY == 1)
 #define LAN_ADDR            phy1addr
+
+#ifdef LED1_On
+void SetLED1mask(uint16_t mask);
+#define eth_active()        SetLED1mask(1);
+#else
+#define eth_active()
+#endif  //  LED1_On
+
 #elif (ENC28J60_PHY == 2)
 #define LAN_ADDR            phy2addr
+
+#ifdef LED2_On
+void SetLED2mask(uint16_t mask);
+#define eth_active()        SetLED2mask(1);
+#else
+#define eth_active()
+#endif  //  LED2_On
+
 #endif  //  ENC28J60_PHY
 
 // node MAC & IP addresses
@@ -351,7 +367,9 @@ static void udp_filter(uint16_t len, eth_frame_t * pFrame)
         MQ_t * pRx_buf = mqAlloc(sizeof(MQ_t));
         if(pRx_buf == NULL)
             return;
-      
+
+        eth_active();
+
         enc28j60_GetPacket((void*)pRx_buf->raw, len);
         memcpy(pRx_buf->LAN_ADDR, ip->sender_ip, 4);
         pRx_buf->Length = len;
@@ -426,6 +444,8 @@ void ENC28J60_Send(void *pBuf)
         mqFree(pBuf);
         return;
     }
+    
+    eth_active();
 
     ip_packet_t *ip = (void*)(pFrame->data);
     udp_packet_t *udp = (void*)(ip->data);
