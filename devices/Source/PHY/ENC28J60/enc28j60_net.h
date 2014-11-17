@@ -16,9 +16,11 @@ See LICENSE file for license details.
 #define htons(x)   (((x)&0x00FF)<<8)+((x)>>8)
 #define htonl(x)   ((((x)&0xFF000000)>>24)|(((x)&0x00FF0000)>>8)|(((x)&0x0000FF00)<<8)|(((x)&0x000000FF)<<24))
 
+#define MAX_FRAME_BUF   (sizeof(eth_frame_t) + sizeof(ip_packet_t) + sizeof(udp_packet_t) + MQTTSN_MSG_SIZE)
+
 // Configuration section
 #define NET_WITH_ICMP
-//#define NET_WITH_DHCP
+#define NET_WITH_DHCP
 
 #define IP_PACKET_TTL       64
 
@@ -113,13 +115,14 @@ typedef struct udp_packet
 
 #define DHCP_MAGIC_COOKIE       htonl(0x63825363)
 
+#define SIZEOF_DHCP_MESSAGE     240
 typedef struct dhcp_message
 {
     uint8_t     operation;          //  0
     uint8_t     hw_addr_type;       //      1
     uint8_t     hw_addr_len;        //      2
     uint8_t     unused1;            //      3
-    uint16_t    transaction_id[2];  //  4
+    uint8_t     transaction_id[4];  //  4
     uint16_t    second_count;       //  8
     uint16_t    flags;              //      10
     uint8_t     client_addr[4];     //  12
@@ -129,7 +132,7 @@ typedef struct dhcp_message
     uint8_t     hw_addr[16];        //  28
     //uint8_t     unused3[192];       //  44
     //uint8_t     magic_cookie[4];    //  236
-    //uint8_t     options[];          //  240
+    uint8_t     options[];          //  240
 } dhcp_message_t;
 
 #define DHCP_CODE_PAD           0
@@ -143,7 +146,7 @@ typedef struct dhcp_message
 #define DHCP_CODE_RENEWTIME     58
 #define DHCP_CODE_REBINDTIME    59
 
-typedef struct dhcp_option
+typedef struct
 {
     uint8_t     code;
     uint8_t     len;
@@ -159,12 +162,13 @@ typedef struct dhcp_option
 #define DHCP_MESSAGE_RELEASE    7
 #define DHCP_MESSAGE_INFORM     8
 
-typedef enum dhcp_status_code
+typedef enum
 {
+    DHCP_DISABLED,
     DHCP_INIT,
     DHCP_ASSIGNED,
     DHCP_WAITING_OFFER,
     DHCP_WAITING_ACK
-} dhcp_status_code_t;
+} dhcp_status_t;
 
 #endif

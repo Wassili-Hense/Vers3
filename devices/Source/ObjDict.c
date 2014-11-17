@@ -409,14 +409,12 @@ void InitOD(void)
 #endif  //  OD_DEFAULT_CHANNEL
 #endif  //  RF_ADDR_t
 #ifdef LAN_NODE
-/*
 #ifndef OD_DEF_IP_ADDR
 #define OD_DEF_IP_ADDR      0xFFFFFFFF      // Default IP - use DHCP
 #endif  //  OD_DEF_IP_ADDR
 #ifndef OD_DEF_IP_MASK
 #define OD_DEF_IP_MASK      0xFFFFFFFF      // Default IP Mask - use DHCP
 #endif  //  OD_DEF_IP_MASK
-*/
 #ifndef OD_DEF_IP_ROUTER
 #define OD_DEF_IP_ROUTER    0xFFFFFFFF      // Default IP Gateway - use DHCP
 #endif  //  OD_DEF_IP_ROUTER
