@@ -16,11 +16,10 @@ See LICENSE file for license details.
 // functions
 void enc28j60Init(uint8_t* macaddr);
 void enc28j60EnableBroadcast(void);
-//void enc28j60DisableBroadcast(void);
+void enc28j60DisableBroadcast(void);
 //bool enc28j60linkup(void);
 
-//bool enc28j60_CanSend(void);
-bool enc28j60_CanSend(uint16_t len);
+void enc28j60_SendPrep(uint16_t len);
 void enc28j60_PutData(uint16_t len, uint8_t* pBuf);
 void enc28j60_Fill(uint8_t len);
 void enc28j60_Send(void);

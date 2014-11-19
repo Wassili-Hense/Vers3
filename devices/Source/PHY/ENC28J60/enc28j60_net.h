@@ -13,14 +13,20 @@ See LICENSE file for license details.
 #ifndef _NET_H
 #define _NET_H
 
-#define htons(x)   (((x)&0x00FF)<<8)+((x)>>8)
-#define htonl(x)   ((((x)&0xFF000000)>>24)|(((x)&0x00FF0000)>>8)|(((x)&0x0000FF00)<<8)|(((x)&0x000000FF)<<24))
-
-#define MAX_FRAME_BUF   (sizeof(eth_frame_t) + sizeof(ip_packet_t) + sizeof(udp_packet_t) + MQTTSN_MSG_SIZE)
-
 // Configuration section
 #define NET_WITH_ICMP
 #define NET_WITH_DHCP
+
+#if ((defined NET_WITH_DHCP) && (MQTTSN_MSG_SIZE < 72))
+    #define MAX_FRAME_BUF   (sizeof(eth_frame_t) + sizeof(ip_packet_t) + sizeof(udp_packet_t) + 72)
+#else
+    #define MAX_FRAME_BUF   (sizeof(eth_frame_t) + sizeof(ip_packet_t) + sizeof(udp_packet_t) + MQTTSN_MSG_SIZE)
+#endif  //  DHCP
+
+#define htons(x)   (((x)&0x00FF)<<8)+((x)>>8)
+#define htonl(x)   ((((x)&0xFF000000)>>24)|(((x)&0x00FF0000)>>8)|(((x)&0x0000FF00)<<8)|(((x)&0x000000FF)<<24))
+#define ntohs(x)    htons(x)
+#define ntohl(x)    htonl(x)
 
 #define IP_PACKET_TTL       64
 
@@ -119,12 +125,12 @@ typedef struct udp_packet
 typedef struct dhcp_message
 {
     uint8_t     operation;          //  0
-    uint8_t     hw_addr_type;       //      1
-    uint8_t     hw_addr_len;        //      2
-    uint8_t     unused1;            //      3
+    uint8_t     hw_addr_type;       //  1
+    uint8_t     hw_addr_len;        //  2
+    uint8_t     unused1;            //  3
     uint8_t     transaction_id[4];  //  4
     uint16_t    second_count;       //  8
-    uint16_t    flags;              //      10
+    uint16_t    flags;              //  10
     uint8_t     client_addr[4];     //  12
     uint8_t     offered_addr[4];    //  16
     uint8_t     server_addr[4];     //  20
@@ -138,11 +144,12 @@ typedef struct dhcp_message
 #define DHCP_CODE_PAD           0
 #define DHCP_CODE_END           255
 #define DHCP_CODE_SUBNETMASK    1
-#define DHCP_CODE_GATEWAY       3
+#define DHCP_CODE_ROUTER        3
 #define DHCP_CODE_REQUESTEDADDR 50
 #define DHCP_CODE_LEASETIME     51
 #define DHCP_CODE_MESSAGETYPE   53
 #define DHCP_CODE_DHCPSERVER    54
+#define DHCP_CODE_REQUESTLIST   55
 #define DHCP_CODE_RENEWTIME     58
 #define DHCP_CODE_REBINDTIME    59
 

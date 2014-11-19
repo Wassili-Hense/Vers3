@@ -235,10 +235,11 @@ bool enc28j60linkup(void)
 }
 */
 
-bool enc28j60_CanSend(uint16_t len)
+void enc28j60_SendPrep(uint16_t len)
 {
+    // ToDo Timeout
     // Check no transmit in progress
-    if(enc28j60Read(ECON1) & ECON1_TXRTS)
+    while(enc28j60Read(ECON1) & ECON1_TXRTS)
     {
         // Reset the transmit logic problem. See Rev. B4 Silicon Errata point 12.
         if((enc28j60Read(EIR) & EIR_TXERIF))
@@ -246,7 +247,6 @@ bool enc28j60_CanSend(uint16_t len)
             enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRST);
             enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_TXRST);
         }
-        return false;
     }
 
     // Set the write pointer to start of transmit buffer area
@@ -255,8 +255,6 @@ bool enc28j60_CanSend(uint16_t len)
     enc28j60WriteW(ETXND, (TXSTART_INIT + len));
     // write per-packet control byte (0x00 means use macon3 settings)
     enc28j60WriteOp(ENC28J60_WRITE_BUF_MEM, 0, 0x00);
-  
-    return true;
 }
 
 void enc28j60_PutData(uint16_t len, uint8_t* pBuf)

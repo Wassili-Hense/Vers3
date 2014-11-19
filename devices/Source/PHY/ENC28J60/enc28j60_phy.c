@@ -139,4 +139,10 @@ void * ENC28J60_Get(void)
 
     return mqDequeue(&enc_out_queue);
 }
+
+void ENC28J60_GetAddr(void *pBuf)
+{
+    memcpy(pBuf, &ip_addr, sizeof(ip_addr));
+}
+
 #endif  //  ENC28J60_PHY

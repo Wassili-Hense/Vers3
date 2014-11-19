@@ -23,6 +23,7 @@ extern "C" {
 void ENC28J60_Init(void);
 void ENC28J60_Send(void *pBuf);
 void * ENC28J60_Get(void);
+void ENC28J60_GetAddr(void *pBuf);
 
 #ifdef __cplusplus
 }

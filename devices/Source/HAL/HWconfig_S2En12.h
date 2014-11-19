@@ -142,6 +142,7 @@ extern "C" {
 #define PHY1_Init                   ENC28J60_Init
 #define PHY1_Send                   ENC28J60_Send
 #define PHY1_Get                    ENC28J60_Get
+#define PHY1_GetAddr                ENC28J60_GetAddr
 #define PHY1_NodeId                 objIPAddr
 #define PHY1_GateId                 objIPBroker
 
