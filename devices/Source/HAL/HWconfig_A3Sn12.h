@@ -127,6 +127,7 @@ extern "C" {
 #define PHY1_Init                   UART_Init
 #define PHY1_Send                   UART_Send
 #define PHY1_Get                    UART_Get
+#define PHY1_GetAddr                UART_GetAddr
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objGateID
 

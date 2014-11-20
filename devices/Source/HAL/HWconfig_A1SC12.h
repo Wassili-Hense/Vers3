@@ -134,6 +134,7 @@ extern "C" {
 #define PHY1_Init                   UART_Init
 #define PHY1_Send                   UART_Send
 #define PHY1_Get                    UART_Get
+#define PHY1_GetAddr                UART_GetAddr
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objGateID
 
@@ -141,6 +142,7 @@ extern "C" {
 #define PHY2_Send                   CC11_Send
 #define PHY2_Get                    CC11_Get
 #define PHY2_GetRSSI                CC11_GetRSSI
+#define PHY2_GetAddr                CC11_GetAddr
 #define PHY2_NodeId                 objRFNodeId
 
 #ifdef __cplusplus

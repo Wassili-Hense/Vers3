@@ -119,6 +119,7 @@ extern "C" {
 #define PHY1_Init                   CC11_Init
 #define PHY1_Send                   CC11_Send
 #define PHY1_Get                    CC11_Get
+#define PHY1_GetAddr                CC11_GetAddr
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objGateID
 

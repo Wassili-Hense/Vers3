@@ -333,6 +333,9 @@
     <Compile Include="Source\PHY\ENC28J60\enc28j60_hw.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\PHY\ENC28J60\enc28j60_net.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\PHY\ENC28J60\enc28j60_net.h">
       <SubType>compile</SubType>
     </Compile>

@@ -665,7 +665,7 @@ void dhcp_poll(void)
 
     for(ucTmp = 0; ucTmp < sizeof(dhcp_message_t); ucTmp++)   udp->data[ucTmp] = 0;
         
-    dhcp_transaction_id = (halRNG()<<16) | halRNG();
+    dhcp_transaction_id = ((uint32_t)halRNG()<<16) | halRNG();
 
     uint8_t * pOpt = (void*)(dhcp->options);
     pOpt += 4;

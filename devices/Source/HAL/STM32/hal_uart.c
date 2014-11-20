@@ -5,10 +5,10 @@
 #define HAL_SIZEOF_UART_RX_FIFO         16      // Should be 2^n
 #define HAL_SIZEOF_UART_TX_FIFO         16      // Should be 2^n
 
-#if (defined STM32F0XX_MD)                          // STM32F0
+#if (defined STM32F0XX_MD)                      // STM32F0
     #define HAL_USART_RX_DATA           RDR
     #define HAL_USART_TX_DATA           TDR
-#elif (defined __STM32F10x_H)                       // STM32F1xx
+#elif (defined __STM32F10x_H)                   // STM32F1xx
     #define HAL_USART_RX_DATA           DR
     #define HAL_USART_TX_DATA           DR
 #else

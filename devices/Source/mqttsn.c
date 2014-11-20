@@ -425,16 +425,13 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                     uint8_t * pData = pPHY1outBuf->mq.dhcpresp.addr;
                     uint8_t Length = MQTTSN_SIZEOF_MSG_DHCPRESP;
                     
-                    PHY1_ADDR_t phy1addr;
-                    PHY1_GetAddr(&phy1addr);
-
-                    if(memcmp(&phy1addr, &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)
+                    if(memcmp(PHY1_GetAddr(), &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)
                     {
                         Length += sizeof(PHY1_ADDR_t);
                         Mask = 1; 
                     }
 #ifdef PHY2_ADDR_t
-                    if(memcmp(vMQTTSN.phy2addr, &addr2_undef, sizeof(PHY2_ADDR_t))== 0)
+                    if(memcmp(PHY2_GetAddr(), &addr2_undef, sizeof(PHY2_ADDR_t))== 0)
                     {
                         Length += sizeof(PHY2_ADDR_t);
                         Mask |= 2; 
@@ -446,7 +443,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                     if(Mask & 1)
                     {
                         // Check, own address != Gateway Address
-                        if(memcmp(&phy1addr, pData, sizeof(PHY1_ADDR_t)) == 0)
+                        if(memcmp(PHY1_GetAddr(), pData, sizeof(PHY1_ADDR_t)) == 0)
                             break;
 
                         WriteOD(PHY1_NodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(PHY1_ADDR_t), (uint8_t *)pData);
@@ -455,8 +452,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
 #ifdef PHY2_ADDR_t
                     if(Mask & 2)
                     {
-                        memcpy(vMQTTSN.phy2addr, pData, sizeof(PHY2_ADDR_t));
-                        WriteOD(PHY2_NodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(PHY2_ADDR_t), (uint8_t *)vMQTTSN.phy2addr);
+                        WriteOD(PHY2_NodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(PHY2_ADDR_t), (uint8_t *)pData);
                     }
 #endif  //  PHY2_ADDR_t
 
@@ -626,12 +622,11 @@ static uint8_t mqttsn_build_node_name(uint8_t * pBuf)
     *(pBuf++) = '_';
     Length++;
     
-    uint8_t phy_addr[sizeof(PHY1_ADDR_t)];
-    PHY1_GetAddr(phy_addr);
+    uint8_t * pAddr = PHY1_GetAddr(); 
 
     for(pos = 0; pos < sizeof(PHY1_ADDR_t); pos++)
     {
-        uint8_t zif = phy_addr[pos];
+        uint8_t zif = *(pAddr++);
     
         ch = zif>>4;
         if(ch > 0x09)
@@ -719,7 +714,6 @@ static uint8_t mqttsn_make_publish(MQ_t * pMessage)
     return Length;
 }
 
-
 void MQTTSN_Poll(void)
 {
     MQ_t * pMessage;
@@ -786,12 +780,13 @@ void MQTTSN_Poll(void)
         }
         case MQTTSN_STATUS_DISCONNECTED:
         {
-            MQTTSN_Init();
-
             PHY1_Init();
 #ifdef PHY2_ADDR_t
             PHY2_Init();
 #endif  //  PHY2_ADDR_t
+
+            MQTTSN_Init();
+
             vMQTTSN.Tretry = POLL_TMR_FREQ/10;
             return;
         }
@@ -822,14 +817,11 @@ void MQTTSN_Poll(void)
 
             vMQTTSN.MsgId = halRNG();
             
-            PHY1_ADDR_t phy1addr;
-            PHY1_GetAddr(&phy1addr);
-
             Length = 0;
-            if(memcmp(&phy1addr, &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)
+            if(memcmp(PHY1_GetAddr(), &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)
                 pMessage->mq.dhcpreq.hlen[Length++] = sizeof(PHY1_ADDR_t);
 #ifdef PHY2_ADDR_t
-            if(memcmp(vMQTTSN.phy2addr, &addr2_undef, sizeof(PHY2_ADDR_t))== 0)
+            if(memcmp(PHY2_GetAddr(), &addr2_undef, sizeof(PHY2_ADDR_t))== 0)
                 pMessage->mq.dhcpreq.hlen[Length++] = sizeof(PHY2_ADDR_t);
 #endif  //  PHY2_ADDR_t
 
@@ -969,21 +961,13 @@ void MQTTSN_Init(void)
 {
     uint8_t uTmp = sizeof(PHY1_ADDR_t);
     ReadOD(PHY1_GateId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.GatewayAddr);
-    //ReadOD(PHY1_NodeId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.phy1addr);
 
-    PHY1_ADDR_t phy1addr;
-    PHY1_GetAddr(&phy1addr);
-    
-#ifdef PHY2_ADDR_t
-    uTmp = sizeof(PHY2_ADDR_t);
-    ReadOD(PHY2_NodeId, MQTTSN_FL_TOPICID_PREDEF, &uTmp, (uint8_t *)vMQTTSN.phy2addr);
-#endif  //  PHY2_ADDR_t
 #ifdef MQTTSN_USE_DHCP
-    if(memcmp(&phy1addr, &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)
+    if(memcmp(PHY1_GetAddr(), &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)
         vMQTTSN.Status = MQTTSN_STATUS_DHCP;
     else
 #ifdef PHY2_ADDR_t
-    if(memcmp(vMQTTSN.phy2addr, &addr2_undef, sizeof(PHY2_ADDR_t)) == 0)
+    if(memcmp(PHY2_GetAddr(), &addr2_undef, sizeof(PHY2_ADDR_t)) == 0)
         vMQTTSN.Status = MQTTSN_STATUS_DHCP;
     else
 #endif  //  PHY2_ADDR_t

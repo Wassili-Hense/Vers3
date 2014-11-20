@@ -113,14 +113,11 @@ extern "C" {
 #define ENC_RELEASE()               {while(SPIe->SR & SPI_SR_BSY); ENC_NSS_PORT->BSRR = ENC_NSS_PIN;}
 // End ENC Section
 
-#define inet_addr(d,c,b,a)          (((uint32_t)a<<24) | ((uint32_t)b << 16) | ((uint32_t)c<<8)  | ((uint32_t)d))
-
 #define ENC28J60_PHY                1
 
 #define PHY1_ADDR_t                 uint32_t
 #define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)inet_addr(255,255,255,255)
 #define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)inet_addr(255,255,255,255)
-
 
 // Object's Dictionary Section
 #define OD_DEV_UC_TYPE              'S'

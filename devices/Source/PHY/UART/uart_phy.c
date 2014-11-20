@@ -19,6 +19,7 @@ See LICENSE file for license details.
 #if (UART_PHY == 1)
 #define UART_ADDR               phy1addr
 #define UART_ADDR_t             PHY1_ADDR_t
+#define UART_NODE_ID            PHY1_NodeId
 
 #ifdef LED1_On
 void SetLED1mask(uint16_t mask);
@@ -30,6 +31,7 @@ void SetLED1mask(uint16_t mask);
 #elif (UART_PHY == 2)
 #define UART_ADDR               phy2addr
 #define UART_ADDR_t             PHY2_ADDR_t
+#define UART_NODE_ID            PHY2_NodeId
 
 #ifdef LED2_On
 void SetLED2mask(uint16_t mask);
@@ -47,7 +49,8 @@ void hal_uart_send(uint8_t port, uint8_t data);
 bool hal_uart_get(uint8_t port, uint8_t * pData);
 
 
-static Queue_t  uart_tx_queue = {NULL, NULL, 0, 0};
+static Queue_t      uart_tx_queue = {NULL, NULL, 0, 0};
+static UART_ADDR_t  uart_addr;
 
 static void uart_tx_task(void)
 {
@@ -117,6 +120,9 @@ void UART_Init(void)
     MQ_t * pBuf;
     while((pBuf = mqDequeue(&uart_tx_queue)) != NULL)
         mqFree(pBuf);
+        
+    uint8_t Len = sizeof(UART_ADDR_t);
+    ReadOD(UART_NODE_ID, MQTTSN_FL_TOPICID_PREDEF, &Len, (uint8_t *)&uart_addr);
 
     hal_uart_init_hw(UART_PHY_PORT, 4);
 }
@@ -149,9 +155,7 @@ void * UART_Get(void)
         {
             if((rx_pos > 1) && (rx_len == (rx_pos - 1)))
             {
-                UART_ADDR_t s_addr = (UART_ADDR_t)UART_PHY;
-                memcpy(pRx_buf->UART_ADDR, &s_addr, sizeof(UART_ADDR_t));
-
+                memcpy(pRx_buf->UART_ADDR, &uart_addr, sizeof(UART_ADDR_t));
                 pRetVal = pRx_buf;
                 pRx_buf = NULL;
                 uart_active();
@@ -212,4 +216,10 @@ void * UART_Get(void)
     }
     return pRetVal;
 }
+
+void * UART_GetAddr(void)
+{
+    return &uart_addr;
+}
+
 #endif  //  UART_PHY

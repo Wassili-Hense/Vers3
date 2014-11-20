@@ -331,8 +331,6 @@ void CC11_Send(void *pBuf)
         mqFree(pBuf);
 }
 
-volatile uint8_t marcs;
-
 void * CC11_Get(void)
 {
     uint8_t marcs = cc11_readReg(CC11_MARCSTATE | CC11_STATUS_REGISTER);
@@ -354,6 +352,7 @@ void * CC11_Get(void)
     return NULL;
 }
 
+#if ((CC11_PHY == 2) && (defined PHY2_GetRSSI))
 uint8_t CC11_GetRSSI(void)
 {
     if(cc11_rssi & 0x80)
@@ -369,6 +368,12 @@ uint8_t CC11_GetRSSI(void)
         cc11_rssi = 74 - cc11_rssi;
     }
     return (~cc11_rssi + 1);
+}
+#endif  // GetRSSI
+
+void * CC11_GetAddr(void)
+{
+    return &cc11s_NodeID;
 }
 
 #endif  //  CC11_PHY
