@@ -1,9 +1,9 @@
 #include "../../config.h"
 
-#ifdef UART_PHY
+#if ((defined UART_PHY) || (defined EXTSER_USED))
 
-#define HAL_SIZEOF_UART_RX_FIFO         16      // Should be 2^n
-#define HAL_SIZEOF_UART_TX_FIFO         16      // Should be 2^n
+#define HAL_SIZEOF_UART_RX_FIFO         32      // Should be 2^n
+#define HAL_SIZEOF_UART_TX_FIFO         32      // Should be 2^n
 
 #if (defined STM32F0XX_MD)                      // STM32F0
     #define HAL_USART_RX_DATA           RDR
@@ -270,4 +270,4 @@ void USART2_IRQHandler(void)
 }
 #endif  //  USART2_IRQHandler
 
-#endif  //  UART_PHY
+#endif  //  ((defined UART_PHY) || (defined EXTSER_USED))

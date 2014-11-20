@@ -44,6 +44,7 @@ extern "C" {
 //#define EXTPWM_USED             1       // Use PWM
 //#define EXTAIN_USED             1       // Use Analogue inputs
 //#define EXTTWI_USED             1       // Use TWI Devices
+#define EXTSER_USED             1       // Use Serial Port
 
 //#define DIAG_USED               1       // Enable diagnostic messages
 

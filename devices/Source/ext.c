@@ -25,6 +25,10 @@ See LICENSE file for license details.
 #include "EXT/exttwi.h"
 #endif  //  EXTTWI_USED
 
+#ifdef EXTSER_USED
+#include "EXT/extser.h"
+#endif  //  EXTSER_USED
+
 // Initialise extensions
 void extInit(void)
 {
@@ -39,6 +43,10 @@ void extInit(void)
 #ifdef EXTTWI_USED
     twiInit();
 #endif
+
+#ifdef EXTSER_USED
+    serInit();
+#endif  //  EXTSER_USED
 }
 
 // Check Subindex: 0 - free / 1 - busy / 2 - invalid
@@ -54,12 +62,14 @@ uint8_t extCheckIdx(subidx_t * pSubidx)
 #endif  //  EXTPWM_USED
             return dioCheckIdx(pSubidx);
 #endif  //  EXTDIO_USED
-
 #ifdef EXTAIN_USED
         case objAin:
             return ainCheckIdx(pSubidx);
 #endif  //  EXTAIN_USED
-
+#ifdef EXTSER_USED
+        case objSer:
+            return serCheckIdx(pSubidx);
+#endif  //  EXTSER_USED
         default:
             break;
   }
@@ -89,6 +99,11 @@ e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx)
         case objAin:        // Analog(int16_t) Input's
             return ainRegisterOD(pIdx);
 #endif  //  EXTAIN_USED
+
+#ifdef EXTSER_USED
+        case objSer:
+            return serRegisterOD(pIdx);
+#endif  //  EXTSER_USED
         default:
             break;
     }
@@ -116,6 +131,12 @@ void extDeleteOD(subidx_t * pSubidx)
             ainDeleteOD(pSubidx);
             break;
 #endif  //  EXTAIN_USED
+
+#ifdef EXTSER_USED
+        case objSer:
+            serDeleteOD(pSubidx);
+            break;
+#endif  //  EXTSER_USED
         default:
             break;
     }
@@ -130,4 +151,8 @@ void extProc(void)
 #ifdef EXTAIN_USED
     ainProc();
 #endif  //  EXTAIN_USED
+
+#ifdef EXTSER_USED
+    serProc();
+#endif  //  EXTSER_USED
 }
