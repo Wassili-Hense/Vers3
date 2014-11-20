@@ -158,7 +158,6 @@ bool hal_uart_tx_busy(uint8_t port)
     return (((hal_UARTv[port]->tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1)) == hal_UARTv[port]->tx_tail);
 }
 
-
 void hal_uart_send(uint8_t port, uint8_t data)
 {
     assert(hal_UARTv[port] != NULL);
@@ -169,6 +168,12 @@ void hal_uart_send(uint8_t port, uint8_t data)
 
     hal_UARTv[port]->tx_fifo[hal_UARTv[port]->tx_head] = data;
     hal_UARTv[port]->tx_head = tmp_head;
+}
+
+bool hal_uart_datardy(uint8_t port)
+{
+    assert(hal_UARTv[port] != NULL);
+    return (hal_UARTv[port]->rx_head != hal_UARTv[port]->rx_tail);
 }
 
 bool hal_uart_get(uint8_t port, uint8_t * pData)
@@ -189,7 +194,6 @@ bool hal_uart_get(uint8_t port, uint8_t * pData)
 void USART1_IRQHandler(void)
 {
     assert(hal_UARTv[0] != NULL);
-
 
 #if (defined STM32F0XX_MD)                          // STM32F0
     uint32_t itstat = USART1->ISR;

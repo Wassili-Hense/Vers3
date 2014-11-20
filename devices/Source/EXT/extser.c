@@ -25,9 +25,9 @@ void serInit()
 // Check Index
 uint8_t serCheckIdx(subidx_t * pSubidx)
 {
-    uint8_t type = pSubidx->Type;
-    if((pSubidx->Base > SER_MAX_BASE) || ((type != objSerRx) && (type != objSerTx)))
-        return MQTTS_RET_REJ_NOT_SUPP;
+//    uint8_t type = pSubidx->Type;
+//    if((pSubidx->Base > SER_MAX_BASE) || ((type != objSerRx) && (type != objSerTx)))
+//        return MQTTS_RET_REJ_NOT_SUPP;
     return 2;
 }
 

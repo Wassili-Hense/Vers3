@@ -72,7 +72,6 @@ int main(void)
     }
 }
 
-
 #ifdef LED1_On
 static uint16_t LED1_mask = 0xFFFF;
 void SetLED1mask(uint16_t mask)
@@ -88,8 +87,6 @@ void SetLED2mask(uint16_t mask)
     LED2_mask = mask;
 }
 #endif  //  LED2_On
-
-
 
 void SystemTick(void)
 {
