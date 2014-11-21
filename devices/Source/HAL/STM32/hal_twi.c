@@ -4,12 +4,63 @@
 
 #include "../../EXT/exttwi.h"
 
-#include <avr/interrupt.h>
-#include <util/twi.h>
-
 // Global variable defined in exttwi.c
-extern volatile TWI_QUEUE_t * pTwi_exchange;
+extern volatile TWI_FRAME_t * pTwi_exchange;
 
+#if (EXTTWI_USED == 2)
+bool hal_twi_configure(uint8_t enable)
+{
+    GPIO_InitTypeDef  GPIO_InitStructure;
+    I2C_InitTypeDef  I2C_InitStructure;
+
+    if(enable)
+    {
+        // I2C2 clock enable
+        RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
+
+        // I2C2 SDA and SCL configuration
+        GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+        GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
+        GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+        GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+        GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+        // Reset I2C2
+        RCC->APB1RSTR |= RCC_APB1RSTR_I2C2RST;
+        RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C2RST;
+
+        // I2C configuration
+        I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
+        I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
+        I2C_InitStructure.I2C_OwnAddress1 = 1;
+        I2C_InitStructure.I2C_Ack = I2C_Ack_Disable;    //  I2C_Ack_Enable
+        I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+        I2C_InitStructure.I2C_ClockSpeed = 100000;
+        I2C_Init(I2C1, &I2C_InitStructure);
+    }
+    else
+    {
+        // Reset I2C2
+        RCC->APB1RSTR |= RCC_APB1RSTR_I2C2RST;
+        RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C2RST;
+    
+        // I2C2 clock disable
+        RCC->APB1ENR &= ~RCC_APB1ENR_I2C2EN;
+    }
+
+    return true;
+}
+
+void hal_twi_tick(void)
+{
+
+}
+
+#endif  //  (EXTTWI_USED == 2)
+
+/*
 // HAL
 bool hal_twi_configure(uint8_t enable)
 {
@@ -42,7 +93,7 @@ void hal_twi_tick(void)
 
     static uint8_t twi_wd = 0;
 
-    uint8_t access = pTwi_exchange->frame.access;
+    uint8_t access = pTwi_exchange->access;
     
     if((access & 0xF8) == 0)
     {
@@ -53,7 +104,7 @@ void hal_twi_tick(void)
         twi_wd--;
         if(twi_wd == 0) // Timeout
         {
-            pTwi_exchange->frame.access |= TWI_WD;
+            pTwi_exchange->access |= TWI_WD;
             if(access & TWI_BUSY)
             {
                 TWCR &= ~((1<<TWEN) | (1<<TWSTO));
@@ -69,7 +120,7 @@ void hal_twi_tick(void)
     {
         twi_wd = 0;
 
-        pTwi_exchange->frame.access |= TWI_BUSY;
+        pTwi_exchange->access |= TWI_BUSY;
 
         TWCR = (1<<TWEN) |                      // TWI Interface enabled.
                (1<<TWIE) | (1<<TWINT) |         // Enable TWI Interrupt and clear the flag.
@@ -88,35 +139,35 @@ ISR(TWI_vect)
         case TW_REP_START:                          // repeated start condition transmitted
             twi_ptr = 0;
             
-            if(pTwi_exchange->frame.access & TWI_WRITE)
-                TWDR = (pTwi_exchange->frame.address<<1);
+            if(pTwi_exchange->access & TWI_WRITE)
+                TWDR = (pTwi_exchange->address<<1);
             else
-                TWDR = (pTwi_exchange->frame.address<<1) | TW_READ;
+                TWDR = (pTwi_exchange->address<<1) | TW_READ;
             TWCR = (1<<TWINT) | (1<<TWEN) | (1<<TWIE);
             break;
         // Master Send
         case TW_MT_SLA_NACK:                        // SLA+W transmitted, NACK received
         case TW_MR_SLA_NACK:                        // SLA+R transmitted, NACK received
-            pTwi_exchange->frame.read = 0;
-            pTwi_exchange->frame.access |= TWI_SLANACK;
+            pTwi_exchange->read = 0;
+            pTwi_exchange->access |= TWI_SLANACK;
             TWCR = (1<<TWINT) | (1<<TWSTO) | (1<<TWEN) | (1<<TWIE); // Send Stop
             break;
         case TW_MT_SLA_ACK:                         // SLA+W transmitted, ACK received
         case TW_MT_DATA_ACK:                        // data transmitted, ACK received
-            if(twi_ptr < pTwi_exchange->frame.write)
+            if(twi_ptr < pTwi_exchange->write)
             {
-                TWDR = pTwi_exchange->frame.data[twi_ptr];
+                TWDR = pTwi_exchange->data[twi_ptr];
                 twi_ptr++;
                 TWCR = (1<<TWINT) | (1<<TWEN) | (1<<TWIE);
                 break;
             }
             // else, ACK received but should be NACK
         case TW_MT_DATA_NACK:                       // data transmitted, NACK received
-            pTwi_exchange->frame.write = twi_ptr;
-            pTwi_exchange->frame.access &= ~(TWI_WRITE | TWI_BUSY);
-            if((pTwi_exchange->frame.access & TWI_READ) == 0)
+            pTwi_exchange->write = twi_ptr;
+            pTwi_exchange->access &= ~(TWI_WRITE | TWI_BUSY);
+            if((pTwi_exchange->access & TWI_READ) == 0)
             {
-                pTwi_exchange->frame.access = 0;
+                pTwi_exchange->access = 0;
                 TWCR = (1<<TWINT) | (1<<TWSTO) | (1<<TWEN) | (1<<TWIE); // Send Stop
             }
             else
@@ -124,9 +175,9 @@ ISR(TWI_vect)
             break;
         // Master Receive
         case TW_MR_DATA_ACK:                        // Data byte has been received and ACK transmitted
-            pTwi_exchange->frame.data[twi_ptr++] = TWDR;
+            pTwi_exchange->data[twi_ptr++] = TWDR;
         case TW_MR_SLA_ACK:                         // SLA+R has been transmitted and ACK received
-            if((twi_ptr + 1) < pTwi_exchange->frame.read)
+            if((twi_ptr + 1) < pTwi_exchange->read)
             {
                 TWCR = (1<<TWEN) |                  // TWI Interface enabled
                        (1<<TWIE) | (1<<TWINT) |     // Enable TWI Interrupt and clear the flag to read next byte
@@ -139,20 +190,21 @@ ISR(TWI_vect)
             }
             break;
         case TW_MR_DATA_NACK:                       // Data byte has been received and NACK transmitted
-            pTwi_exchange->frame.data[twi_ptr++] = TWDR;
-            pTwi_exchange->frame.read = twi_ptr;
-            pTwi_exchange->frame.access &= ~(TWI_READ | TWI_BUSY);
-            pTwi_exchange->frame.access |= TWI_RDY;
+            pTwi_exchange->data[twi_ptr++] = TWDR;
+            pTwi_exchange->read = twi_ptr;
+            pTwi_exchange->access &= ~(TWI_READ | TWI_BUSY);
+            pTwi_exchange->access |= TWI_RDY;
             TWCR = (1<<TWINT) | (1<<TWSTO) | (1<<TWEN) | (1<<TWIE); // Send Stop
             break;
         default:                                    // Error
             TWCR &= ~((1<<TWEN) | (1<<TWSTO));
             TWCR |= (1<<TWINT) | (1<<TWEN);
-            pTwi_exchange->frame.write = twi_ptr;
-            pTwi_exchange->frame.read = 1;
-            pTwi_exchange->frame.data[0] = TWSR;
-            pTwi_exchange->frame.access |= TWI_ERROR;
+            pTwi_exchange->write = twi_ptr;
+            pTwi_exchange->read = 1;
+            pTwi_exchange->data[0] = TWSR;
+            pTwi_exchange->access |= TWI_ERROR;
             break;
     }
 }
+*/
 #endif  //  EXTTWI_USED

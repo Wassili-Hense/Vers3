@@ -89,6 +89,10 @@ extern "C" {
 #define EXTDIO_PORTNUM2MASK         {(uint16_t)0xFE00, (uint16_t)0x001C, (uint16_t)0x1800}
 // End DIO Section
 
+// TWI Section
+#define EXTTWI_USED                 2   // 1 - I2C1, 2 - I2C2
+// End TWI Section
+
 // UART Section
 #define UART_PHY_PORT               0   //  0 - USART1 PA9,PA10 GPIOA MASK 0x0600, 1 - USART2 PA2,PA3 GPIO MASK 0x000C
 // End UART Section
