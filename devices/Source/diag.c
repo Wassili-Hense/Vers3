@@ -2,24 +2,22 @@
 
 #ifdef DIAG_USED
 
-#define DIAG_DEF_TIMEOUT    (300 * POLL_TMR_FREQ)
+#define DIAG_DEF_TIMEOUT    300
 
-static uint16_t diag_timeout;
+extern volatile uint32_t second_count;
+static uint32_t diag_timeout;
 
 void DIAG_Init(void)
 {
-    diag_timeout = DIAG_DEF_TIMEOUT;
+    diag_timeout = second_count + DIAG_DEF_TIMEOUT;
 }
 
 void DIAG_Poll(void)
 {
-    if(diag_timeout > 0)
-    {
-        diag_timeout--;
+    if(diag_timeout > second_count)
         return;
-    }
     
-    diag_timeout = DIAG_DEF_TIMEOUT;
+    diag_timeout = second_count + DIAG_DEF_TIMEOUT;
     
     MQ_t * pMessage = mqAlloc(sizeof(MQ_t));
     if(pMessage == NULL)

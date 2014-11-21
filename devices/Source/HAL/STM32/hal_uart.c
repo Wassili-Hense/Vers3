@@ -190,23 +190,33 @@ bool hal_uart_get(uint8_t port, uint8_t * pData)
     return true;
 }
 
-#ifdef USART1
-void USART1_IRQHandler(void)
+// IRQ handlers
+static inline void hal_uart_irq_handler(uint8_t port)
 {
-    assert(hal_UARTv[0] != NULL);
-
-#if (defined STM32F0XX_MD)                          // STM32F0
-    uint32_t itstat = USART1->ISR;
-#elif (defined __STM32F10x_H)                       // STM32F1xx    
-    uint32_t itstat = USART1->SR;
+    assert(hal_UARTv[port] != NULL);
+    
+    uint8_t data;
+    uint32_t itstat;
+#if (defined STM32F0XX_MD)                      // STM32F0
+    itstat = hal_pUART[port]->ISR;
+    if(itstat & USART_ISR_ORE)
+    {
+        hal_pUART[port]->ICR = USART_ICR_ORECF;
+        return;
+    }
+#elif (defined __STM32F10x_H)                   // STM32F1xx    
+    itstat = hal_pUART[port]->SR;
+    if(itstat & USART_SR_ORE)
+    {
+        data = hal_pUART[port]->HAL_USART_RX_DATA;
+        return;
+    }
 #endif  //  STM32
-
-    itstat &= USART1->CR1;          // only for RXNE, TC, TXE
     
     // Received data is ready to be read
     if(itstat & USART_CR1_RXNEIE)
     {
-        uint8_t data = USART1->HAL_USART_RX_DATA;
+        data = hal_pUART[port]->HAL_USART_RX_DATA;
         uint8_t tmp_head = (hal_UARTv[0]->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
         if(tmp_head == hal_UARTv[0]->rx_tail)        // Overflow
             return;
@@ -216,61 +226,32 @@ void USART1_IRQHandler(void)
     }
     
     // Transmit data register empty
-    if(itstat & USART_CR1_TXEIE)
+    if((itstat & USART_CR1_TXEIE) && (hal_pUART[port]->CR1 & USART_CR1_TXEIE))
     {
 
         if(hal_UARTv[0]->tx_head == hal_UARTv[0]->tx_tail)
         {
-            USART1->CR1 &= ~(uint32_t)USART_CR1_TXEIE;
+            hal_pUART[port]->CR1 &= ~(uint32_t)USART_CR1_TXEIE;
             return;
         }
 
-        USART1->HAL_USART_TX_DATA = hal_UARTv[0]->tx_fifo[hal_UARTv[0]->tx_tail];
+        hal_pUART[port]->HAL_USART_TX_DATA = hal_UARTv[0]->tx_fifo[hal_UARTv[0]->tx_tail];
         hal_UARTv[0]->tx_tail++;
         hal_UARTv[0]->tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
     }
+}
+
+#ifdef USART1
+void USART1_IRQHandler(void)
+{
+    hal_uart_irq_handler(0);
 }
 #endif  // USART1_IRQHandler
 
 #ifdef USART2
 void USART2_IRQHandler(void)
 {
-    assert(hal_UARTv[1] != NULL);
-
-#if (defined STM32F0XX_MD)                      // STM32F0
-    uint32_t itstat = USART2->ISR;
-#elif (defined __STM32F10x_H)                   // STM32F1xx    
-    uint32_t itstat = USART2->SR;
-#endif  //  STM32
-
-    itstat &= USART2->CR1;                      // only for RXNE, TC, TXE
-    
-    // Received data is ready to be read
-    if(itstat & USART_CR1_RXNEIE)
-    {
-        uint8_t data = USART2->HAL_USART_RX_DATA;
-        uint8_t tmp_head = (hal_UARTv[1]->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
-        if(tmp_head == hal_UARTv[1]->rx_tail)        // Overflow
-            return;
-            
-        hal_UARTv[1]->rx_fifo[hal_UARTv[1]->rx_head] = data;
-        hal_UARTv[1]->rx_head = tmp_head;
-    }
-    
-    // Transmit data register empty
-    if(itstat & USART_CR1_TXEIE)
-    {
-
-        if(hal_UARTv[1]->tx_head == hal_UARTv[1]->tx_tail)
-        {
-            USART2->CR1 &= ~(uint32_t)USART_CR1_TXEIE;
-            return;
-        }
-
-        USART2->HAL_USART_TX_DATA = hal_UARTv[1]->tx_fifo[hal_UARTv[1]->tx_tail];
-        hal_UARTv[1]->tx_tail++;
-        hal_UARTv[1]->tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
-    }
+    hal_uart_irq_handler(1);
 }
 #endif  //  USART2_IRQHandler
 

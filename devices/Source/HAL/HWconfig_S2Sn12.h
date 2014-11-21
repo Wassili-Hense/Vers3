@@ -19,7 +19,7 @@ See LICENSE file for license details.
 
 // GPIOA
 // Pin  Port    Func
-//   0  PA0     
+//   0  PA0     PNP - User Btn
 //   1  PA1
 //   2  PA2     USART2_TX
 //   3  PA3     USART2_RX
