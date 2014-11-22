@@ -113,10 +113,11 @@ ISR(TWI_vect)
             // else, ACK received but should be NACK
         case TW_MT_DATA_NACK:                       // data transmitted, NACK received
             pTwi_exchange->frame.write = twi_ptr;
-            pTwi_exchange->frame.access &= ~(TWI_WRITE | TWI_BUSY);
+            pTwi_exchange->frame.access &= ~TWI_WRITE;
             if((pTwi_exchange->frame.access & TWI_READ) == 0)
             {
-                pTwi_exchange->frame.access = 0;
+                pTwi_exchange->frame.read = 0;
+                pTwi_exchange->frame.access = TWI_RDY;
                 TWCR = (1<<TWINT) | (1<<TWSTO) | (1<<TWEN) | (1<<TWIE); // Send Stop
             }
             else
@@ -141,8 +142,7 @@ ISR(TWI_vect)
         case TW_MR_DATA_NACK:                       // Data byte has been received and NACK transmitted
             pTwi_exchange->frame.data[twi_ptr++] = TWDR;
             pTwi_exchange->frame.read = twi_ptr;
-            pTwi_exchange->frame.access &= ~(TWI_READ | TWI_BUSY);
-            pTwi_exchange->frame.access |= TWI_RDY;
+            pTwi_exchange->frame.access = TWI_RDY;
             TWCR = (1<<TWINT) | (1<<TWSTO) | (1<<TWEN) | (1<<TWIE); // Send Stop
             break;
         default:                                    // Error

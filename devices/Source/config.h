@@ -42,9 +42,9 @@ extern "C" {
 //Optional modules
 //#define EXTDIO_USED             1       // Use DIO
 //#define EXTPWM_USED             1       // Use PWM
-//#define EXTAIN_USED             1       // Use Analogue inputs
-//#define EXTTWI_USED             1       // Use TWI Devices
-#define EXTSER_USED             1       // Use Serial Port
+//#define EXTAIN_USED             1       // Use Analog inputs
+//#define EXTTWI_USED             1       // Use TWI/I2C Devices
+//#define EXTSER_USED             1       // Use Serial Port
 
 //#define DIAG_USED               1       // Enable diagnostic messages
 
