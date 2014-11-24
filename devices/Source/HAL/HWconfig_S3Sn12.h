@@ -90,7 +90,7 @@ extern "C" {
 // End DIO Section
 
 // TWI Section
-#define EXTTWI_USED                 2   // 1 - I2C1, 2 - I2C2
+//#define EXTTWI_USED                 2   // 1 - I2C1, 2 - I2C2
 // End TWI Section
 
 // UART Section
