@@ -91,7 +91,7 @@ extern "C" {
 // LEDs
 #define LED1_On()                   PORTA |= (1<<PA0)
 #define LED1_Off()                  PORTA &= ~(1<<PA0)
-#define LEDsInit()                  {DDRA |= ((1<<PA0) | (1<<PA1)); PORTA |= (1<<PA0) | (1<<PA1);}
+#define LEDsInit()                  {DDRA |= ((1<<PA0)); PORTA |= (1<<PA0);}
 
 // UART Section
 #define UART0_PORT                  PORTD

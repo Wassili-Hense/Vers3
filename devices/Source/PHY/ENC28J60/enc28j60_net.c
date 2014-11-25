@@ -24,9 +24,6 @@ See LICENSE file for license details.
 #define SUBNET_BROADCAST    (ip_addr | ~ip_mask)
 #define NET_BROADCAST       0xFFFFFFFF
 
-// defined in main.c
-extern volatile uint32_t second_count;
-
 // node MAC & IP addresses
 static uint8_t          mac_addr[6];
 uint32_t                ip_addr;
@@ -70,7 +67,7 @@ void enc28j60_init_net(void)
     {
         ip_addr = 0;
         dhcp_status = DHCP_INIT;
-        dhcp_retry_time = second_count + 2;
+        dhcp_retry_time = GetTickCounter() + POLL_TMR_FREQ;
     }
 #endif
 }
@@ -626,7 +623,7 @@ dhcp_filter_lbl1:
 
         dhcp_status = DHCP_ASSIGNED;
         dhcp_server = renew_server;
-        dhcp_retry_time = second_count + renew_time;
+        dhcp_retry_time = GetTickCounter() + (renew_time * POLL_TMR_FREQ);
 
         // network up
         memcpy(&ip_addr, dhcp->offered_addr, 4);
@@ -640,7 +637,7 @@ dhcp_filter_lbl1:
 
 void dhcp_poll(void)
 {
-    if((dhcp_status == DHCP_DISABLED) || (dhcp_retry_time > second_count))
+    if((dhcp_status == DHCP_DISABLED) || (dhcp_retry_time > GetTickCounter()))
     {
         return;
     }
@@ -653,7 +650,7 @@ void dhcp_poll(void)
     uint16_t length;
     uint8_t ucTmp;
 
-    dhcp_retry_time = second_count + 15;
+    dhcp_retry_time = GetTickCounter() + (15 * POLL_TMR_FREQ);
 
     pFrame = (void *)mqAlloc(MAX_FRAME_BUF);
     if(pFrame == NULL)

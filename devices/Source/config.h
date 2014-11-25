@@ -93,6 +93,9 @@ extern "C" {
 #include "ObjDict.h"
 #include "diag.h"
 
+// Time Counters
+uint32_t GetTickCounter();
+
 #ifdef __cplusplus
 }
 #endif

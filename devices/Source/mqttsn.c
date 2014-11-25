@@ -968,7 +968,7 @@ void MQTTSN_Init(void)
 
     vMQTTSN.GwId = 0;
     vMQTTSN.Radius = 1;
-    vMQTTSN.Tretry = POLL_TMR_FREQ;
+    vMQTTSN.Tretry = (POLL_TMR_FREQ*2);
     vMQTTSN.Nretry = MQTTSN_N_RETRIES;
 
     vMQTTSN.MsgId = 0;

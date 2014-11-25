@@ -38,6 +38,7 @@ typedef enum
   DIO_MODE_OUT,
   DIO_MODE_PWM,
   DIO_MODE_AIN,
+  DIO_MODE_UART
 }eDIOmode_t;
 #endif  //  EXTDIO_USED
 
