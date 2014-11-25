@@ -32,7 +32,7 @@ extern "C" {
 #define OD_MAX_INDEX_LIST       16      // Size of identificators list
 #define OD_DEV_SWVERSH          '3'     // Software Version
 #define OD_DEV_SWVERSM          '0'
-#define OD_DEV_SWVERSL          '0'
+#define OD_DEV_SWVERSL          '1'
 
 #define POLL_TMR_FREQ           100     // System Tick Period
 
@@ -92,6 +92,7 @@ extern "C" {
 #include "mqttsn.h"
 #include "ObjDict.h"
 #include "diag.h"
+#include "ext.h"
 
 // Time Counters
 uint32_t GetTickCounter();

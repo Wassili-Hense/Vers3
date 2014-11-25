@@ -62,7 +62,6 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define DIO_PORT_SIZE               8
 #define EXTDIO_MAXPORT_NR           4                                     // Number of digital Ports
 #define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTD}
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0x10, (uint8_t)0x83}

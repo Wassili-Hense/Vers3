@@ -18,11 +18,9 @@ See LICENSE file for license details.
 
 #include "extser.h"
 
-
-
 #define EXTSER_FLAG_TXEN    1
 #define EXTSER_FLAG_RXEN    2
-#define EXTSER_FLAG_RXRDY   0x10
+//#define EXTSER_FLAG_RXRDY   0x10
 
 typedef struct
 {
@@ -31,10 +29,8 @@ typedef struct
 }EXTSER_VAR_t;
 
 static const uint8_t extser2uart[] = EXTSER_PORT2UART;
-static const uint8_t extser2port[] = EXTSER_PORT2DIO;
 #define MAX_SER_PORT    (sizeof(extser2uart)/sizeof(extser2uart[0]))
 static EXTSER_VAR_t * extSerV[MAX_SER_PORT] = {NULL,};
-
 
 // HAL Section, subroutines defined in hal_uart.c
 void hal_uart_deinit(uint8_t port);
@@ -132,6 +128,8 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
 
         extSerV[port]->flags |= EXTSER_FLAG_RXEN;
     }
+
+    hal_dio_configure(extser2uart[port], 0, DIO_MODE_UART);
 
     return MQTTSN_RET_ACCEPTED;
 }

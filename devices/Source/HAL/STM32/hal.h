@@ -31,8 +31,13 @@ void halLeaveCritical(void);
 #define ENTER_CRITICAL_SECTION      halEnterCritical
 #define LEAVE_CRITICAL_SECTION      halLeaveCritical
 
+
+// Hardware specific options
+#define DIO_PORT_SIZE               16
 #define portBYTE_ALIGNMENT          8
 #define configTOTAL_HEAP_SIZE       2048
+
+void hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint8_t Mode);
 
 void StartSheduler(void);
 

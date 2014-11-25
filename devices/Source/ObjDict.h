@@ -19,29 +19,6 @@ extern "C" {
 
 #define OD_DEV_TYP_LEN          6
 
-#ifdef EXTDIO_USED
-#if (DIO_PORT_SIZE == 8)
-#define DIO_PORT_TYPE           uint8_t
-#elif (DIO_PORT_SIZE == 16)
-#define DIO_PORT_TYPE           uint16_t
-#elif (DIO_PORT_SIZE == 32)
-#define DIO_PORT_TYPE           uint32_t
-#else
-#error DIO_PORT_SIZE unknown size
-#endif  //  DIO_PORT_SIZE
-
-typedef enum
-{
-  DIO_MODE_IN_FLOAT = 0,
-  DIO_MODE_IN_PD,
-  DIO_MODE_IN_PU,
-  DIO_MODE_OUT,
-  DIO_MODE_PWM,
-  DIO_MODE_AIN,
-  DIO_MODE_UART
-}eDIOmode_t;
-#endif  //  EXTDIO_USED
-
 // Predefined variables
 typedef enum
 {

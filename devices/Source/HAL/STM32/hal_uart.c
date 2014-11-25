@@ -77,6 +77,12 @@ void hal_uart_deinit(uint8_t port)
         default:
             assert(0);
     }
+
+    if(hal_UARTv[port] != NULL)
+    {
+        mqFree(hal_UARTv[port]);
+        hal_UARTv[port] = NULL;
+    }
 }
 
 void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
@@ -100,20 +106,8 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
             RCC->APB2ENR   |= RCC_APB2ENR_USART1EN;         // Enable UART1 Clock
 
 #if (defined STM32F0XX_MD)
-            GPIOA->MODER   |= GPIO_MODER_MODER9_1;          // PA9  (TX) - Alternate function mode
-            GPIOA->MODER   |= GPIO_MODER_MODER10_1;         // PA10 (RX) - Alternate function mode
-            GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR9;       // PA9  (TX) - High speed
-            GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR10;      // PA10 (RX) - High speed
-            GPIOA->AFR[1]  |= 0x0110;                       // PA9, PA10 - AF1
-//            RCC->CFGR3     &= ~RCC_CFGR3_USART1SW;
-//            RCC->CFGR3     |=  RCC_CFGR3_USART1SW_0;        //System clock (SYSCLK) selected as USART1 clock
-
             uart_clock = RCC_ClocksStatus.USART1CLK_Frequency;
 #elif (defined __STM32F10x_H)
-            // Configure GPIO, Tx on PA9, Rx on PA10
-            GPIOA->CRH &= ~GPIO_CRH_CNF9_0;
-            GPIOA->CRH |= GPIO_CRH_CNF9_1 | GPIO_CRH_MODE9; // AF Push-Pull out (TX)
-
             uart_clock = RCC_ClocksStatus.PCLK2_Frequency;
 #endif
             }
@@ -126,18 +120,8 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
             RCC->APB1ENR   |= RCC_APB1ENR_USART2EN;         // Enable UART2 Clock
             
 #if (defined STM32F0XX_MD)
-            GPIOA->MODER   |= GPIO_MODER_MODER2_1;          // PA2  (TX) - Alternate function mode
-            GPIOA->MODER   |= GPIO_MODER_MODER3_1;          // PA3  (RX) - Alternate function mode
-            GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR2;       // PA2  (TX) - High speed
-            GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3;       // PA3  (RX) - High speed
-            GPIOA->AFR[0]  |= 0x1100;                       // PA2, PA3  - AF1
-
             uart_clock = RCC_ClocksStatus.PCLK_Frequency;
 #elif (defined __STM32F10x_H)
-            // Configure GPIO, Tx on PA2, Rx on PA3
-            GPIOA->CRL &= ~GPIO_CRL_CNF2_0;
-            GPIOA->CRL |= GPIO_CRL_CNF2_1 | GPIO_CRL_MODE2; // AF Push-Pull out (TX)
-
             uart_clock = RCC_ClocksStatus.PCLK1_Frequency;
 #endif
             }
@@ -152,6 +136,8 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
         hal_UARTv[port] = mqAlloc(sizeof(HAL_UART_t));
         assert(hal_UARTv[port] != NULL);
     }
+    
+    hal_dio_configure(port, 0, DIO_MODE_UART);
 
     hal_UARTv[port]->rx_head = 0;
     hal_UARTv[port]->rx_tail = 0;
