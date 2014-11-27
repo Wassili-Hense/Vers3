@@ -1,4 +1,7 @@
 #include "../../config.h"
+
+#ifdef EXTDIO_USED
+
 #include "../../EXT/extdio.h"
 
 static const GPIO_TypeDef * dio_pGPIOx[] = EXTDIO_PORTNUM2PORT;
@@ -93,3 +96,5 @@ void hal_dio_reset(uint8_t PortNr, uint16_t Mask)
     if(GPIOx != NULL)
         GPIOx->BRR = Mask;
 }
+
+#endif  //  EXTDIO_USED

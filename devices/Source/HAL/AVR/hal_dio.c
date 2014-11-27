@@ -1,5 +1,9 @@
 #include "../../config.h"
 
+#ifdef EXTDIO_USED
+
+#include "../../EXT/extdio.h"
+
 const uint16_t dio_portnum2port[]  = EXTDIO_PORTNUM2PORT;
 
 void hal_dio_configure(uint8_t PortNr, uint8_t Mask, eDIOmode_t Mode)
@@ -46,3 +50,5 @@ void hal_dio_reset(uint8_t PortNr, uint8_t Mask)
     uint8_t * pPORT = (uint8_t *)dio_portnum2port[PortNr];
     *pPORT &= ~Mask;
 }
+
+#endif  //  EXTDIO_USED
