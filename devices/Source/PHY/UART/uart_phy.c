@@ -69,7 +69,7 @@ static void uart_tx_task(void)
             pTx_buf = mqDequeue(&uart_tx_queue);
             assert(pTx_buf != NULL);
             uart_active();
-            hal_uart_send(UART_PHY_PORT, pTx_buf->Length, &pTx_buf->Length);
+            hal_uart_send(UART_PHY_PORT, (pTx_buf->Length + 1), &pTx_buf->Length);
         }
     }
 }
@@ -128,6 +128,8 @@ void * UART_Get(void)
 
             if(rx_pos == rx_len)
             {
+				memcpy(pRx_buf->UART_ADDR, (const void *)&uart_addr, sizeof(UART_ADDR_t));
+				pRx_buf->Length = rx_len;
                 rx_len = 0;
                 uart_active();
                 return pRx_buf;

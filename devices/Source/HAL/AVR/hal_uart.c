@@ -44,6 +44,7 @@ ISR(USART0_UDRE_vect)
 {
     if(hal_UARTv[0]->tx_len == hal_UARTv[0]->tx_pos)
     {
+		hal_UARTv[0]->tx_len = 0;
         UCSR0B &= ~(1<<UDRIE0);
         return;
     }
@@ -68,6 +69,7 @@ ISR(USART1_UDRE_vect)
 {
     if(hal_UARTv[1]->tx_len == hal_UARTv[1]->tx_pos)
     {
+		hal_UARTv[1]->tx_len = 0;
         UCSR1B &= ~(1<<UDRIE1);
         return;
     }
@@ -92,6 +94,7 @@ ISR(USART2_UDRE_vect)
 {
     if(hal_UARTv[2]->tx_len == hal_UARTv[2]->tx_pos)
     {
+		hal_UARTv[2]->tx_len = 0;
         UCSR2B &= ~(1<<UDRIE2);
         return;
     }
@@ -116,6 +119,7 @@ ISR(USART3_UDRE_vect)
 {
     if(hal_UARTv[3]->tx_len == hal_UARTv[3]->tx_pos)
     {
+		hal_UARTv[3]->tx_len = 0;
         UCSR3B &= ~(1<<UDRIE3);
         return;
     }
