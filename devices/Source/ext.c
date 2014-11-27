@@ -101,7 +101,7 @@ e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx)
 #endif  //  EXTAIN_USED
 
 #ifdef EXTSER_USED
-        case objSer:
+        case objSer:        // User Serial I/O
             return serRegisterOD(pIdx);
 #endif  //  EXTSER_USED
         default:

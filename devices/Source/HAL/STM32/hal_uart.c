@@ -3,7 +3,6 @@
 #if ((defined UART_PHY) || (defined EXTSER_USED))
 
 #define HAL_SIZEOF_UART_RX_FIFO         32      // Should be 2^n
-#define HAL_SIZEOF_UART_TX_FIFO         32      // Should be 2^n
 
 #if (defined STM32F0XX_MD)                      // STM32F0
     #define HAL_USART_RX_DATA           RDR
@@ -20,10 +19,10 @@ typedef struct
     uint8_t             rx_fifo[HAL_SIZEOF_UART_RX_FIFO];
     volatile uint8_t    rx_head;
     uint8_t             rx_tail;
-    
-    uint8_t             tx_fifo[HAL_SIZEOF_UART_TX_FIFO];
-    uint8_t             tx_head;
-    volatile uint8_t    tx_tail;
+
+    uint8_t         *   pTxBuf;
+    uint8_t             tx_len;
+    uint8_t             tx_pos;
 }HAL_UART_t;
 
 static HAL_UART_t * hal_UARTv[] = {NULL, NULL};
@@ -96,7 +95,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
     uint16_t            baud = hal_baud_list[nBaud];
 
     RCC_GetClocksFreq(&RCC_ClocksStatus);
-    
+
     switch(port)
     {
 #ifdef USART1
@@ -107,8 +106,18 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
 
 #if (defined STM32F0XX_MD)
             uart_clock = RCC_ClocksStatus.USART1CLK_Frequency;
+            
+            GPIOA->MODER   |= GPIO_MODER_MODER9_1;          // PA9  (TX) - Alternate function mode
+            GPIOA->MODER   |= GPIO_MODER_MODER10_1;         // PA10 (RX) - Alternate function mode
+            GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR9;       // PA9  (TX) - High speed
+            GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR10;      // PA10 (RX) - High speed
+            GPIOA->AFR[1]  |= 0x0110;                       // PA9, PA10 - AF1
 #elif (defined __STM32F10x_H)
             uart_clock = RCC_ClocksStatus.PCLK2_Frequency;
+            
+            // Configure GPIO, Tx on PA9, Rx on PA10
+            GPIOA->CRH &= ~GPIO_CRH_CNF9_0;
+            GPIOA->CRH |= GPIO_CRH_CNF9_1 | GPIO_CRH_MODE9; // AF Push-Pull out (TX)
 #endif
             }
             break;
@@ -121,8 +130,18 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
             
 #if (defined STM32F0XX_MD)
             uart_clock = RCC_ClocksStatus.PCLK_Frequency;
+            
+            GPIOA->MODER   |= GPIO_MODER_MODER2_1;          // PA2  (TX) - Alternate function mode
+            GPIOA->MODER   |= GPIO_MODER_MODER3_1;          // PA3  (RX) - Alternate function mode
+            GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR2;       // PA2  (TX) - High speed
+            GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR3;       // PA3  (RX) - High speed
+            GPIOA->AFR[0]  |= 0x1100;                       // PA2, PA3  - AF1
 #elif (defined __STM32F10x_H)
             uart_clock = RCC_ClocksStatus.PCLK1_Frequency;
+            
+            // Configure GPIO, Tx on PA2, Rx on PA3
+            GPIOA->CRL &= ~GPIO_CRL_CNF2_0;
+            GPIOA->CRL |= GPIO_CRL_CNF2_1 | GPIO_CRL_MODE2; // AF Push-Pull out (TX)
 #endif
             }
             break;
@@ -136,13 +155,13 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
         hal_UARTv[port] = mqAlloc(sizeof(HAL_UART_t));
         assert(hal_UARTv[port] != NULL);
     }
-    
-    hal_dio_configure(port, 0, DIO_MODE_UART);
 
     hal_UARTv[port]->rx_head = 0;
     hal_UARTv[port]->rx_tail = 0;
-    hal_UARTv[port]->tx_head = 0;
-    hal_UARTv[port]->tx_tail = 0;
+    
+    hal_UARTv[port]->pTxBuf = NULL;
+    hal_UARTv[port]->tx_len = 0;
+    hal_UARTv[port]->tx_pos = 0;
 
     hal_pUART[port]->CR1 = 0;                               // Disable USART1
     hal_pUART[port]->CR2 = 0;                               // 8N1
@@ -153,43 +172,6 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
                             USART_CR1_RXNEIE;               // Enable RX Not Empty IRQ
     NVIC_EnableIRQ(UARTx_IRQn);                             // Enable UASRT IRQ
     hal_pUART[port]->CR1 |= USART_CR1_UE;                   // Enable USART
-}
-
-bool hal_uart_tx_busy(uint8_t port)
-{
-    assert(hal_UARTv[port] != NULL);
-
-    if(hal_UARTv[port]->tx_head == hal_UARTv[port]->tx_tail)
-        return false;
-
-    if((hal_pUART[port]->CR1 & USART_CR1_TXEIE) == 0)
-    {
-        hal_pUART[port]->HAL_USART_TX_DATA = hal_UARTv[port]->tx_fifo[hal_UARTv[port]->tx_tail];
-        hal_UARTv[port]->tx_tail++;
-        hal_UARTv[port]->tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
-        hal_pUART[port]->CR1 |= USART_CR1_TXEIE;
-        return false;
-    }
-
-    return (((hal_UARTv[port]->tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1)) == hal_UARTv[port]->tx_tail);
-}
-
-void hal_uart_send(uint8_t port, uint8_t data)
-{
-    assert(hal_UARTv[port] != NULL);
-
-    uint8_t tmp_head = (hal_UARTv[port]->tx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
-    if(tmp_head == hal_UARTv[port]->tx_tail)        // Overflow
-        return;
-
-    hal_UARTv[port]->tx_fifo[hal_UARTv[port]->tx_head] = data;
-    hal_UARTv[port]->tx_head = tmp_head;
-}
-
-bool hal_uart_datardy(uint8_t port)
-{
-    assert(hal_UARTv[port] != NULL);
-    return (hal_UARTv[port]->rx_head != hal_UARTv[port]->rx_tail);
 }
 
 bool hal_uart_get(uint8_t port, uint8_t * pData)
@@ -205,6 +187,30 @@ bool hal_uart_get(uint8_t port, uint8_t * pData)
 
     return true;
 }
+
+// Tx free
+bool hal_uart_free(uint8_t port)
+{
+    return (hal_UARTv[port]->tx_len == 0);
+}
+
+void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
+{
+    hal_UARTv[port]->tx_len = len;
+    hal_UARTv[port]->tx_pos = 1;
+    hal_UARTv[port]->pTxBuf = pBuf;
+
+    hal_pUART[port]->HAL_USART_TX_DATA = *pBuf;
+    hal_pUART[port]->CR1 |= USART_CR1_TXEIE;
+}
+
+/*
+bool hal_uart_datardy(uint8_t port)
+{
+    assert(hal_UARTv[port] != NULL);
+    return (hal_UARTv[port]->rx_head != hal_UARTv[port]->rx_tail);
+}
+*/
 
 // IRQ handlers
 static inline void hal_uart_irq_handler(uint8_t port)
@@ -233,27 +239,26 @@ static inline void hal_uart_irq_handler(uint8_t port)
     if(itstat & USART_CR1_RXNEIE)
     {
         data = hal_pUART[port]->HAL_USART_RX_DATA;
-        uint8_t tmp_head = (hal_UARTv[0]->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
-        if(tmp_head == hal_UARTv[0]->rx_tail)        // Overflow
+        uint8_t tmp_head = (hal_UARTv[port]->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
+        if(tmp_head == hal_UARTv[port]->rx_tail)        // Overflow
             return;
             
-        hal_UARTv[0]->rx_fifo[hal_UARTv[0]->rx_head] = data;
-        hal_UARTv[0]->rx_head = tmp_head;
+        hal_UARTv[port]->rx_fifo[hal_UARTv[port]->rx_head] = data;
+        hal_UARTv[port]->rx_head = tmp_head;
     }
-    
+
     // Transmit data register empty
     if((itstat & USART_CR1_TXEIE) && (hal_pUART[port]->CR1 & USART_CR1_TXEIE))
     {
-
-        if(hal_UARTv[0]->tx_head == hal_UARTv[0]->tx_tail)
+        if(hal_UARTv[port]->tx_pos > hal_UARTv[port]->tx_len)
         {
+            hal_UARTv[port]->tx_len = 0;
             hal_pUART[port]->CR1 &= ~(uint32_t)USART_CR1_TXEIE;
             return;
         }
 
-        hal_pUART[port]->HAL_USART_TX_DATA = hal_UARTv[0]->tx_fifo[hal_UARTv[0]->tx_tail];
-        hal_UARTv[0]->tx_tail++;
-        hal_UARTv[0]->tx_tail &= (uint8_t)(HAL_SIZEOF_UART_TX_FIFO - 1);
+        hal_pUART[port]->HAL_USART_TX_DATA = hal_UARTv[port]->pTxBuf[hal_UARTv[port]->tx_pos];
+        hal_UARTv[port]->tx_pos++;
     }
 }
 

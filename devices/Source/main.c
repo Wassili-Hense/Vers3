@@ -11,6 +11,7 @@ See LICENSE file for license details.
 */
 
 #include "config.h"
+#include "diag.h"
 
 static volatile uint8_t SystemTickCnt;
 

@@ -37,8 +37,6 @@ void halLeaveCritical(void);
 #define portBYTE_ALIGNMENT          8
 #define configTOTAL_HEAP_SIZE       2048
 
-void hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint8_t Mode);
-
 void StartSheduler(void);
 
 void eeprom_init_hw(void);

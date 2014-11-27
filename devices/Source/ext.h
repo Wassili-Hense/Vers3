@@ -17,17 +17,6 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-typedef enum
-{
-  DIO_MODE_IN_FLOAT = 0,
-  DIO_MODE_IN_PD,
-  DIO_MODE_IN_PU,
-  DIO_MODE_OUT,
-  DIO_MODE_PWM,
-  DIO_MODE_AIN,
-  DIO_MODE_UART
-}eDIOmode_t;
-
 void extInit(void);                                         // Initialise extensions
 uint8_t extCheckIdx(subidx_t * pSubidx);                    // Check Subindex ->free/busy/invalid
 e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx);      // Register Object

@@ -28,8 +28,6 @@ extern "C" {
 #define portPOINTER_SIZE_TYPE       uintptr_t
 #define configTOTAL_HEAP_SIZE       1024
 
-void hal_dio_configure(uint8_t PortNr, uint8_t Mask, uint8_t Mode);
-
 void StartSheduler(void);
 
 uint16_t halRNG();
