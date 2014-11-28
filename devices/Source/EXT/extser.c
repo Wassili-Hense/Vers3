@@ -31,12 +31,6 @@ typedef struct
     uint8_t     RxHead;
     uint8_t     RxTail;
 */
-
-/*
-    uint8_t   * pTxBuf;
-    uint8_t     TxHead;
-    uint8_t     TxTail;
-*/
     MQ_t      * pTxBuf;
 
 }EXTSER_VAR_t;
@@ -78,7 +72,8 @@ uint8_t serCheckIdx(subidx_t * pSubidx)
 
     if((port >= MAX_SER_PORT) ||
        (nBaud > 4) ||
-       ((type != ObjSerRx) && (type != ObjSerTx)))
+       (type != ObjSerTx))
+       //((type != ObjSerRx) && (type != ObjSerTx)))
         return 2;
 
 //    if(extSerV[port] != NULL)
@@ -115,65 +110,13 @@ e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
                 return MQTTSN_RET_REJ_CONG;
 
             memcpy(pTxBuf->raw, pBuf, Len);
-            hal_uart_send(uart, (Len - 1), pTxBuf->raw);
+            hal_uart_send(uart, Len, pTxBuf->raw);
 
             extSerV[port]->pTxBuf = pTxBuf;
         }
         else
             return MQTTSN_RET_REJ_CONG;
     }
-/*
-        if(extSerV[port]->pTxBuf == NULL)
-        {
-
-
-            
-            extSerV[port]->TxHead = Len;
-            extSerV[port]->TxTail = 0;
-        }
-        else
-        {
-            uint8_t head = extSerV[port]->TxHead;
-            uint8_t tail = extSerV[port]->TxTail;
-        
-            uint8_t * pDst = &extSerV[port]->pTxBuf[head];
-
-            while(Len > 0)
-            {
-                *(pDst++) = *(pBuf++);
-                Len--;
-                head++;
-                if(head >= sizeof(MQ_t))
-                    head -= sizeof(MQ_t);
-                if(head == tail)
-                    return MQTTSN_RET_REJ_CONG;
-            }
-            extSerV[port]->TxHead = head;
-        }
-*/
-
-
-/*
-
-                while(!hal_uart_tx_busy(uart) &&(extSerV[port]->TxHead != extSerV[port]->TxTail))
-                {
-                    hal_uart_send(uart, extSerV[port]->pTxBuf[extSerV[port]->TxTail++]);
-                    
-                    if(extSerV[port]->TxTail >= sizeof(MQ_t))
-                        extSerV[port]->TxTail -= sizeof(MQ_t);
-
-                }
-
-                if(extSerV[port]->TxHead == extSerV[port]->TxTail)
-                {
-                    mqFree(extSerV[port]->pTxBuf);
-                    extSerV[port]->pTxBuf = NULL;
-                }
-            }
-        }
-    }
-*/
-
 
     return MQTTSN_RET_ACCEPTED;
 }
@@ -214,8 +157,6 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
         extSerV[port]->RxTail = 0;
 */
         extSerV[port]->pTxBuf = NULL;
-//        extSerV[port]->TxHead = 0;
-//        extSerV[port]->TxTail = 0;
 
         hal_uart_init_hw(extser2uart[port], nBaud);
     }
@@ -230,6 +171,8 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
         pIdx->cbWrite = &serWriteOD;
     }
     else // ObjSerRx
+        return MQTTSN_RET_REJ_NOT_SUPP;
+/*
     {
         if((extSerV[port]->flags & EXTSER_FLAG_RXEN) || (extSerV[port]->nBaud != nBaud))
             return MQTTSN_RET_REJ_INV_ID;
@@ -239,7 +182,7 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
         pIdx->cbRead = &serReadOD;
         pIdx->cbPoll = &serPollOD;
     }
-
+*/
     return MQTTSN_RET_ACCEPTED;
 }
 

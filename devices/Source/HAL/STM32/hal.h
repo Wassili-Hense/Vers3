@@ -15,7 +15,8 @@ extern "C" {
 #endif  // __ASSERT_USE_STDERR
 #endif  // NDEBUG
 
-#if   (defined STM32F0XX_MD)
+#if (defined STM32F0XX_LD) || (defined STM32F0XX_MD) || \
+    (defined STM32F030X8)  || (defined STM32F030X6)
 #include "stm32f0xx.h"
 #elif defined (STM32F10X_LD) || defined (STM32F10X_LD_VL) || \
       defined (STM32F10X_MD) || defined (STM32F10X_MD_VL) || \

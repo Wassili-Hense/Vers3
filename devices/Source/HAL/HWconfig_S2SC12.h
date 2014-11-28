@@ -88,6 +88,8 @@ extern "C" {
 
 // UART Section
 #define UART_PHY_PORT               0   //  0 - USART1 PA9,PA10 GPIOA MASK 0x0600, 1 - USART2 PA2,PA3 GPIO MASK 0x000C
+#define EXTSER_USED                 1
+#define EXTSER_PORT2UART            {1}
 // End UART Section
 
 // CC11 Section

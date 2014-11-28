@@ -128,8 +128,8 @@ void * UART_Get(void)
 
             if(rx_pos == rx_len)
             {
-				memcpy(pRx_buf->UART_ADDR, (const void *)&uart_addr, sizeof(UART_ADDR_t));
-				pRx_buf->Length = rx_len;
+                memcpy(pRx_buf->UART_ADDR, (const void *)&uart_addr, sizeof(UART_ADDR_t));
+                pRx_buf->Length = rx_len;
                 rx_len = 0;
                 uart_active();
                 return pRx_buf;

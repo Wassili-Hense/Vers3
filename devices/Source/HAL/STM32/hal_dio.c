@@ -18,7 +18,7 @@ void hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint8_t Mode)
 {
     GPIO_InitTypeDef  GPIO_InitStructure;
 
-#if (defined __STM32F0XX_GPIO_H)
+#if (defined __STM32F0XX_H)
     GPIO_InitStructure.GPIO_OType   = GPIO_OType_PP;
 
     switch(Mode)
@@ -46,7 +46,7 @@ void hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint8_t Mode)
             GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
             break;
     }
-#elif (defined __STM32F10x_GPIO_H)
+#elif (defined __STM32F10x_H)
     switch(Mode)
     {
         case DIO_MODE_IN_PD:
