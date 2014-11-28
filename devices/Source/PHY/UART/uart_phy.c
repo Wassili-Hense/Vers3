@@ -44,7 +44,8 @@ void SetLED2mask(uint16_t mask);
 
 // HAL Section
 void hal_uart_init_hw(uint8_t port, uint8_t nBaud);
-bool hal_uart_get(uint8_t port, uint8_t * pData);
+bool hal_uart_datardy(uint8_t port);
+uint8_t hal_uart_get(uint8_t port);
 
 bool hal_uart_free(uint8_t port);
 void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf);
@@ -104,10 +105,12 @@ void * UART_Get(void)
     static MQ_t   * pRx_buf;
     static uint8_t  rx_wd = 0;
 
-    uint8_t data;
+    
 
-    while(hal_uart_get(UART_PHY_PORT, &data))
+    while(hal_uart_datardy(UART_PHY_PORT))
     {
+        uint8_t data = hal_uart_get(UART_PHY_PORT);
+
         rx_wd = 0;
 
         if(rx_len == 0)

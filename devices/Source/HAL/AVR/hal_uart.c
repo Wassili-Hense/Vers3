@@ -210,8 +210,6 @@ void hal_uart_deinit(uint8_t port)
     }
 }
 
-
-
 void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
 {
     assert(nBaud <= 4);
@@ -297,16 +295,21 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
     *(hal_pUART[port] + 1) |= (1<<UDRIE0);
 }
 
-bool hal_uart_get(uint8_t port, uint8_t * pData)
+bool hal_uart_datardy(uint8_t port)
+{
+    return (hal_UARTv[port]->rx_head != hal_UARTv[port]->rx_tail);
+}
+
+uint8_t hal_uart_get(uint8_t port)
 {
     if(hal_UARTv[port]->rx_head == hal_UARTv[port]->rx_tail)
-        return false;
-    
-    *pData = hal_UARTv[port]->rx_fifo[hal_UARTv[port]->rx_tail];
+        return 0;
+        
+    uint8_t data = hal_UARTv[port]->rx_fifo[hal_UARTv[port]->rx_tail];
     hal_UARTv[port]->rx_tail++;
     hal_UARTv[port]->rx_tail &= (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
 
-    return true;
+    return data;
 }
 
 #endif  //  ((defined UART_PHY) || (defined EXTSER_USED))

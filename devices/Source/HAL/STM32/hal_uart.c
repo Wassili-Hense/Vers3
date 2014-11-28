@@ -244,18 +244,18 @@ bool hal_uart_datardy(uint8_t port)
     return (hal_UARTv[port]->rx_head != hal_UARTv[port]->rx_tail);
 }
 
-bool hal_uart_get(uint8_t port, uint8_t * pData)
+uint8_t hal_uart_get(uint8_t port)
 {
     assert(hal_UARTv[port] != NULL);
 
     if(hal_UARTv[port]->rx_head == hal_UARTv[port]->rx_tail)
-        return false;
+        return 0;
     
-    *pData = hal_UARTv[port]->rx_fifo[hal_UARTv[port]->rx_tail];
+    uint8_t data = hal_UARTv[port]->rx_fifo[hal_UARTv[port]->rx_tail];
     hal_UARTv[port]->rx_tail++;
     hal_UARTv[port]->rx_tail &= (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
 
-    return true;
+    return data;
 }
 
 // Tx free
