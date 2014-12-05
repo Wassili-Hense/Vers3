@@ -82,6 +82,16 @@ extern "C" {
 #define TWIM_SCL_STAT()             (PINC & (1<<PC5))
 // End TWI Section
 
+// UART Section
+#define UART0_PORT                  PORTD
+#define UART0_DDR                   DDRD
+#define UART0_RX_PIN                PD0
+#define UART0_TX_PIN                PD1
+
+#define EXTSER_USED                 1
+#define EXTSER_PORT2UART            {0}
+// End UART Section
+
 // LEDs
 #define LED1_On()                   PORTB &= ~(1<<PB0)
 #define LED1_Off()                  PORTB |= (1<<PB0)
