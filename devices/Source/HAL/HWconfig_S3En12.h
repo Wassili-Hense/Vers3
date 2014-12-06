@@ -88,6 +88,11 @@ extern "C" {
 #define EXTDIO_PORTNUM2MASK         {(uint16_t)0xF800, (uint16_t)0xF01C, (uint16_t)0x1800}
 // End DIO Section
 
+// UART Section
+#define EXTSER_USED                 1
+#define EXTSER_PORT2UART            {1, 0}
+// End UART Section
+
 // ENC Section
 #define ENC_USE_SPI                 1   // SPI1 PA5-PA7
 #define SPIe                        SPI1

@@ -46,7 +46,7 @@ extern "C" {
 //#define EXTTWI_USED             1       // Use TWI/I2C Devices
 //#define EXTSER_USED             1       // Use Serial Port
 
-#define DIAG_USED               1       // Enable diagnostic messages
+//#define DIAG_USED               1       // Enable diagnostic messages
 
 // Include Hardware definitions
 // Atmel
@@ -91,7 +91,6 @@ extern "C" {
 #include "mqTypes.h"
 #include "mqttsn.h"
 #include "ObjDict.h"
-//#include "diag.h"
 
 // Time Counters
 uint32_t GetTickCounter();
