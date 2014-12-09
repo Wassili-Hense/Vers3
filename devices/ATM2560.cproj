@@ -53,7 +53,6 @@
         <avrgcc.compiler.symbols.DefSymbols>
           <ListValues>
             <Value>DEBUG</Value>
-            <Value>F_CPU=16000000UL</Value>
             <Value>CFG_A4Sn12=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
@@ -85,7 +84,6 @@
         <avrgcc.compiler.symbols.DefSymbols>
           <ListValues>
             <Value>DEBUG</Value>
-            <Value>F_CPU=16000000UL</Value>
             <Value>CFG_A4En12=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>

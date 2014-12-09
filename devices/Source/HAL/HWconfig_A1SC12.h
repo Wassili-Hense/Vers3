@@ -10,8 +10,8 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_A3SC12_H
-#define HWCONFIG_A3SC12_H
+#ifndef HWCONFIG_A1SC12_H
+#define HWCONFIG_A1SC12_H
 
 // uNode Version 2.0
 // uc ATMega328p
@@ -50,6 +50,8 @@ See LICENSE file for license details.
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define F_CPU                       8000000UL
 
 #include "AVR/hal.h"
 #include <util/delay.h>
@@ -148,4 +150,4 @@ extern "C" {
 }
 #endif
 
-#endif // HWCONFIG_A3SN12_H
+#endif // HWCONFIG_A1SC12_H

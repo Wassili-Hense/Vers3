@@ -110,6 +110,8 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+#define F_CPU                       16000000UL
+
 #include "AVR/hal.h"
 
 // DIO Section

@@ -54,7 +54,6 @@
         <avrgcc.compiler.symbols.DefSymbols>
           <ListValues>
             <Value>DEBUG</Value>
-            <Value>F_CPU=8000000UL</Value>
             <Value>CFG_A1Sn12</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
@@ -88,7 +87,6 @@
         <avrgcc.compiler.symbols.DefSymbols>
           <ListValues>
             <Value>DEBUG</Value>
-            <Value>F_CPU=12500000UL</Value>
             <Value>CFG_A1En12=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
@@ -123,7 +121,6 @@
         <avrgcc.compiler.symbols.DefSymbols>
           <ListValues>
             <Value>DEBUG</Value>
-            <Value>F_CPU=12500000UL</Value>
             <Value>CFG_A1ES12=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
@@ -158,7 +155,6 @@
         <avrgcc.compiler.symbols.DefSymbols>
           <ListValues>
             <Value>DEBUG</Value>
-            <Value>F_CPU=8000000UL</Value>
             <Value>CFG_A1Cn12</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
@@ -193,7 +189,6 @@
         <avrgcc.compiler.symbols.DefSymbols>
           <ListValues>
             <Value>DEBUG</Value>
-            <Value>F_CPU=8000000UL</Value>
             <Value>CFG_A1SC12</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>

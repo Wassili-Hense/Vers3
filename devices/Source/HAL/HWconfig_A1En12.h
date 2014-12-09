@@ -51,6 +51,8 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+#define F_CPU                       12500000UL
+
 #include "AVR/hal.h"
 #include <util/delay.h>
 
