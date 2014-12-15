@@ -48,6 +48,8 @@ extern "C" {
 
 //#define DIAG_USED               1       // Enable diagnostic messages
 
+#define PLC_USED                1       
+
 // Include Hardware definitions
 // Atmel
 // ATM328P

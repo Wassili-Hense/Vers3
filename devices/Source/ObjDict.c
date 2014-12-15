@@ -149,30 +149,33 @@ uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
 // Search Object by Index
 static indextable_t * scanIndexOD(uint16_t index, uint8_t flags)
 {
-  uint16_t i;
+    uint16_t i;
 
-  flags &= MQTTSN_FL_TOPICID_MASK;
-  if(flags == MQTTSN_FL_TOPICID_NORM)
-  {
-    for(i = 0; i < OD_MAX_INDEX_LIST; i++)
-      if(ListOD[i].Index == index)
-        return &ListOD[i]; 
-  }
-  else if(flags == MQTTSN_FL_TOPICID_PREDEF)
-  {
-    if(index >= 0x8000)
+    flags &= MQTTSN_FL_TOPICID_MASK;
+    if(flags == MQTTSN_FL_TOPICID_NORM)
     {
-      for(i = 0; i < sizeof(listPredefOD)/sizeof(indextable_t); i++)
-        if(listPredefOD[i].Index == index)
-          return (indextable_t *)&listPredefOD[i];
+        for(i = 0; i < OD_MAX_INDEX_LIST; i++)
+            if(ListOD[i].Index == index)
+                return &ListOD[i]; 
     }
+    else if(flags == MQTTSN_FL_TOPICID_PREDEF)
+    {
+        if(index >= 0x8000)
+        {
+            for(i = 0; i < sizeof(listPredefOD)/sizeof(indextable_t); i++)
+                if(listPredefOD[i].Index == index)
+                    return (indextable_t *)&listPredefOD[i];
+        }
 #ifdef PLC_USED
-    else    // PLC Area
-      return &PLCexchgOD;
+        else    // PLC Area
+        {
+            PLCexchgOD.Index = index;
+            return &PLCexchgOD;
+        }
 #endif  //  PLC_USED
-  }
+    }
 
-  return NULL;
+    return NULL;
 }
 
 // Convert Subindex to Length - pack/unpack objects
