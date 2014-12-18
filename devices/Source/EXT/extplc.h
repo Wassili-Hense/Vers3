@@ -10,19 +10,21 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef _PLC_H
-#define _PLC_H
+#ifndef _EXTPLC_H
+#define _EXTPLC_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void plcInit(void);
+uint8_t plcCheckIdx(subidx_t * pSubidx);
+e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx);
+void plcDeleteOD(subidx_t * pSubidx);
 void plcProc(void);
-
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  //  _PLC_H
+#endif  //  _EXTPLC_H

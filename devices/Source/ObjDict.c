@@ -12,9 +12,6 @@ See LICENSE file for license details.
 
 #include "config.h"
 #include "ext.h"
-#ifdef PLC_USED
-#include "plc.h"
-#endif  //  PLC_USED
 
 //////////////////////////
 // Objects List
@@ -87,9 +84,9 @@ static const indextable_t listPredefOD[] =
 // User objects list
 static indextable_t ListOD[OD_MAX_INDEX_LIST];
 
-#ifdef PLC_USED
+#ifdef EXTPLC_USED
 extern indextable_t PLCexchgOD;                                         // PLC exchange object
-#endif  //PLC_USED
+#endif  //EXTPLC_USED
 
 // End Objects List
 //////////////////////////
@@ -166,13 +163,13 @@ static indextable_t * scanIndexOD(uint16_t index, uint8_t flags)
                 if(listPredefOD[i].Index == index)
                     return (indextable_t *)&listPredefOD[i];
         }
-#ifdef PLC_USED
+#ifdef EXTPLC_USED
         else    // PLC Area
         {
             PLCexchgOD.Index = index;
             return &PLCexchgOD;
         }
-#endif  //  PLC_USED
+#endif  //  EXTPLC_USED
     }
 
     return NULL;
@@ -456,9 +453,7 @@ void InitOD(void)
     idxUpdate = 0x0000;
 
     extInit();
-#ifdef PLC_USED
-    plcInit();
-#endif  //  PLC_USED
+
 
     // Load Saved Variables
     uint16_t pos = 0;
@@ -757,10 +752,6 @@ void OD_Poll(void)
 {
     // Read/Update IOs state
     extProc();
-#ifdef PLC_USED
-    // Main PLC Task
-    plcProc();
-#endif  // PLC_USED
 
     // Send Data to Broker
     e_MQTTSN_STATUS_t mqstat = MQTTSN_GetStatus();

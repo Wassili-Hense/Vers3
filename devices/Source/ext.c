@@ -29,6 +29,10 @@ See LICENSE file for license details.
 #include "EXT/extser.h"
 #endif  //  EXTSER_USED
 
+#ifdef EXTPLC_USED
+#include "EXT/extplc.h"
+#endif  //  EXTPLC_USED
+
 // Initialise extensions
 void extInit(void)
 {
@@ -47,6 +51,10 @@ void extInit(void)
 #ifdef EXTSER_USED
     serInit();
 #endif  //  EXTSER_USED
+
+#ifdef EXTPLC_USED
+    plcInit();
+#endif  //  EXTPLC_USED
 }
 
 // Check Subindex: 0 - free / 1 - busy / 2 - invalid
@@ -70,6 +78,10 @@ uint8_t extCheckIdx(subidx_t * pSubidx)
         case objSer:
             return serCheckIdx(pSubidx);
 #endif  //  EXTSER_USED
+#ifdef EXTPLC_USED
+        case objMerker:
+            return plcCheckIdx(pSubidx);
+#endif  //  EXTPLC_USED
         default:
             break;
   }
@@ -104,6 +116,11 @@ e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx)
         case objSer:        // User Serial I/O
             return serRegisterOD(pIdx);
 #endif  //  EXTSER_USED
+
+#ifdef EXTPLC_USED
+        case objMerker:
+            return plcRegisterOD(pIdx);
+#endif  //  EXTPLC_USED
         default:
             break;
     }
@@ -137,6 +154,11 @@ void extDeleteOD(subidx_t * pSubidx)
             serDeleteOD(pSubidx);
             break;
 #endif  //  EXTSER_USED
+
+#ifdef EXTPLC_USED
+        case objMerker:
+            return plcDeleteOD(pSubidx);
+#endif  //  EXTPLC_USED
         default:
             break;
     }
@@ -155,4 +177,8 @@ void extProc(void)
 #ifdef EXTSER_USED
     serProc();
 #endif  //  EXTSER_USED
+
+#ifdef EXTPLC_USED
+    plcProc();
+#endif  // EXTPLC_USED
 }

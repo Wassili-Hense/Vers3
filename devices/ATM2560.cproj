@@ -140,6 +140,12 @@
     <Compile Include="Source\EXT\extdio.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\EXT\extplc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\EXT\extplc.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\EXT\extser.c">
       <SubType>compile</SubType>
     </Compile>
@@ -240,12 +246,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\PHY\UART\uart_phy.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\plc.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\plc.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
