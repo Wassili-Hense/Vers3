@@ -170,6 +170,13 @@ extern "C" {
 #define EXTSER_PORT2UART            {1,2,3}
 // End UART Section
 
+// PLC Section
+#define EXTPLC_USED                 1       // Enable PLC
+#define PLC_SIZEOF_EEPROM           128     // bytes
+#define PLC_SIZEOF_MEMORY           128     // bytes
+#define PLC_SIZEOF_RW               32      // bytes
+// End PLC Section
+
 #define UART_PHY                    1
 
 #define PHY1_ADDR_t                 uint8_t

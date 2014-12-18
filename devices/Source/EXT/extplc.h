@@ -20,7 +20,7 @@ extern "C" {
 void plcInit(void);
 uint8_t plcCheckIdx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx);
-void plcDeleteOD(subidx_t * pSubidx);
+
 void plcProc(void);
 
 #ifdef __cplusplus

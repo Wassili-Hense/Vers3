@@ -1,0 +1,84 @@
+Registers:
+
+SP  -   Stack pointer, word's(uint32_t)
+SPF -   Stack frame pointer, word's(uint32_t)
+PC  -   program counter, bytes
+
+on start:
+SP  = MEMMAX align(4)
+SPF = SP + 4
+PC  = 0
+
+Stack:
+
+PF  *(SPF + 0x10)
+..
+P2
+P1
+P0  *(SPF + 0x01)
+PC'
+SPF'
+L0      // Local 0
+L1
+L2
+..
+LF
+
+Commands:
+
+NOT         *(SP) = ~ *(SP)             // bit inversion
+NEG         *(SP) = - *(SP)
+AND         *(SP) = *(SP++) & *(SP)     // OR, XOR, ADD, SUB, MUL, DIV, MOD
+SHL         *(SP) = *(SP++) << *(SP)    // SHR
+INC         *(SP)++                     // DEC
+
+CEQ         *(SP) = *(SP++) == *(SP) ? 1 : 0
+CNE                         !=
+CGT                         >
+CGE                         >=
+CLT                         <
+CLE                         <=
+
+NOT_L       *(SP) = *(SP) != 0 ? 0: 1
+AND_L       *(SP) = (*(SP++) != 0) && (*(SP) !=0)     // OR_L, XOR_L
+
+DUP         *(SP) = *(SP++);
+DROP        SP++;
+NIP         *(SP) = *(SP++)
+SWAP        tmp = *(SP); *(SP) = *(SP+1); *(SP+1) = tmp;
+OVER        *(--SP) = *(SP+1)
+ROT         tmp = *(SP+2); *(SP+2) = *(SP+1); *(SP+1) = *(SP); *(SP) = tmp;
+
+PUSH_Pn     *(--SP) = *(SFP+1+n);
+PUSH_Ln     *(--SP) = *(SFP-2-n);
+POP_Pn      *(SFP+1+n) = *(SP++)
+POP_Ln      *(SFP-2-n) = *(SP++)
+
+
+PUSHM_B1_S16    *(SP) = (bool)*(*(SP))
+PUSHM_S1_S16    *(SP) = (int8_t)*(*(SP))
+PUSHM_S2_S16    *(SP) = (int16_t)*(*(SP))
+PUSHM_S4_S16    *(SP) = (int32_t)*(*(SP))
+PUSHM_U1_S16    *(SP) = (uint8_t)*(*(SP))
+PUSHM_U2_S16    *(SP) = (uint16_t)*(*(SP))
+PUSH_ZERO       *(--SP) = 0
+PUSH_TRUE       *(--SP) = 1
+
+POPM_B1_S16     (bool)*(*(SP++)) = *(SP++)      // S1,S2,S4,U1,U2
+
+PUSHM_B1_CS8    *(SP) = (bool)*(*(SP)+*(uint8*)(PC++))      // S1,S2,S4,U1,U2
+PUSHM_B1_CS16   *(SP) = (bool)*(*(SP)+*(uint16*)(PC+=2))    // S1,S2,S4,U1,U2
+PUSHM_B1_C16    *(--SP) = (bool)*(*(uint16*)(PC+=2))        // S1,S2,S4,U1,U2
+PUSH_S1         *(--SP) = *(int8_t *)(PC++)                 // S1,S2,S4,U1,U2
+
+POPM_B1_CS8     (bool)*(*(SP++) + *(uint8*)(PC++)) = *(SP++)    // S1,S2,S4,U1,U2
+
+
+JMP_I           PC = *(SP++)
+JMP             PC = *(uint16_t *)(PC)
+JZ              PC = *(SP++) == 0 ? *(uint16_t *)(PC) : PC+2
+JNZ             PC = *(SP++) != 0 ? *(uint16_t *)(PC) : PC+2
+
+CALL_I          tmp = *(SP); *(SP) = PC + 2; *(--SP) = SPF; SPF = SP+1; PC = tmp;
+CALL            *(--SP) = PC + 2; *(--SP) = SPF; SPF = SP+1; PC = *(uint16_t *)(PC);
+RET             SP = SPF - 1; SPF = *(SP++); PC = *(SP++)

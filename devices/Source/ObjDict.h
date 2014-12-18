@@ -156,7 +156,12 @@ enum
     eeChannel,
 #endif  //  RF_ADDR_t
 
-  eeNextFreeAddress
+#ifdef EXTPLC_USED
+    eePLCprogram,
+    eePLCprogram_body = eePLCprogram + PLC_SIZEOF_EEPROM - 1,
+#endif  //  EXTPLC_USED
+
+    eeNextFreeAddress
 } eEEPROMAddr;
 
 void InitOD(void);

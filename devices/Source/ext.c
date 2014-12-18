@@ -155,10 +155,6 @@ void extDeleteOD(subidx_t * pSubidx)
             break;
 #endif  //  EXTSER_USED
 
-#ifdef EXTPLC_USED
-        case objMerker:
-            return plcDeleteOD(pSubidx);
-#endif  //  EXTPLC_USED
         default:
             break;
     }
