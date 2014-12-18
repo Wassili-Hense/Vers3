@@ -144,10 +144,11 @@ void plcInit(void)
 // Check Index
 uint8_t plcCheckIdx(subidx_t * pSubidx)
 {
-//    uint8_t len = plcType2Lenght(pSubidx->Type);
-//
-//    if((len = 0xFF) || ((pSubidx->Base + len) >= PLC_SIZEOF_MEMORY))
-//        return 2;
+    uint8_t len = plcType2Lenght(pSubidx->Type);
+    uint16_t base = pSubidx->Base;
+
+    if((len == 0xFF) || ((base + len) >= PLC_SIZEOF_MEMORY))
+        return 2;
 
     return 0;
 }
