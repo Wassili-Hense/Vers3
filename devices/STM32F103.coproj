@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<Project version="2G - 1.7.7" name="STM32F103">
+<Project version="2G - 2.0.1" name="STM32F103">
   <Target name="S3Sn12" isCurrent="1">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="310" chipName="STM32F103RB" boardId="" boardName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="310" chipName="STM32F103RB" boardId="" boardName="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="1"/>
@@ -70,7 +70,7 @@
     <ExcludeFile/>
   </Target>
   <Target name="S3En12" isCurrent="0">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="310" chipName="STM32F103RB" boardId="" boardName=""/>
+    <Device manufacturerId="9" manufacturerName="ST" chipId="310" chipName="STM32F103RB" boardId="" boardName="" coreId="" coreName=""/>
     <BuildOption>
       <Compile>
         <Option name="OptimizationLevel" value="1"/>
@@ -146,6 +146,7 @@
     <Component id="453" name="I2C" path="" type="2"/>
     <Component id="455" name="FLASH" path="" type="2"/>
   </Components>
+  <LocalComponents/>
   <Files>
     <File name="Source/PHY/ENC28J60/enc28j60_hw.c" path="Source/PHY/ENC28J60/enc28j60_hw.c" type="1"/>
     <File name="stm32_lib/inc/stm32f10x_gpio.h" path="stm32_lib/inc/stm32f10x_gpio.h" type="1"/>
@@ -216,4 +217,5 @@
     <File name="stm_lib/inc" path="" type="2"/>
     <File name="stm32_lib/src" path="" type="2"/>
   </Files>
+  <Bookmarks/>
 </Project>

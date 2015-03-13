@@ -52,38 +52,40 @@ extern "C" {
 // Include Hardware definitions
 // Atmel
 // ATM328P
-#if     (defined CFG_A1Cn12)
+#if     (defined CFG_A1Cn12)        // CC1101
 #include "HAL/HWconfig_A1Cn12.h"
-#elif   (defined CFG_A1En12)
+#elif   (defined CFG_A1En12)        // ENC28J60
 #include "HAL/HWconfig_A1En12.h"
-#elif   (defined CFG_A1ES12)
+#elif   (defined CFG_A1ES12)        // ENC28J60 + UART
 #include "HAL/HWconfig_A1ES12.h"
-#elif   (defined CFG_A1SC12)
+#elif   (defined CFG_A1SC12)        // UART + CC1101
 #include "HAL/HWconfig_A1SC12.h"
-#elif   (defined CFG_A1Sn12)
+#elif   (defined CFG_A1Sn12)        // UART
 #include "HAL/HWconfig_A1Sn12.h"
+#elif   (defined CFG_A1SR11)        // RFM12 vers. 1.1
+#include "HAL/HWconfig_A1SR11.h"
 // ATM1284P
-#elif   (defined CFG_A3SC12)
+#elif   (defined CFG_A3SC12)        // UART + CC1101
 #include "HAL/HWconfig_A3SC12.h"
-#elif   (defined CFG_A3Sn12)
+#elif   (defined CFG_A3Sn12)        // UART
 #include "HAL/HWconfig_A3Sn12.h"
 // ATM2560
 #elif   (defined CFG_A4En12)
-#include "HAL/HWconfig_A4En12.h"
+#include "HAL/HWconfig_A4En12.h"    // ENC28J60
 #elif   (defined CFG_A4Sn12)
-#include "HAL/HWconfig_A4Sn12.h"
+#include "HAL/HWconfig_A4Sn12.h"    // UART
 // STM32F051
 #elif   (defined CFG_S2En12)
-#include "HAL/HWconfig_S2En12.h"
+#include "HAL/HWconfig_S2En12.h"    // ENC28J60
 #elif   (defined CFG_S2SC12)
-#include "HAL/HWconfig_S2SC12.h"
+#include "HAL/HWconfig_S2SC12.h"    // UART + CC1101
 #elif   (defined CFG_S2Sn12)
-#include "HAL/HWconfig_S2Sn12.h"
+#include "HAL/HWconfig_S2Sn12.h"    // UART
 // STM32F10x
 #elif   (defined CFG_S3En12)
-#include "HAL/HWconfig_S3En12.h"
+#include "HAL/HWconfig_S3En12.h"    // ENC28J60
 #elif   (defined CFG_S3Sn12)
-#include "HAL/HWconfig_S3Sn12.h"
+#include "HAL/HWconfig_S3Sn12.h"    // UART
 #else
 #error Undefined configuration
 #endif  //  Configuration

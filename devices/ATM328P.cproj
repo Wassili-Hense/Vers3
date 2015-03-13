@@ -209,6 +209,40 @@
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputPath>A1SC12\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'A1SR11' ">
+    <ToolchainSettings>
+      <AvrGcc>
+  <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>CFG_A1SR11</Value>
+    </ListValues>
+  </avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </avrgcc.linker.libraries.Libraries>
+  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+</AvrGcc>
+    </ToolchainSettings>
+    <OutputFileName>A1SR11</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+    <OutputPath>bin\A1SR11\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Folder Include="Source" />
     <Folder Include="Source\EXT" />
@@ -217,6 +251,7 @@
     <Folder Include="Source\PHY" />
     <Folder Include="Source\PHY\CC1101" />
     <Folder Include="Source\PHY\ENC28J60" />
+    <Folder Include="Source\PHY\RFM12" />
     <Folder Include="Source\PHY\UART" />
   </ItemGroup>
   <ItemGroup>
@@ -280,16 +315,31 @@
     <Compile Include="Source\HAL\AVR\hal_pwm.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\HAL\AVR\hal_rfm12.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\HAL\AVR\hal_twi.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\HAL\AVR\hal_uart.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\HAL\HWconfig_A1Cn12.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\HAL\HWconfig_A1En12.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\HAL\HWconfig_A1ES12.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\HAL\HWconfig_A1SC12.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\HAL\HWconfig_A1Sn12.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\HAL\HWconfig_A1SR11.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\main.c">
@@ -344,6 +394,15 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\PHY\ENC28J60\enc28j60_phy.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\PHY\RFM12\rfm12_phy.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\PHY\RFM12\rfm12_phy.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\PHY\RFM12\rfm12_reg.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\PHY\UART\uart_phy.c">
