@@ -74,6 +74,8 @@ extern "C" {
 #include "HAL/HWconfig_A4En12.h"    // ENC28J60
 #elif   (defined CFG_A4Sn12)
 #include "HAL/HWconfig_A4Sn12.h"    // UART
+#elif   (defined CFG_A4ES12)
+#include "HAL/HWconfig_A4ES12.h"	// ENC28J60 + UART
 // STM32F051
 #elif   (defined CFG_S2En12)
 #include "HAL/HWconfig_S2En12.h"    // ENC28J60

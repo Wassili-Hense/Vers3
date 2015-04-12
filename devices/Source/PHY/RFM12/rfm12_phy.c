@@ -63,6 +63,8 @@ See LICENSE file for license details.
 #define RFM12_DRSSI         RFM12_RXCTRL_RSSI_91
 #define RFM12_POWER         RFM12_TXCONF_POWER_0
 
+#define RFM12_TX_RETRYS		64
+
 #if (RFM12_PHY == 1)
 #define rfm12_adr               phy1addr
 
@@ -108,6 +110,7 @@ static uint8_t          rfm12_NodeID;
 static uint16_t         rfm12_GroupID;
 static Queue_t          rfm12_tx_queue = {NULL, NULL, 0, 0};
 static MQ_t           * rfm12_pRxBuf = NULL;
+static MQ_t           * rfm12_pTxBuf = NULL;
 
 // HAL section
 void        hal_rfm12_init_hw(void);
@@ -142,6 +145,46 @@ static uint8_t rfm12_get_fifo(void)
     data = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
     hal_rfm12_spi_fast();
     return data;
+}
+
+static void rfm12_tx_task(void)
+{
+    static uint8_t rfm12_tx_delay = 0;
+    static uint8_t rfm12_tx_retry = RFM12_TX_RETRYS;
+
+    if(rfm12_tx_queue.Size == 0)
+        return;
+
+    // CDMA
+    if(rfm12_tx_delay > 0)
+    {
+        rfm12_tx_delay--;
+        return;
+    }
+
+    // Carrier ?
+    if((hal_rfm12_spiExch(0) & RFM12_STATUS_RSSI) != 0)   // Channel Busy
+    {
+        if(rfm12_tx_retry > 0)
+        {
+            rfm12_tx_retry--;
+            rfm12_tx_delay = (rfm12_NodeID>>1) + (halRNG() & 0x7F);
+            return;
+        }
+    }
+    // Send
+    rfm12_pTxBuf = mqDequeue(&rfm12_tx_queue);
+    if(rfm12_pTxBuf == NULL)                    // Queue Busy
+        return;
+
+    rfm12_tx_delay = 0;
+    rfm12_tx_retry = RFM12_TX_RETRYS;
+    rfm12_state = RF_TRVTXHDR;
+
+    hal_rfm12_spiExch(RFM12_IDLE_MODE);         // Switch to Idle state
+    hal_rfm12_spiExch(RFM12_TXFIFO_ENA);        // Enable TX FIFO
+
+    hal_rfm12_spiExch(RFM12_TRANSMIT_MODE);
 }
 
 // IRQ subroutine
@@ -226,6 +269,44 @@ void rfm12_irq(void)
 */
                 }
                 break;
+            case RF_TRVTXHDR:
+                if(rfm12v_Pos == 0)             // Send preamble, preamble length 3 bytes
+                {
+                    ch = 0xAA;
+                    rfm12_active();
+                }
+                else if(rfm12v_Pos == 1)        // Send Group ID, MSB
+                    ch = rfm12_GroupID>>8;
+                else if(rfm12v_Pos == 2)        // Send Group ID, LSB
+                    ch = rfm12_GroupID & 0xFF;
+/*
+                else if(rfm12v_Pos == 3)        // Send packet length
+                {
+                    ch = rfm12v_RfLen;
+                    rfm12v_RfCRC = 0xFFFF;
+                    rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
+                    rfm12v_RfLen -= 1;
+                }
+                else if(rfm12v_Pos == 4)        // Send destination addr
+                {
+                    ch = rfm12v_pRfBuf[0];
+                    rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
+                }
+                else                            // Send Source addr;
+                {
+                    ch = rfm12s_NodeID;
+                    rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
+                    rfm12v_Pos = 0;
+                    rfm12v_State = RF_TRVTXDATA;
+                }
+                rfm12v_Pos++;
+                rfm12_control(RFM12_CMD_TX | ch);
+                return;
+                
+                rfm12v_Pos = 0;
+*/
+                break;
+                #warning rfm12_irq RF_TRVTXHDR
         }
     }
 
@@ -324,7 +405,8 @@ void RFM12_Init(void)
 
 void RFM12_Send(void *pBuf)
 {
-    mqFree(pBuf);
+    if(!mqEnqueue(&rfm12_tx_queue, pBuf))
+        mqFree(pBuf);
 }
 
 void * RFM12_Get(void)
@@ -351,6 +433,10 @@ void * RFM12_Get(void)
         rfm12_pRxBuf = NULL;
         rfm12_state = RF_TRVIDLE;
         return pRetVal;
+    }
+    else if(rfm12_state == RF_TRVRXIDLE)
+    {
+        rfm12_tx_task();
     }
 
     return NULL;
