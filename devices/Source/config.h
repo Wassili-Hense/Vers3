@@ -72,10 +72,10 @@ extern "C" {
 // ATM2560
 #elif   (defined CFG_A4En12)
 #include "HAL/HWconfig_A4En12.h"    // ENC28J60
+#elif   (defined CFG_A4ES12)
+#include "HAL/HWconfig_A4ES12.h"    // ENC28J60 + UART
 #elif   (defined CFG_A4Sn12)
 #include "HAL/HWconfig_A4Sn12.h"    // UART
-#elif   (defined CFG_A4ES12)
-#include "HAL/HWconfig_A4ES12.h"	// ENC28J60 + UART
 // STM32F051
 #elif   (defined CFG_S2En12)
 #include "HAL/HWconfig_S2En12.h"    // ENC28J60
@@ -99,6 +99,22 @@ extern "C" {
 
 // Time Counters
 uint32_t GetTickCounter();
+
+// Global Definitions
+// GPIO Types
+typedef enum
+{
+    DIO_MODE_IN_FLOAT = 0,
+    DIO_MODE_IN_PD,
+    DIO_MODE_IN_PU,
+    DIO_MODE_OUT,
+    DIO_MODE_PWM,
+    DIO_MODE_AIN,
+    // ARM Specific definition
+    DIO_MODE_OUT_HS,
+    DIO_MODE_SPI,
+    DIO_MODE_UART
+}eDIOmode_t;
 
 #ifdef __cplusplus
 }
