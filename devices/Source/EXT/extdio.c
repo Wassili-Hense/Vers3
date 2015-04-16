@@ -34,6 +34,9 @@ See LICENSE file for license details.
     #error DIO_PORT_SIZE unknown size
 #endif  //  DIO_PORT_SIZE
 
+// DIO Variables
+
+// Local Variables
 static const DIO_PORT_TYPE dio_portnum2mask[EXTDIO_MAXPORT_NR] = EXTDIO_PORTNUM2MASK;
 
 static DIO_PORT_TYPE dio_write_mask[EXTDIO_MAXPORT_NR];
@@ -41,19 +44,16 @@ static DIO_PORT_TYPE dio_read_mask[EXTDIO_MAXPORT_NR];
 static DIO_PORT_TYPE dio_state_flag[EXTDIO_MAXPORT_NR];
 static DIO_PORT_TYPE dio_change_flag[EXTDIO_MAXPORT_NR];
 
+// DIO Global variables, used in PLC
 DIO_PORT_TYPE dio_status[EXTDIO_MAXPORT_NR];
 
-#ifdef EXTPWM_USED
-static const uint8_t pwm_port2cfg[EXTPWM_MAXPORT_NR] = EXTPWM_PORT2CFG;
-static const uint8_t pwm_port2dio[EXTPWM_MAXPORT_NR] = EXTPWM_PORT2DIO;
-#endif  //  EXTPWM_USED
-
-// HAL
+// DIO HAL
 void hal_dio_configure(uint8_t PortNr, DIO_PORT_TYPE Mask, eDIOmode_t Mode);
 DIO_PORT_TYPE hal_dio_read(uint8_t PortNr);
 void hal_dio_set(uint8_t PortNr, DIO_PORT_TYPE Mask);
 void hal_dio_reset(uint8_t PortNr, DIO_PORT_TYPE Mask);
-void hal_pwm_write(uint8_t Config, uint16_t value);
+
+// DIO local subroutines
 
 // Convert Base to Mask
 static DIO_PORT_TYPE dioBase2Mask(uint16_t base)
@@ -80,84 +80,8 @@ static uint8_t dioBase2Port(uint16_t base)     // Digital Ports
     return tmp;
 }
 
-static uint8_t dioCheckBase(uint16_t base)
-{
-    DIO_PORT_TYPE pinmask = dioBase2Mask(base);
-    uint8_t port = dioBase2Port(base);
-
-    if((port == EXTDIO_MAXPORT_NR) || (dio_portnum2mask[port] & pinmask))
-        return 2; // Port not exist
-
-    if((dio_read_mask[port] & pinmask) || (dio_write_mask[port] & pinmask))
-        return 1; // Port busy
-
-    return 0; // Port free
-}
-
-#ifdef EXTPWM_USED
-static uint8_t pwmCheckBase(uint16_t base)
-{
-    if((base >= EXTPWM_MAXPORT_NR) ||
-       (pwm_port2cfg[base] == 0xFF))        // Port not exist
-        return 2;
-        
-    return dioCheckBase(pwm_port2dio[base]);
-}
-#endif
-
-// Check Index digital inp/out
-uint8_t dioCheckIdx(subidx_t * pSubidx)
-{
-    if((pSubidx->Place == objDin) || (pSubidx->Place == objDout))
-    {
-        if((pSubidx->Type == objPinNPN) || (pSubidx->Type == objPinPNP)
-#ifdef ASLEEP
-           || (pSubidx->Type == objActPNP) || (pSubidx->Type == objActNPN)
-#endif  //  ASLEEP
-        )
-            return dioCheckBase(pSubidx->Base);
-    }
-#ifdef EXTPWM_USED
-    else if(pSubidx->Place == objPWM)
-    {
-        if((pSubidx->Type == objPinNPN) || (pSubidx->Type == objPinPNP))
-            return pwmCheckBase(pSubidx->Base);
-    }
-#endif  //  EXTPWM_USED
-
-    return 2;
-}
-
-void dioInit()
-{
-    uint8_t port;
-    for(port = 0; port < EXTDIO_MAXPORT_NR; port++)
-    {
-        dio_write_mask[port] = 0;
-        dio_read_mask[port] = 0;
-        dio_state_flag[port] = 0;
-        dio_change_flag[port] = 0;
-        dio_status[port] = 0;
-    }
-}
-
-// Read digital Inputs
-e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
-{
-    uint16_t base = pSubidx->Base;
-    DIO_PORT_TYPE state = dio_status[dioBase2Port(base)];
-    DIO_PORT_TYPE mask = dioBase2Mask(base);
-    dio_change_flag[dioBase2Port(base)] &= ~mask;
-  
-    if(pSubidx->Type == objPinNPN)
-        state = ~state;
-    *pLen = 1;
-    *pBuf = ((state & mask) != 0) ? 1 : 0;
-    return MQTTSN_RET_ACCEPTED;
-}
-
 // Write DIO Object's
-e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     uint16_t base = pSubidx->Base;
     uint8_t state = *pBuf;
@@ -176,26 +100,67 @@ e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTSN_RET_ACCEPTED;
 }
 
-#ifdef EXTPWM_USED
-e_MQTTSN_RETURNS_t pwmWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+// Read digital Inputs
+static e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    uint16_t value = pBuf[1];
-    value <<= 8;
-    value |= pBuf[0];
+    uint16_t base = pSubidx->Base;
+    DIO_PORT_TYPE state = dio_status[dioBase2Port(base)];
+    DIO_PORT_TYPE mask = dioBase2Mask(base);
+    dio_change_flag[dioBase2Port(base)] &= ~mask;
+  
     if(pSubidx->Type == objPinNPN)
-        value = ~value;
-
-    hal_pwm_write(pwm_port2cfg[pSubidx->Base], value);
-
+        state = ~state;
+    *pLen = 1;
+    *pBuf = ((state & mask) != 0) ? 1 : 0;
     return MQTTSN_RET_ACCEPTED;
 }
-#endif  //  EXTPWM_USED
 
 // Poll Procedure
-uint8_t dioPollOD(subidx_t * pSubidx, uint8_t sleep)
+static uint8_t dioPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
     uint16_t base = pSubidx->Base;
     return ((dio_change_flag[dioBase2Port(base)] & dioBase2Mask(base)) != 0);
+}
+
+///////////////////////////////////////////////////////////////////////
+// DIO API
+
+// Preinit digital IO
+void dioInit()
+{
+    uint8_t port;
+    for(port = 0; port < EXTDIO_MAXPORT_NR; port++)
+    {
+        dio_write_mask[port] = 0;
+        dio_read_mask[port] = 0;
+        dio_state_flag[port] = 0;
+        dio_change_flag[port] = 0;
+        dio_status[port] = 0;
+    }
+}
+
+// Is Pin free ? Check with base
+uint8_t dioCheckBase(uint16_t base)
+{
+    DIO_PORT_TYPE pinmask = dioBase2Mask(base);
+    uint8_t port = dioBase2Port(base);
+
+    if((port == EXTDIO_MAXPORT_NR) || (dio_portnum2mask[port] & pinmask))
+        return 2; // Port not exist
+
+    if((dio_read_mask[port] & pinmask) || (dio_write_mask[port] & pinmask))
+        return 1; // Port busy
+
+    return 0; // Port free
+}
+
+// Check Index digital input/output
+uint8_t dioCheckIdx(subidx_t * pSubidx)
+{
+    if((pSubidx->Type == objPinNPN) || (pSubidx->Type == objPinPNP))
+        return dioCheckBase(pSubidx->Base);
+
+    return 2;
 }
 
 // Register digital inp/out Object
@@ -250,52 +215,9 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
     return MQTTSN_RET_ACCEPTED;
 }
 
-#ifdef EXTPWM_USED
-// Register PWM Object
-e_MQTTSN_RETURNS_t pwmRegisterOD(indextable_t *pIdx)
-{
-    uint16_t base = pIdx->sidx.Base;
-    if(pwmCheckBase(base) != 0)
-        return MQTTSN_RET_REJ_INV_ID;
-
-    uint8_t cfg = pwm_port2cfg[base];
-    
-    // configure port and mark as busy
-    base = pwm_port2dio[base];
-    uint8_t port = dioBase2Port(base);
-    DIO_PORT_TYPE mask = dioBase2Mask(base);
-    hal_dio_configure(port, mask, DIO_MODE_PWM);
-
-    if(pIdx->sidx.Type == objPinPNP)
-    {
-        hal_pwm_write(cfg, 0);
-        dio_status[port] &= ~mask;
-    }
-    else
-    {
-        hal_pwm_write(cfg, 0xFFFF);
-        dio_status[port] |= mask;
-    }
-
-    dio_write_mask[port] |= mask;
-    
-    pIdx->cbWrite = &pwmWriteOD;
-
-    return MQTTSN_RET_ACCEPTED;
-}
-#endif  //  EXTPWM_USED
-
 void dioDeleteOD(subidx_t * pSubidx)
 {
     uint16_t base = pSubidx->Base;
-
-#ifdef EXTPWM_USED
-    if(pSubidx->Place == objPWM)
-    {
-        hal_pwm_write(pwm_port2cfg[base], 0);
-        base = pwm_port2dio[base];
-    }
-#endif  //  EXTPWM_USED
 
     uint8_t port = dioBase2Port(base);
     DIO_PORT_TYPE mask = dioBase2Mask(base);
@@ -310,7 +232,7 @@ void dioProc(void)
 {
     uint8_t port;
     DIO_PORT_TYPE state, mask;
-  
+
     for(port = 0; port < EXTDIO_MAXPORT_NR; port++)
     {
         mask = dio_read_mask[port];
@@ -357,4 +279,17 @@ void dioProc(void)
         }
     }
 }
-#endif    //  EXTDIO_USED
+
+void dioConfigure(uint16_t base, eDIOmode_t Mode)
+{
+    uint8_t port = dioBase2Port(base);
+    DIO_PORT_TYPE mask = dioBase2Mask(base);
+    hal_dio_configure(port, mask, Mode);
+ 
+    if(Mode != DIO_MODE_IN_FLOAT)       // Occupy Pin
+        dio_write_mask[port] |= mask;
+    else                                // Release Pin
+        dio_write_mask[port] &= ~mask;
+}
+
+#endif  //  EXTDIO_USED

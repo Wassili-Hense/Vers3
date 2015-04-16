@@ -15,11 +15,12 @@ See LICENSE file for license details.
 
 #ifdef EXTDIO_USED
 #include "EXT/extdio.h"
-#endif  //  EXTDIO_USED
 
 #ifdef EXTAIN_USED
 #include "EXT/extain.h"
 #endif  //  EXTAIN_USED
+
+#endif  //  EXTDIO_USED
 
 #ifdef EXTTWI_USED
 #include "EXT/exttwi.h"
@@ -38,11 +39,10 @@ void extInit(void)
 {
 #ifdef EXTDIO_USED
     dioInit();
-#endif  //  EXTDIO_USED
-
 #ifdef EXTAIN_USED
     ainInit();
 #endif  //  EXTAIN_USED
+#endif  //  EXTDIO_USED
 
 #ifdef EXTTWI_USED
     twiInit();
@@ -65,15 +65,18 @@ uint8_t extCheckIdx(subidx_t * pSubidx)
 #ifdef EXTDIO_USED
         case objDin:
         case objDout:
+            return dioCheckIdx(pSubidx);
+/*
 #ifdef EXTPWM_USED
         case objPWM:
 #endif  //  EXTPWM_USED
-            return dioCheckIdx(pSubidx);
-#endif  //  EXTDIO_USED
+*/
 #ifdef EXTAIN_USED
         case objAin:
             return ainCheckIdx(pSubidx);
 #endif  //  EXTAIN_USED
+#endif  //  EXTDIO_USED
+
 #ifdef EXTSER_USED
         case objSer:
             return serCheckIdx(pSubidx);
@@ -101,16 +104,17 @@ e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx)
         case objDin:        // Digital(bool) Input's
         case objDout:       // Digital(bool) Output's
             return dioRegisterOD(pIdx);
-#ifdef EXTPWM_USED
-        case objPWM:        // PWM
-            return pwmRegisterOD(pIdx);
-#endif  //  EXTPWM_USED
-#endif  //  EXTDIO_USED
-
 #ifdef EXTAIN_USED
         case objAin:        // Analog(int16_t) Input's
             return ainRegisterOD(pIdx);
 #endif  //  EXTAIN_USED
+/*
+#ifdef EXTPWM_USED
+        case objPWM:        // PWM
+            return pwmRegisterOD(pIdx);
+#endif  //  EXTPWM_USED
+*/
+#endif  //  EXTDIO_USED
 
 #ifdef EXTSER_USED
         case objSer:        // User Serial I/O
@@ -136,18 +140,19 @@ void extDeleteOD(subidx_t * pSubidx)
 #ifdef EXTDIO_USED
         case objDin:
         case objDout:
-#ifdef EXTPWM_USED
-        case objPWM:
-#endif  //  EXTPWM_USED        
             dioDeleteOD(pSubidx);
             break;
-#endif  //  EXTDIO_USED
-
 #ifdef EXTAIN_USED
         case objAin:
             ainDeleteOD(pSubidx);
             break;
 #endif  //  EXTAIN_USED
+/*
+#ifdef EXTPWM_USED
+        case objPWM:
+#endif  //  EXTPWM_USED
+*/
+#endif  //  EXTDIO_USED
 
 #ifdef EXTSER_USED
         case objSer:
@@ -164,11 +169,11 @@ void extProc(void)
 {
 #ifdef EXTDIO_USED
     dioProc();
-#endif  //  EXTDIO_USED
-
 #ifdef EXTAIN_USED
     ainProc();
 #endif  //  EXTAIN_USED
+
+#endif  //  EXTDIO_USED
 
 #ifdef EXTSER_USED
     serProc();

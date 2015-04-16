@@ -18,30 +18,44 @@ See LICENSE file for license details.
 
 #include "extain.h"
 
-#define AIN_MASK_SIZE   (uint8_t)(EXTAIN_MAXPORT_NR/8)
+/////////////////////////////////////////////////////
+// AIn Section ,   depended from extdio.c
 
-// Global variable, used in PLC
-int16_t ain_act_val[EXTAIN_MAXPORT_NR];
+#define AIN_MASK_SIZE   (uint8_t)((EXTAIN_MAXPORT_NR/8) + 1)
+
+// AIn Variables
 
 // Local Variables
+static const uint8_t ain_base2dio[EXTAIN_MAXPORT_NR] = EXTAIN_BASE_2_DIO;
+
 static uint8_t ain_mask[AIN_MASK_SIZE];
 static uint8_t ain_ref[EXTAIN_MAXPORT_NR];
 static uint16_t ain_average;
 
-// HAL Section
+// Global variable, used in PLC
+int16_t ain_act_val[EXTAIN_MAXPORT_NR];
+
+// dio subroutines
+uint8_t dioCheckBase(uint16_t base);
+void dioConfigure(uint16_t base, eDIOmode_t Mode);
+
+// AIn HAL
 void hal_ain_select(uint8_t apin, uint8_t aref);
 int16_t hal_ain_get(void);
 
-// Local procedures
-static uint8_t ainCheckAnalogBase(uint16_t base)
+// AIn local subroutines
+
+static uint8_t ainCheckBase(uint16_t base)
 {
     if(base >= EXTAIN_MAXPORT_NR)
         return 2;
         
     if(ain_ref[(uint8_t)(base & 0xFF)] != 0xFF)
         return 1;
+    
+    base = ain_base2dio[base];
 
-    return 0;
+    return dioCheckBase(base);
 }
 
 static uint8_t ainSubidx2Ref(subidx_t * pSubidx)
@@ -98,15 +112,8 @@ static uint8_t ain_check_mask(uint8_t apin)
     return ((ain_mask[pos] & mask) != 0);
 }
 
-// Check Index analogue inputs
-uint8_t ainCheckIdx(subidx_t * pSubidx)
-{
-    if(ainSubidx2Ref(pSubidx) == 0xFF)
-        return 2;
 
-    return ainCheckAnalogBase(pSubidx->Base);
-}
-
+// AIn specific subroutine
 void ainLoadAverage(void)
 {
     uint8_t len = sizeof(ain_average);
@@ -116,6 +123,7 @@ void ainLoadAverage(void)
         ain_average = 65000;
 }
 
+// Preinit AIn section
 void ainInit()
 {
     uint8_t apin;
@@ -131,8 +139,18 @@ void ainInit()
     ainLoadAverage();
 }
 
-// Read analogue inputs
-e_MQTTSN_RETURNS_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+
+// Check index analog input
+uint8_t ainCheckIdx(subidx_t * pSubidx)
+{
+    if(ainSubidx2Ref(pSubidx) == 0xFF)
+        return 2;
+
+    return ainCheckBase(pSubidx->Base);
+}
+
+// Read analog inputs
+static e_MQTTSN_RETURNS_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     uint8_t apin = (uint8_t)(pSubidx->Base & 0xFF);
 
@@ -145,7 +163,7 @@ e_MQTTSN_RETURNS_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
     return MQTTSN_RET_ACCEPTED;
 }
 
-e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     // Prevent hard fault on ARM
     uint16_t val = pBuf[1];
@@ -162,7 +180,7 @@ e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 }
 
 // Poll Procedure
-uint8_t ainPollOD(subidx_t * pSubidx, uint8_t sleep)
+static uint8_t ainPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
     return ain_check_mask((uint8_t)(pSubidx->Base & 0xFF));
 }
@@ -171,12 +189,15 @@ uint8_t ainPollOD(subidx_t * pSubidx, uint8_t sleep)
 e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx)
 {
     uint16_t base = pIdx->sidx.Base;
-    if(ainCheckAnalogBase(base) != 0)
+    if(ainCheckBase(base) != 0)
         return MQTTSN_RET_REJ_INV_ID;
 
     uint8_t apin = (uint8_t)(base & 0xFF);
 
     ain_ref[apin] = ainSubidx2Ref(&pIdx->sidx);
+
+    // Configure PIN to Analog input
+    dioConfigure(ain_base2dio[apin], DIO_MODE_AIN);
 
     pIdx->cbRead  = &ainReadOD;
     pIdx->cbWrite = &ainWriteOD;
@@ -188,10 +209,14 @@ e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx)
 void ainDeleteOD(subidx_t * pSubidx)
 {
     uint16_t base = pSubidx->Base;
-    if(ainCheckAnalogBase(base) != 1)
+    if(ainCheckBase(base) != 1)
         return;
 
-    ain_ref[(uint8_t)(base & 0xFF)] = 0xFF;
+    base &= 0x00FF;
+    ain_ref[(uint8_t)base] = 0xFF;
+
+    // Release PIN
+    dioConfigure(ain_base2dio[base], DIO_MODE_IN_FLOAT);
 }
 
 void ainProc(void)
@@ -238,4 +263,7 @@ void ainProc(void)
             ain_pos = 0;
     }
 }
-#endif    //  EXTAIN_USED
+
+// AIn Section
+/////////////////////////////////////////////////////
+#endif  //  EXTAIN_USED

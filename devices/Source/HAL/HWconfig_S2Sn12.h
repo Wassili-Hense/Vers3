@@ -32,8 +32,8 @@ See LICENSE file for license details.
 //  10  PA10    USART1_RX
 //  11  PA11
 //  12  PA12
-//  13  PA13
-//  14  PA14
+//  13  PA13    SWDIO
+//  14  PA14    SWCLK
 //  15  PA15
 // GPIOB
 //  16  PB0
@@ -88,14 +88,14 @@ extern "C" {
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3
 #define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB, GPIOC}
-#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x0600, (uint16_t)0x0000, (uint16_t)0x0000}
+#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x6600, (uint16_t)0x0000, (uint16_t)0x0000}
 // End DIO Section
 
 // PA0-PA7: 0 - 7
 // PB0-PB1: 8 - 9
 // PC0-PC5: 10-15
 // Analogue Inputs
-//#define EXTAIN_USED                 1
+#define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           16
 #define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
 #define EXTAIN_BASE_2_DIO           {0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 32, 33, 34, 35, 36, 37}
@@ -103,7 +103,7 @@ extern "C" {
 // End Analogue Inputs
 
 // UART Section
-#define UART_PHY_PORT               0       // 0 - USART1 PA9,PA10 GPIOA MASK 0x0600, 1 - USART2 PA2,PA3 GPIO MASK 0x000C
+#define UART_PHY_PORT               0       // 0 - USART1 PA9,PA10 GPIOA MASK 0x0600, 1 - USART2 PA2,PA3 GPIOC MASK 0x000C
 #define EXTSER_USED                 1
 #define EXTSER_PORT2UART            {1}
 // End UART Section
