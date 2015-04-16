@@ -32,8 +32,8 @@ See LICENSE file for license details.
 //  10  PA10    USART1_RX
 //  11  PA11
 //  12  PA12
-//  13  PA13
-//  14  PA14
+//  13  PA13    SWDIO
+//  14  PA14    SWCLK
 //  15  PA15
 // GPIOB
 //  16  PB0
@@ -82,13 +82,18 @@ extern "C" {
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3
 #define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB, GPIOC}
-#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x0000, (uint16_t)0xF000, (uint16_t)0x0000}
+#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x6000, (uint16_t)0xF000, (uint16_t)0x0000}
 // End DIO Section
 
+// PA0-PA7: 0 - 7
+// PB0-PB1: 8 - 9
+// PC0-PC5: 10-15
 // Analogue Inputs
-//#define EXTAIN_MAXPORT_NR           9           // ADC0-ADC7, Vbg
-//#define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 14}
-//#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define EXTAIN_USED                 1
+#define EXTAIN_MAXPORT_NR           16
+#define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+#define EXTAIN_BASE_2_DIO           {0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 32, 33, 34, 35, 36, 37}
+#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
 // UART Section
