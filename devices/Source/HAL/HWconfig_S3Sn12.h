@@ -88,6 +88,17 @@ extern "C" {
 #define EXTDIO_PORTNUM2MASK         {(uint16_t)0xFE00, (uint16_t)0x001C, (uint16_t)0x1800}
 // End DIO Section
 
+// PA0-PA7: 0 - 7
+// PB0-PB1: 8 - 9
+// PC0-PC5: 10-15
+// Analogue Inputs
+#define EXTAIN_USED                 1
+#define EXTAIN_MAXPORT_NR           16
+#define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+#define EXTAIN_BASE_2_DIO           {0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 32, 33, 34, 35, 36, 37}
+#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+// End Analogue Inputs
+
 // TWI Section
 //#define EXTTWI_USED                 2   // 1 - I2C1, 2 - I2C2
 // End TWI Section
