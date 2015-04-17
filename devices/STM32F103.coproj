@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project version="2G - 2.0.1" name="STM32F103">
-  <Target name="S3Sn12" isCurrent="1">
+  <Target name="S3Sn12" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="310" chipName="STM32F103RB" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
@@ -69,7 +69,7 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="S3En12" isCurrent="0">
+  <Target name="S3En12" isCurrent="1">
     <Device manufacturerId="9" manufacturerName="ST" chipId="310" chipName="STM32F103RB" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
@@ -159,8 +159,8 @@
     <File name="cmsis_boot/startup" path="" type="2"/>
     <File name="cmsis/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
     <File name="Source/EXT/extdio.h" path="Source/EXT/extdio.h" type="1"/>
-    <File name="Source/EXT/extain.h" path="Source/EXT/extain.h" type="1"/>
     <File name="Source/PHY" path="" type="2"/>
+    <File name="Source/EXT/extain.h" path="Source/EXT/extain.h" type="1"/>
     <File name="cmsis_boot/stm32f10x.h" path="cmsis_boot/stm32f10x.h" type="1"/>
     <File name="cmsis_boot/stm32f10x_conf.h" path="cmsis_boot/stm32f10x_conf.h" type="1"/>
     <File name="stm32_lib/src/stm32f10x_flash.c" path="stm32_lib/src/stm32f10x_flash.c" type="1"/>
@@ -195,8 +195,8 @@
     <File name="stm_lib/src" path="" type="2"/>
     <File name="stm32_lib/src/stm32f10x_rcc.c" path="stm32_lib/src/stm32f10x_rcc.c" type="1"/>
     <File name="Source/mqMEM.h" path="Source/mqMEM.h" type="1"/>
-    <File name="Source/HAL/STM32" path="" type="2"/>
     <File name="cmsis" path="" type="2"/>
+    <File name="Source/HAL/STM32" path="" type="2"/>
     <File name="stm_lib" path="" type="2"/>
     <File name="Source/HAL/STM32/HAL.c" path="Source/HAL/STM32/HAL.c" type="1"/>
     <File name="Source/diag.c" path="Source/diag.c" type="1"/>

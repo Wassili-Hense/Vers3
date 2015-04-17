@@ -38,11 +38,11 @@ void hal_ain_select(uint8_t apin, uint8_t unused)
     if((RCC->APB2ENR & RCC_APB2ENR_ADC1EN) == 0)
     {
         RCC->APB2ENR |= RCC_APB2ENR_ADC1EN; // Enable ADC Clock
-
-        ADC1->CR2 |= ADC_CR2_CAL;           // ADC calibration
-        while (ADC1->CR2 & ADC_CR2_CAL);
         
-        ADC1->CR2 = ADC_CR2_ALIGN;          // Left Aligned 12 bit
+        ADC1->CR1 = 0;
+        ADC1->CR2 = ADC_CR2_EXTTRIG |   // Enable conversion on external trigger
+                    ADC_CR2_EXTSEL |    // external trigger on SWSTART.
+                    ADC_CR2_ALIGN;      // Left Aligned
         // Sampling 239,5 ADC Clock cycles
         ADC1->SMPR1 = ADC_SMPR1_SMP10 | ADC_SMPR1_SMP11 | ADC_SMPR1_SMP12 | 
                       ADC_SMPR1_SMP13 | ADC_SMPR1_SMP14 | ADC_SMPR1_SMP15 |
@@ -55,9 +55,15 @@ void hal_ain_select(uint8_t apin, uint8_t unused)
         ADC1->SQR1 = 0;                     // 1 Conversion
 
         ADC1->CR2 |= ADC_CR2_ADON;          // ADC enabled
+
+        ADC1->CR2 |= ADC_CR2_CAL;           // ADC calibration
+        while (ADC1->CR2 & ADC_CR2_CAL);
     }
 
     ADC1->SQR3 = hal_ainBase2Apin[apin];
+
+//    ADC1->SR &= ~ADC_SR_EOC;                // Clear EOC Flag
+//    ADC1->CR2 |= ADC_CR2_SWSTART;
 #else
     #error unknown configuration
 #endif
