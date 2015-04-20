@@ -59,6 +59,7 @@ void halLeaveCritical(void);
 // External procedure defined in hal_dio.c
 void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode);
 
+//////////////////////////////////////////////////////////////
 // SPI Section
 #define HAL_SPI_MODE_0              0
 #define HAL_SPI_MODE_1              1
@@ -70,6 +71,10 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode);
 #define HAL_SPI_16B                 8
 
 void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed);
+uint8_t hal_spi_exch8(uint8_t port, uint8_t data);
+uint16_t hal_spi_exch16(uint8_t port, uint16_t data);
+// SPI Section
+//////////////////////////////////////////////////////////////
 
 void StartSheduler(void);
 
