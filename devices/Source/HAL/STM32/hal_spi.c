@@ -102,8 +102,7 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
             return;
     }
     
-    // Calculate pre-scaler/divider
-
+    // Calculate pre-scaler
 #if (defined __STM32F0XX_H)
     spi_clock = SystemCoreClock;
 #elif (defined __STM32F10x_H)
@@ -113,15 +112,13 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
         spi_clock = SystemCoreClock/2;
 #endif  //CPU
 
-    assert(speed > 0);
-    uint32_t prescaler = (spi_clock + (speed/2))/speed;
-    assert(prescaler <= 256);
+    spi_clock /= 2;
 
     uint16_t div = 0;
-    while(prescaler > 2)
+    while((spi_clock > speed) && (div < 7))
     {
         div++;
-        prescaler /= 2;
+        spi_clock /= 2;
     }
 
     // Configure SPI
