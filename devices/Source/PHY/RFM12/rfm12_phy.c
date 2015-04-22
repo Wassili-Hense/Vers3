@@ -18,44 +18,12 @@ See LICENSE file for license details.
 
 #include "rfm12_reg.h"
 
-// 433 MHz
-#if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
-#define RFM12_BAND          RFM12_BAND_433
-#define OD_DEFAULT_CHANNEL  ((RF_BASE_FREQ - 433000000UL)/25000)
-// 868 MHz
-#elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
-#define RFM12_BAND          RFM12_BAND_868
-#define OD_DEFAULT_CHANNEL  ((RF_BASE_FREQ - 868000000UL)/25000)
-// 915 MHz
-#elif (RF_BASE_FREQ > 902000000UL) && (RF_BASE_FREQ < 928000000UL)
-#define RFM12_BAND          RFM12_BAND_915
-#define OD_DEFAULT_CHANNEL  ((RF_BASE_FREQ - 902000000UL)/25000)
-#else
-#error  RF_BASE_FREQ does not belond to ISM band
-#endif  // RF_BASE_FREQ
-
-// Mode definition
-#define RFM12_SLEEP_MODE    (RFM12_CMD_PWRMGT | RFM12_PWRMGT_DC)
-#define RFM12_IDLE_MODE     (RFM12_CMD_PWRMGT | \
-                             RFM12_PWRMGT_ES | RFM12_PWRMGT_EX | RFM12_PWRMGT_DC)
-#define RFM12_RECEIVE_MODE  (RFM12_CMD_PWRMGT | RFM12_PWRMGT_ER | RFM12_PWRMGT_EBB | \
-                             RFM12_PWRMGT_ES | RFM12_PWRMGT_EX | RFM12_PWRMGT_DC)
-#define RFM12_TRANSMIT_MODE (RFM12_CMD_PWRMGT | RFM12_PWRMGT_ET | \
-                             RFM12_PWRMGT_ES | RFM12_PWRMGT_EX | RFM12_PWRMGT_DC)
-
-#define RFM12_TXFIFO_DIS    (RFM12_CMD_CFG | RFM12_CFG_EF | RFM12_BAND | RFM12_XTAL_12PF)
-#define RFM12_TXFIFO_ENA    (RFM12_CMD_CFG | RFM12_CFG_EL | RFM12_CFG_EF | RFM12_BAND | \
-                             RFM12_XTAL_12PF)
-
-#define RFM12_RXFIFO_DIS    (RFM12_CMD_FIFORESET | (0x08<<RFM12_FIFOITLVL_OFS) | RFM12_FIFORESET_DR)
-#define RFM12_RXFIFO_ENA    (RFM12_CMD_FIFORESET | (0x08<<RFM12_FIFOITLVL_OFS) | \
-                             RFM12_FIFORESET_FF  | RFM12_FIFORESET_DR)
 // Chip configuration
 #define RFM12_BAUD          RFM12_BAUD_38K4         // Follow FSK shift & bandwidth
-// Quartz +-50 ppm
+// Quartz 50 ppm
 #define RFM12_BANDWIDTH     RFM12_RXCTRL_BW_270
 #define RFM12_FSKWIDTH      RFM12_TXCONF_FS_135
-
+// Quartz 20 ppm
 //#define RFM12_BANDWIDTH     RFM12_RXCTRL_BW_134
 //#define RFM12_FSKWIDTH      RFM12_TXCONF_FS_90
 
@@ -63,29 +31,7 @@ See LICENSE file for license details.
 #define RFM12_DRSSI         RFM12_RXCTRL_RSSI_91
 #define RFM12_POWER         RFM12_TXCONF_POWER_0
 
-#define RFM12_TX_RETRYS		64
-
-#if (RFM12_PHY == 1)
-#define rfm12_adr               phy1addr
-
-#ifdef LED1_On
-void SetLED1mask(uint16_t mask);
-#define rfm12_active()          SetLED1mask(1);
-#else
-#define rfm12_active()
-#endif  //  LED1_On
-
-#elif (RFM12_PHY == 2)
-#define rfm12_adr               phy2addr
-
-#ifdef LED2_On
-void SetLED2mask(uint16_t mask);
-#define rfm12_active()          SetLED2mask(1);
-#else
-#define rfm12_active()
-#endif  //  LED2_On
-
-#endif  // RFM12_PHY
+#define RFM12_TX_RETRYS     64
 
 // RF States
 enum e_RF_TRVSTATE
@@ -222,7 +168,7 @@ void rfm12_irq(void)
                 ch = rfm12_get_fifo();
                 if((ch == 0) || (ch == rfm12_NodeID))
                 {
-                    rfm12_active();
+                    Activity(RFM12_PHY);
 
                     rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
                     rfm12_state = RF_TRVRXHDR_SRC;
@@ -273,7 +219,7 @@ void rfm12_irq(void)
                 if(rfm12v_Pos == 0)             // Send preamble, preamble length 3 bytes
                 {
                     ch = 0xAA;
-                    rfm12_active();
+                    Activity(RFM12_PHY);
                 }
                 else if(rfm12v_Pos == 1)        // Send Group ID, MSB
                     ch = rfm12_GroupID>>8;
@@ -324,6 +270,7 @@ void rfm12_irq(void)
 void RFM12_Init(void)
 {
     uint8_t     Channel;
+    uint16_t    FR;
 
     MQ_t * pBuf;
     while((pBuf = mqDequeue(&rfm12_tx_queue)) != NULL)
@@ -337,7 +284,18 @@ void RFM12_Init(void)
     // Load Group ID(Synchro)
     Len = sizeof(uint16_t);
     ReadOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF,  &Len, (uint8_t *)&rfm12_GroupID);
-    
+
+// 433 MHz
+#if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
+    FR = 1200 + ((uint16_t)Channel * 10);
+// 868 MHz
+#elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
+    FR = 1600 + ((uint16_t)Channel * 5);
+// 915 MHz
+#else
+    FR = (800 + ((uint16_t)Channel * 10))/3;
+#endif
+
     hal_rfm12_init_hw();
     
     hal_rfm12_spiExch(0);           // initial SPI transfer added to avoid power-up problem
@@ -355,7 +313,7 @@ void RFM12_Init(void)
                       RFM12_XTAL_12PF);         // Set XTAL capacitor
     hal_rfm12_spiExch(RFM12_SLEEP_MODE);
     hal_rfm12_spiExch(RFM12_CMD_FREQUENCY |     // Frequency Setting Command
-                      Channel);
+                      FR);
     hal_rfm12_spiExch(RFM12_CMD_DATARATE |      // Data Rate Command
                       RFM12_BAUD);
     hal_rfm12_spiExch(RFM12_CMD_RXCTRL |        // Receiver Control Command

@@ -83,6 +83,8 @@ extern "C" {
 #include "HAL/HWconfig_S2SC12.h"    // UART + CC1101
 #elif   (defined CFG_S2Sn12)
 #include "HAL/HWconfig_S2Sn12.h"    // UART
+#elif   (defined CFG_S2SR12)
+#include "HAL/HWconfig_S2SR12.h"    // UART + RFM12
 // STM32F10x
 #elif   (defined CFG_S3En12)
 #include "HAL/HWconfig_S3En12.h"    // ENC28J60
@@ -96,6 +98,9 @@ extern "C" {
 #include "mqTypes.h"
 #include "mqttsn.h"
 #include "ObjDict.h"
+
+// PHY activity indicator
+void Activity(uint8_t pin);
 
 // Time Counters
 uint32_t GetTickCounter();

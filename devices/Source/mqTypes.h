@@ -399,17 +399,17 @@ typedef struct sMQ
 
     union
     {
-        uint8_t         phy1addr[sizeof(PHY1_ADDR_t)];
+        uint8_t             phy1addr[sizeof(PHY1_ADDR_t)];
 #ifdef PHY2_ADDR_t
-        uint8_t         phy2addr[sizeof(PHY2_ADDR_t)];
+        uint8_t             phy2addr[sizeof(PHY2_ADDR_t)];
 #endif
     };
   
-    uint8_t           Length;
+    uint8_t                 Length;
     union
     {
-        uint8_t           raw[sizeof(MQTTSN_MESSAGE_t)];
-        MQTTSN_MESSAGE_t   mq;
+        uint8_t             raw[sizeof(MQTTSN_MESSAGE_t)];
+        MQTTSN_MESSAGE_t    mq;
     };
 } MQ_t;
 

@@ -637,10 +637,16 @@ dhcp_filter_lbl1:
 
 void dhcp_poll(void)
 {
-    if((dhcp_status == DHCP_DISABLED) || (dhcp_retry_time > GetTickCounter()))
-    {
+    if(dhcp_status == DHCP_DISABLED)
         return;
-    }
+
+    uint32_t tick_time = GetTickCounter();
+
+    if((dhcp_status != DHCP_ASSIGNED) && ((tick_time & 8) != 0))
+        Activity(ENC28J60_PHY);
+
+    if(dhcp_retry_time > tick_time)
+        return;
 
     eth_frame_t     * pFrame;
     ip_packet_t     * ip;
@@ -650,7 +656,7 @@ void dhcp_poll(void)
     uint16_t length;
     uint8_t ucTmp;
 
-    dhcp_retry_time = GetTickCounter() + (15 * POLL_TMR_FREQ);
+    dhcp_retry_time = tick_time + (15 * POLL_TMR_FREQ);
 
     pFrame = (void *)mqAlloc(MAX_FRAME_BUF);
     if(pFrame == NULL)

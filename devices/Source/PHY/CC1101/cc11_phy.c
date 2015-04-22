@@ -57,26 +57,10 @@ See LICENSE file for license details.
 #endif  //  CC11_ANAREN
 
 #if (CC11_PHY == 1)
-#define cc11_adr                phy1addr
 #define CC11_RF_POWER           0x50
 
-#ifdef LED1_On
-void SetLED1mask(uint16_t mask);
-#define cc11_active()           SetLED1mask(1);
-#else
-#define cc11_active()
-#endif  //  LED1_On
-
 #elif (CC11_PHY == 2)
-#define cc11_adr                phy2addr
 #define CC11_RF_POWER           0xC0
-
-#ifdef LED2_On
-void SetLED2mask(uint16_t mask);
-#define cc11_active()           SetLED2mask(1);
-#else
-#define cc11_active()
-#endif  //  LED2_On
 
 #endif  // CC11_PHY
 
@@ -197,7 +181,7 @@ static void cc11_tx_task(void)
     if(pTxBuf == NULL)      // Queue Busy
         return;
         
-    cc11_active();
+    Activity(CC11_PHY);
 
     // Fill Buffer
     uint8_t i, len;
@@ -208,7 +192,7 @@ static void cc11_tx_task(void)
     RF_WAIT_LOW_MISO();                         // Wait until MISO goes low
     hal_cc11_spiExch(CC11_BIT_BURST | CC11_TXFIFO);
     hal_cc11_spiExch(len + 2);                  // Set data length at the first position of the TX FIFO
-    hal_cc11_spiExch(*pTxBuf->cc11_adr);        // Send destination address
+    hal_cc11_spiExch(pTxBuf->phy1addr[0]);		// Send destination address
     hal_cc11_spiExch(cc11s_NodeID);             // Send Source address
     for(i = 0; i < len; i++)                    // Send Payload
         hal_cc11_spiExch(pTxBuf->raw[i]);
@@ -253,7 +237,7 @@ static MQ_t * cc11_rx_task(void)
     hal_cc11_spiExch(CC11_BIT_READ | CC11_BIT_BURST | CC11_RXFIFO);
     hal_cc11_spiExch(0);                            // Read Length
     hal_cc11_spiExch(0);                            // Read Destination address
-    pRxBuf->cc11_adr[0] = hal_cc11_spiExch(0);      // Read Source address
+    pRxBuf->phy1addr[0] = hal_cc11_spiExch(0);		// Read Source address
 
     for(i = 0; i < frameLen; i++)                   // Read Payload
         pRxBuf->raw[i] = hal_cc11_spiExch(0);
@@ -270,7 +254,7 @@ static MQ_t * cc11_rx_task(void)
         pRxBuf = NULL;
     }
     else
-        cc11_active();
+        Activity(CC11_PHY);
 
     cc11_cmdStrobe(CC11_SFRX);
     cc11_cmdStrobe(CC11_SRX);       // Enter to RX State

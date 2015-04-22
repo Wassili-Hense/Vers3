@@ -78,7 +78,7 @@ static const indextable_t listPredefOD[] =
 #ifdef PHY2_NodeId
     {{objPROGMEM, objArray, 2},
         objPHY2addr, (cbRead_t)&readDeviceInfo, NULL, NULL}
-#endif  //  objPHY1addr
+#endif  //  PHY2_NodeId
 };
 
 // User objects list

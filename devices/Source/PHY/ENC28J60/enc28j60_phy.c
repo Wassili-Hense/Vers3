@@ -19,28 +19,6 @@ See LICENSE file for license details.
 #include "enc28j60_hw.h"
 #include "enc28j60_net.h"
 
-#if (ENC28J60_PHY == 1)
-#define LAN_ADDR            phy1addr
-
-#ifdef LED1_On
-void SetLED1mask(uint16_t mask);
-#define eth_active()        SetLED1mask(1);
-#else
-#define eth_active()
-#endif  //  LED1_On
-
-#elif (ENC28J60_PHY == 2)
-#define LAN_ADDR            phy2addr
-
-#ifdef LED2_On
-void SetLED2mask(uint16_t mask);
-#define eth_active()        SetLED2mask(1);
-#else
-#define eth_active()
-#endif  //  LED2_On
-
-#endif  //  ENC28J60_PHY
-
 static Queue_t          enc_out_queue = {NULL, NULL, 0, 0};
 
 // external subroutines, defined in enc28j60_net.c
@@ -56,12 +34,12 @@ void phy_mqttsn_filter(uint16_t len, eth_frame_t * pFrame)
     if(pRx_buf == NULL)
         return;
 
-    eth_active();
+    Activity(ENC28J60_PHY);
     
     ip_packet_t *ip = (void*)(pFrame->data);
 
     enc28j60_GetPacket((void*)pRx_buf->raw, len);
-    memcpy(pRx_buf->LAN_ADDR, ip->sender_ip, 4);
+    memcpy(pRx_buf->phy1addr, ip->sender_ip, 4);
     pRx_buf->Length = len;
     
     if(!mqEnqueue(&enc_out_queue, pRx_buf))
@@ -97,16 +75,16 @@ void ENC28J60_Send(void *pBuf)
         return;
     }
 
-    eth_active();
+    Activity(ENC28J60_PHY);
 
     ip_packet_t *ip = (void*)(pFrame->data);
     udp_packet_t *udp = (void*)(ip->data);
 
-    memcpy(ip->target_ip, &(((MQ_t *)pBuf)->LAN_ADDR), 4);
+    memcpy(ip->target_ip, (((MQ_t *)pBuf)->phy1addr), 4);
     udp->target_port = MQTTSN_UDP_PORT;
     udp->sender_port = MQTTSN_UDP_PORT;
     uint16_t len = ((MQ_t *)pBuf)->Length;
-    memcpy((void*)(udp->data), &(((MQ_t *)pBuf)->raw), len);
+    memcpy((void*)(udp->data), (((MQ_t *)pBuf)->raw), len);
 
     mqFree(pBuf);
     udp_send(len, pFrame);

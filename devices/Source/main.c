@@ -72,21 +72,13 @@ int main(void)
     }
 }
 
-#ifdef LED1_On
-static uint16_t LED1_mask = 0xFFFF;
-void SetLED1mask(uint16_t mask)
-{
-    LED1_mask = mask;
-}
-#endif  //  LED1_On
+static uint8_t LED_Mask = 0;
 
-#ifdef LED2_On
-static uint16_t LED2_mask = 0xFFFF;
-void SetLED2mask(uint16_t mask)
+// PHY activity indicator
+void Activity(uint8_t pin)
 {
-    LED2_mask = mask;
+    LED_Mask |= 1 << pin;
 }
-#endif  //  LED2_On
 
 static volatile uint32_t tick_count = 0;
 
@@ -101,20 +93,22 @@ void SystemTick(void)
     SystemTickCnt++;
 
 #ifdef LED1_On
-    if(LED1_mask & 1)
+    if(LED_Mask & 2)
+    {
+        LED_Mask &= 0xFD;
         LED1_On();
+    }
     else
         LED1_Off();
-
-    LED1_mask >>= 1;
 #endif  //  LED1_On
 
 #ifdef LED2_On
-    if(LED2_mask & 1)
+    if(LED_Mask & 4)
+    {
+        LED_Mask &= 0xFB;
         LED2_On();
+    }
     else
         LED2_Off();
-
-    LED2_mask >>= 1;
 #endif  //  LED2_On
 }

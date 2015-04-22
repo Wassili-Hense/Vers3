@@ -17,28 +17,12 @@ See LICENSE file for license details.
 #ifdef UART_PHY
 
 #if (UART_PHY == 1)
-#define UART_ADDR               phy1addr
 #define UART_ADDR_t             PHY1_ADDR_t
 #define UART_NODE_ID            PHY1_NodeId
 
-#ifdef LED1_On
-void SetLED1mask(uint16_t mask);
-#define uart_active()           SetLED1mask(1);
-#else
-#define uart_active()
-#endif  //  LED1_On
-
 #elif (UART_PHY == 2)
-#define UART_ADDR               phy2addr
 #define UART_ADDR_t             PHY2_ADDR_t
 #define UART_NODE_ID            PHY2_NodeId
-
-#ifdef LED2_On
-void SetLED2mask(uint16_t mask);
-#define uart_active()           SetLED2mask(1);
-#else
-#define uart_active()
-#endif  //  LED1_On
 
 #endif  //  UART_PHY
 
@@ -69,7 +53,7 @@ static void uart_tx_task(void)
         {
             pTx_buf = mqDequeue(&uart_tx_queue);
             assert(pTx_buf != NULL);
-            uart_active();
+            Activity(UART_PHY);
             hal_uart_send(UART_PHY_PORT, (pTx_buf->Length + 1), &pTx_buf->Length);
         }
     }
@@ -131,10 +115,10 @@ void * UART_Get(void)
 
             if(rx_pos == rx_len)
             {
-                memcpy(pRx_buf->UART_ADDR, (const void *)&uart_addr, sizeof(UART_ADDR_t));
+                memcpy(pRx_buf->phy1addr, (const void *)&uart_addr, sizeof(UART_ADDR_t));
                 pRx_buf->Length = rx_len;
                 rx_len = 0;
-                uart_active();
+                Activity(UART_PHY);
                 return pRx_buf;
             }
         }

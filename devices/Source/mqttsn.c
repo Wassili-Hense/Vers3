@@ -15,8 +15,8 @@ See LICENSE file for license details.
 #include "config.h"
 
 // Keep Alive Time
-//#define MQTTSN_T_KEEPALIVE    (uint16_t)300
-#define MQTTSN_T_KEEPALIVE      (uint16_t)30
+#define MQTTSN_T_KEEPALIVE      (uint16_t)300
+
 // Number of retries
 #define MQTTSN_N_RETRIES        (uint8_t)3
 // Time between Connect's

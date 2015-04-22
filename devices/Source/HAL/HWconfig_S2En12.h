@@ -61,7 +61,7 @@ See LICENSE file for license details.
 //  37  PC5
 //  38  PC6
 //  39  PC7
-//  40  PC8     LED_Blue
+//  40  PC8     LED_Blue    - Activity PHY1
 //  41  PC9     LED_Green
 //  42  PC10
 //  43  PC11
@@ -82,7 +82,7 @@ extern "C" {
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3
 #define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB, GPIOC}
-#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x6000, (uint16_t)0xF000, (uint16_t)0x0000}
+#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x6000, (uint16_t)0xF000, (uint16_t)0x0100}
 // End DIO Section
 
 // PA0-PA7: 0 - 7
@@ -100,6 +100,11 @@ extern "C" {
 #define EXTSER_USED                 1
 #define EXTSER_PORT2UART            {1, 0}
 // End UART Section
+
+// LEDs
+#define LED1_On()                   GPIOC->BSRR = GPIO_BSRR_BS_8
+#define LED1_Off()                  GPIOC->BSRR = GPIO_BSRR_BR_8
+#define LEDsInit()                  hal_dio_gpio_cfg(GPIOC, GPIO_Pin_8, DIO_MODE_OUT)
 
 // ENC Section
 #define ENC_USE_SPI                 2   // 1 - SPI1 PA4-PA7, 2 - SPI2 PB12-PB15
