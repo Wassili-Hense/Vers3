@@ -61,10 +61,8 @@ static MQ_t           * rfm12_pTxBuf = NULL;
 // HAL section
 void        hal_rfm12_init_hw(void);
 uint16_t    hal_rfm12_spiExch(uint16_t data);
-void        hal_rfm12_spi_fast(void);
-void        hal_rfm12_spi_slow(void);
 bool        hal_rfm12_irq_stat(void);
-void        hal_rfm12_enable_irq(void);
+//void        hal_rfm12_enable_irq(void);
 
 
 // Local subroutines
@@ -81,16 +79,6 @@ static void rfm12_CalcCRC(uint8_t data, uint16_t *pCRC)     // CRC Calculation c
         data <<= 1;
     }
     *pCRC = crcReg;
-}
-
-// Load byte from RX FIFO
-static uint8_t rfm12_get_fifo(void)
-{
-    uint8_t data;
-    hal_rfm12_spi_slow();
-    data = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
-    hal_rfm12_spi_fast();
-    return data;
 }
 
 static void rfm12_tx_task(void)
@@ -156,7 +144,7 @@ void rfm12_irq(void)
         {
             // Start Rx Section
             case RF_TRVRXIDLE:              // Get Packet Length
-                ch = rfm12_get_fifo();
+                ch = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
                 if((ch < 4) || (ch > (MQTTSN_MSG_SIZE + 3)))
                     break;
                 rfm12v_RfCRC = 0xFFFF;
@@ -165,7 +153,7 @@ void rfm12_irq(void)
                 rfm12v_RfLen = ch - 2;      // Packet length(data), w/o CRC
                 return;
             case RF_TRVRXHDR_DST:           // Destination Address
-                ch = rfm12_get_fifo();
+                ch = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
                 if((ch == 0) || (ch == rfm12_NodeID))
                 {
                     Activity(RFM12_PHY);
@@ -176,7 +164,7 @@ void rfm12_irq(void)
                 }
                 break;
             case RF_TRVRXHDR_SRC:           // Source Address
-                ch = rfm12_get_fifo();
+                ch = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
                 rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
 
                 rfm12_pRxBuf->phy1addr[0] = ch;
@@ -184,7 +172,7 @@ void rfm12_irq(void)
                 rfm12_state = RF_TRVRXDATA;
                 return;
             case RF_TRVRXDATA:
-                ch = rfm12_get_fifo();
+                ch = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
                 if(rfm12v_Pos < rfm12v_RfLen)
                 {
                     rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
@@ -266,6 +254,60 @@ void rfm12_irq(void)
     rfm12_state = RF_TRVRXIDLE;
 }
 
+static const uint16_t rfm12_config[] =
+{
+    RFM12_CMD_CFG |             // Configuration Setting
+    RFM12_CFG_EL |              // Enable TX FIFO
+    RFM12_CFG_EF |              // Enable RX FIFO
+    RFM12_BAND |                // Select Band
+    RFM12_XTAL_12PF,            // Set XTAL capacitor
+    
+    RFM12_SLEEP_MODE,
+
+    RFM12_CMD_DATARATE |        // Data Rate Command
+    RFM12_BAUD,
+    
+    RFM12_CMD_RXCTRL |          // Receiver Control Command
+    RFM12_RXCTRL_P16_VDI |      // Pin16 - VDI output
+    RFM12_RXCTRL_VDI_MEDIUM |   // VDI response - Medium
+    RFM12_GAIN |                // gain select
+    RFM12_BANDWIDTH |           // Receiver baseband bandwidth
+    RFM12_DRSSI,                // RSSI detector threshold
+    
+    RFM12_CMD_DATAFILTER |      // Data Filter Command
+    RFM12_DATAFILTER_AL |       // Clock recovery (CR) auto lock control, Slow mode,
+                                //  Digital Filter
+    RFM12_DQD_THRESH_4,         // DQD threshold = 4( good)
+    
+    RFM12_RXFIFO_DIS,           // FIFO and Reset Mode Command
+    
+    RFM12_CMD_AFC |             // AFC Command
+#if (RFM12_PHY != 1)            // Gateway
+    RFM12_AFC_AUTO_VDI |        // Keep the foffset only during receiving (VDI=high)
+#else   // Node
+    RFM12_AFC_AUTO_KEEP |       // Keep the foffset value independently from the state of the VDI signal
+#endif  // (RFM12_PHY == 2)
+    RFM12_AFC_LIMIT_16 |        // Limit  +75 -80 kHz
+    RFM12_AFC_FI |              // accuracy (fine) mode
+    RFM12_AFC_OE |              // Enables the frequency offset register
+    RFM12_AFC_EN,               // Enables the calculation of the offset frequency by the AFC circuit.
+    
+    RFM12_CMD_TXCONF |          // TX Configuration Control Command
+    RFM12_FSKWIDTH |            // FSK =  fo + offset
+    RFM12_POWER,                // Relative Output Power
+    
+    RFM12_CMD_PLL |             // PLL Setting Command
+    RFM12_CLK_FRQ_LOW |         // uC CLK Frequency <= 2,5MHz
+    RFM12_PLL_DDIT,             // disable the dithering in the PLL loop.
+    
+    RFM12_CMD_WAKEUP,           // Wake-Up Timer Command, not used
+    
+    RFM12_CMD_DUTYCYCLE,        // Low Duty-Cycle Command, not used
+    
+    RFM12_CMD_LBDMCD |          // Low Battery Detector and 
+    RFM12_MCD_DIV5              // Microcontroller Clock Divider Command, CLK Out = 2 MHz
+};
+
 // API Section
 void RFM12_Init(void)
 {
@@ -303,62 +345,26 @@ void RFM12_Init(void)
     
     // wait until RFM12B is out of power-up reset, this takes several *seconds*
     hal_rfm12_spiExch(RFM12_CMD_TX);
-    while(hal_rfm12_irq_stat())
+    do
+    {
         hal_rfm12_spiExch(0);
+    }
+    while(hal_rfm12_irq_stat());
+    
+    uint8_t pos;
+    for(pos = 0; pos < (sizeof(rfm12_config)/sizeof(rfm12_config[0])); pos++)
+        hal_rfm12_spiExch(rfm12_config[pos]);
 
-    hal_rfm12_spiExch(RFM12_CMD_CFG |           // Configuration Setting
-                      RFM12_CFG_EL |            // Enable TX FIFO
-                      RFM12_CFG_EF |            // Enable RX FIFO
-                      RFM12_BAND |              // Select Band
-                      RFM12_XTAL_12PF);         // Set XTAL capacitor
-    hal_rfm12_spiExch(RFM12_SLEEP_MODE);
     hal_rfm12_spiExch(RFM12_CMD_FREQUENCY |     // Frequency Setting Command
                       FR);
-    hal_rfm12_spiExch(RFM12_CMD_DATARATE |      // Data Rate Command
-                      RFM12_BAUD);
-    hal_rfm12_spiExch(RFM12_CMD_RXCTRL |        // Receiver Control Command
-                      RFM12_RXCTRL_P16_VDI |    // Pin16 - VDI output
-                      RFM12_RXCTRL_VDI_MEDIUM | // VDI response - Medium
-                      RFM12_GAIN |              // gain select
-                      RFM12_BANDWIDTH |         // Receiver baseband bandwidth
-                      RFM12_DRSSI);             // RSSI detector threshold
-    hal_rfm12_spiExch(RFM12_CMD_DATAFILTER |    // Data Filter Command
-                      RFM12_DATAFILTER_AL |     // Clock recovery (CR) auto lock control, Slow mode,
-                                                //  Digital Filter
-                      RFM12_DQD_THRESH_4);      // DQD threshold = 4( good)
-    hal_rfm12_spiExch(RFM12_RXFIFO_DIS);        // FIFO and Reset Mode Command
-    
-    
     hal_rfm12_spiExch(RFM12_CMD_SYNCPATTERN |   // Synchro Pattern = 0x2D[grp]
                      (rfm12_GroupID & 0xFF));
-    hal_rfm12_spiExch(RFM12_CMD_AFC |           // AFC Command
-#if (RFM12_PHY != 1)    // Gateway
-                      RFM12_AFC_AUTO_VDI |      // Keep the foffset only during receiving (VDI=high)
-#else   // Node
-                      RFM12_AFC_AUTO_KEEP |     // Keep the foffset value independently from the state of the VDI signal
-#endif  // (RFM12_PHY == 2)
-                      RFM12_AFC_LIMIT_16 |      // Limit  +75 -80 kHz
-                      RFM12_AFC_FI |            // accuracy (fine) mode
-                      RFM12_AFC_OE |            // Enables the frequency offset register
-                      RFM12_AFC_EN);            // Enables the calculation of the offset frequency 
-                                                //  by the AFC circuit.
-    hal_rfm12_spiExch(RFM12_CMD_TXCONF |        // TX Configuration Control Command
-                      RFM12_FSKWIDTH |          // FSK =  fo + offset
-                      RFM12_POWER);             // Relative Output Power
-    hal_rfm12_spiExch(RFM12_CMD_PLL |           // PLL Setting Command
-                      RFM12_CLK_FRQ_HIGH |      // uC CLK Freq >= 5MHz
-                      RFM12_PLL_DDIT);          // disable the dithering in the PLL loop.
-    hal_rfm12_spiExch(RFM12_CMD_WAKEUP);        // Wake-Up Timer Command, not used
-    hal_rfm12_spiExch(RFM12_CMD_DUTYCYCLE);     // Low Duty-Cycle Command, not used
-    hal_rfm12_spiExch(RFM12_CMD_LBDMCD |        // Low Battery Detector and 
-                                                //  Microcontroller Clock Divider Command
-                      RFM12_MCD_DIV5);          // CLK Out = 2 MHz
 
     rfm12_state = RF_TRVIDLE;
     hal_rfm12_spiExch(RFM12_IDLE_MODE);
 
-    hal_rfm12_spi_fast();
-    hal_rfm12_enable_irq();
+//    hal_rfm12_spi_fast();
+//    hal_rfm12_enable_irq();
 }
 
 void RFM12_Send(void *pBuf)

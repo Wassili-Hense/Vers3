@@ -48,8 +48,7 @@ See LICENSE file for license details.
 //  24  PB8
 //  25  PB9
 //  26  PB10
-//  27  PB11    
-
+//  27  PB11    RF_IRQ
 //  28  PB12    SPI2_NSS
 //  29  PB13    SPI2_SCK
 //  30  PB14    SPI2_MISO
@@ -63,8 +62,8 @@ See LICENSE file for license details.
 //  37  PC5
 //  38  PC6
 //  39  PC7
-//  40  PC8     LED_Blue
-//  41  PC9     LED_Green
+//  40  PC8     LED_Blue, Activity UART
+//  41  PC9     LED_Green, Activity RF
 //  42  PC10
 //  43  PC11
 //  44  PC12
@@ -72,7 +71,6 @@ See LICENSE file for license details.
 //  46  PC14
 //  47  PC15
 // GPIOD, GPIOF - Not used
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,7 +82,7 @@ extern "C" {
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3
 #define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB, GPIOC}
-#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x6600, (uint16_t)0xF800, (uint16_t)0x0000}
+#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x6600, (uint16_t)0xF800, (uint16_t)0x0300}
 // End DIO Section
 
 // PA0-PA7: 0 - 7
@@ -105,11 +103,19 @@ extern "C" {
 // End UART Section
 
 // RFM12 Section
-#define RFM12_USE_SPI                2   // 1 - SPI1 PA4-PA7, 2 - SPI2 PB12-PB15
+#define RFM12_USE_SPI                2   // 1 - SPI1 PA4-PA7, 2 - SPI2 PB12-PB15, PB11 - IRQ
 // End RFM12 Section
 
+// LEDs
+#define LED1_On()                   GPIOC->BSRR = GPIO_BSRR_BS_8
+#define LED1_Off()                  GPIOC->BSRR = GPIO_BSRR_BR_8
+#define LED2_On()                   GPIOC->BSRR = GPIO_BSRR_BS_9
+#define LED2_Off()                  GPIOC->BSRR = GPIO_BSRR_BR_9
+
+#define LEDsInit()                  hal_dio_gpio_cfg(GPIOC, GPIO_Pin_8 | GPIO_Pin_8, DIO_MODE_OUT)
+
 #define UART_PHY                    1
-#define CC11_PHY                    2
+#define RFM12_PHY                   2
 
 #define PHY1_ADDR_t                 uint8_t
 #define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)0x00
@@ -123,14 +129,14 @@ extern "C" {
 #define OD_DEV_UC_TYPE              'S'
 #define OD_DEV_UC_SUBTYPE           '2'
 #define OD_DEV_PHY1                 'S'
-#define OD_DEV_PHY2                 'C'
+#define OD_DEV_PHY2                 'R'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '2'
 
 #define OD_ADDR_TYPE                objUInt8
 
 #include "../PHY/UART/uart_phy.h"
-#include "../PHY/CC1101/cc11_phy.h"
+#include "../PHY/RFM12/rfm12_phy.h"
 
 #define PHY1_Init                   UART_Init
 #define PHY1_Send                   UART_Send
@@ -139,15 +145,14 @@ extern "C" {
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objGateID
 
-#define PHY2_Init                   CC11_Init
-#define PHY2_Send                   CC11_Send
-#define PHY2_Get                    CC11_Get
-#define PHY2_GetRSSI                CC11_GetRSSI
-#define PHY2_GetAddr                CC11_GetAddr
+#define PHY2_Init                   RFM12_Init
+#define PHY2_Send                   RFM12_Send
+#define PHY2_Get                    RFM12_Get
+#define PHY2_GetAddr                RFM12_GetAddr
 #define PHY2_NodeId                 objRFNodeId
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // HWCONFIG_S2SN12_H
+#endif // HWCONFIG_S2SR12_H
