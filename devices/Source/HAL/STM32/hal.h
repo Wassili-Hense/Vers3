@@ -59,6 +59,14 @@ void halLeaveCritical(void);
 // External procedure defined in hal_dio.c
 void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode);
 
+// Configure EXTI
+// External procedure defined in hal_exti.c
+void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger);
+
+#define HAL_EXTI_TRIGGER_FALLING    1
+#define HAL_EXTI_TRIGGER_RISING     2
+#define HAL_EXTI_TRIGGER_BOTH       3
+
 //////////////////////////////////////////////////////////////
 // SPI Section
 #define HAL_SPI_MODE_0              0
@@ -75,8 +83,6 @@ uint8_t hal_spi_exch8(uint8_t port, uint8_t data);
 uint16_t hal_spi_exch16(uint8_t port, uint16_t data);
 // SPI Section
 //////////////////////////////////////////////////////////////
-
-void StartSheduler(void);
 
 void eeprom_init_hw(void);
 void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len);

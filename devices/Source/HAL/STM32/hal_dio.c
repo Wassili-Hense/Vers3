@@ -58,7 +58,7 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode)
                     break;
 
                 case DIO_MODE_UART:             // Alternate functions 1, UART
-//                    GPIOx->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR0 << pos);      // High Speed
+                    GPIOx->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR0 << pos);      // High Speed
                     GPIOx->MODER   |= (GPIO_MODER_MODER0_1 << pos);         // Alternate function mode                
 
                     if(pinpos < 8)              // AFR0

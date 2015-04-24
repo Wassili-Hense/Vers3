@@ -28,8 +28,6 @@ extern "C" {
 #define portPOINTER_SIZE_TYPE       uintptr_t
 #define configTOTAL_HEAP_SIZE       1024
 
-void StartSheduler(void);
-
 uint16_t halRNG();
 
 #ifdef __cplusplus

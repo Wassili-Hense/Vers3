@@ -78,11 +78,13 @@ extern "C" {
 
 #include "STM32/hal.h"
 
+#define DIAG_USED                   1       // Enable Diagnosis
+
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3
 #define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB, GPIOC}
-#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x6600, (uint16_t)0xF800, (uint16_t)0x0300}
+#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x600C, (uint16_t)0xF800, (uint16_t)0x0300}
 // End DIO Section
 
 // PA0-PA7: 0 - 7
@@ -97,13 +99,21 @@ extern "C" {
 // End Analogue Inputs
 
 // UART Section
-#define UART_PHY_PORT               0   //  0 - USART1 PA9,PA10 GPIOA MASK 0x0600, 1 - USART2 PA2,PA3 GPIO MASK 0x000C
+#define UART_PHY_PORT               1   //  0 - USART1 PA9,PA10 GPIOA MASK 0x0600, 1 - USART2 PA2,PA3 GPIO MASK 0x000C
 #define EXTSER_USED                 1
-#define EXTSER_PORT2UART            {1}
+#define EXTSER_PORT2UART            {0}
 // End UART Section
 
 // RFM12 Section
 #define RFM12_USE_SPI                2   // 1 - SPI1 PA4-PA7, 2 - SPI2 PB12-PB15, PB11 - IRQ
+
+#define RFM12_NSS_PORT              GPIOB
+#define RFM12_NSS_PIN               GPIO_Pin_12
+
+#define RFM12_IRQ_PORT              GPIOB
+#define RFM12_IRQ_PIN               GPIO_Pin_11
+#define RFM12_IRQ                   EXTI4_15_IRQn
+#define RFM12_IRQ_HANDLER           EXTI4_15_IRQHandler
 // End RFM12 Section
 
 // LEDs
@@ -113,6 +123,7 @@ extern "C" {
 #define LED2_Off()                  GPIOC->BSRR = GPIO_BSRR_BR_9
 
 #define LEDsInit()                  hal_dio_gpio_cfg(GPIOC, GPIO_Pin_8 | GPIO_Pin_8, DIO_MODE_OUT)
+// End LEDs
 
 #define UART_PHY                    1
 #define RFM12_PHY                   2

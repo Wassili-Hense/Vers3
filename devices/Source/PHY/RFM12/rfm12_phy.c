@@ -34,7 +34,7 @@ See LICENSE file for license details.
 #define RFM12_TX_RETRYS     64
 
 // RF States
-enum e_RF_TRVSTATE
+typedef enum
 {
     RF_TRVPOR = 0,
     RF_TRVSLEEP,
@@ -44,16 +44,29 @@ enum e_RF_TRVSTATE
     RF_TRVRXHDR_SRC,
     RF_TRVRXDATA,
     RF_TRVRXDONE,
+    RF_TRVTXPREAMB,
     RF_TRVTXHDR,
     RF_TRVTXDATA,
+    RF_TRVTXCRC,
     RF_TRVTXDONE,
     RF_TRVASLEEP,
     RF_TRVWKUP
-};
+}RF_TRVSTATE_t;
 
-static uint8_t          rfm12_state;
-static uint8_t          rfm12_NodeID;
-static uint16_t         rfm12_GroupID;
+typedef union
+{
+    uint8_t raw[5];
+    struct
+    {
+        uint8_t Group[2];
+        uint8_t Len;
+        uint8_t Dst;
+        uint8_t Src;
+    };
+}RFM12_TX_HDR_t;
+
+static RF_TRVSTATE_t    rfm12_state;
+static RFM12_TX_HDR_t   rfm12_tx_hdr;
 static Queue_t          rfm12_tx_queue = {NULL, NULL, 0, 0};
 static MQ_t           * rfm12_pRxBuf = NULL;
 static MQ_t           * rfm12_pTxBuf = NULL;
@@ -62,8 +75,7 @@ static MQ_t           * rfm12_pTxBuf = NULL;
 void        hal_rfm12_init_hw(void);
 uint16_t    hal_rfm12_spiExch(uint16_t data);
 bool        hal_rfm12_irq_stat(void);
-//void        hal_rfm12_enable_irq(void);
-
+void        hal_rfm12_enable_irq(void);
 
 // Local subroutines
 static void rfm12_CalcCRC(uint8_t data, uint16_t *pCRC)     // CRC Calculation compatible with cc1101
@@ -102,18 +114,23 @@ static void rfm12_tx_task(void)
         if(rfm12_tx_retry > 0)
         {
             rfm12_tx_retry--;
-            rfm12_tx_delay = (rfm12_NodeID>>1) + (halRNG() & 0x7F);
+            rfm12_tx_delay = rfm12_tx_hdr.Src >> 1;
+            rfm12_tx_delay += (halRNG() & 0x7F);
             return;
         }
     }
+
     // Send
     rfm12_pTxBuf = mqDequeue(&rfm12_tx_queue);
     if(rfm12_pTxBuf == NULL)                    // Queue Busy
         return;
 
+    rfm12_tx_hdr.Len = rfm12_pTxBuf->Length + 2;
+    rfm12_tx_hdr.Dst = rfm12_pTxBuf->phy1addr[0];
+
     rfm12_tx_delay = 0;
     rfm12_tx_retry = RFM12_TX_RETRYS;
-    rfm12_state = RF_TRVTXHDR;
+    rfm12_state = RF_TRVTXPREAMB;
 
     hal_rfm12_spiExch(RFM12_IDLE_MODE);         // Switch to Idle state
     hal_rfm12_spiExch(RFM12_TXFIFO_ENA);        // Enable TX FIFO
@@ -151,10 +168,11 @@ void rfm12_irq(void)
                 rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
                 rfm12_state = RF_TRVRXHDR_DST;
                 rfm12v_RfLen = ch - 2;      // Packet length(data), w/o CRC
+                rfm12_pRxBuf->Length = rfm12v_RfLen;
                 return;
             case RF_TRVRXHDR_DST:           // Destination Address
                 ch = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
-                if((ch == 0) || (ch == rfm12_NodeID))
+                if((ch == 0) || (ch == rfm12_tx_hdr.Src))
                 {
                     Activity(RFM12_PHY);
 
@@ -188,59 +206,82 @@ void rfm12_irq(void)
                         return;
                     }
                 }
-                else                                    // 2nd CRC byte
+                else if(ch == (rfm12v_RfCRC & 0xFF))    // 2nd CRC byte
                 {
                     hal_rfm12_spiExch(RFM12_IDLE_MODE);
                     hal_rfm12_spiExch(RFM12_RXFIFO_DIS);
-/*
-                    uint8_t bTmp = rfm12v_RfCRC & 0xFF;
 
-                    if(ch == bTmp)
-                    {
-//                        rfm12v_Foffs = (uint8_t)(intstat & 0x1F)<<3;	// int8_t frequency offset
-                    }
+                    rfm12_state = RF_TRVRXDONE;
+                    //rfm12v_Foffs = (uint8_t)(intstat & 0x1F)<<3;    // int8_t frequency offset
                     return;
-*/
                 }
                 break;
-            case RF_TRVTXHDR:
-                if(rfm12v_Pos == 0)             // Send preamble, preamble length 3 bytes
-                {
-                    ch = 0xAA;
-                    Activity(RFM12_PHY);
-                }
-                else if(rfm12v_Pos == 1)        // Send Group ID, MSB
-                    ch = rfm12_GroupID>>8;
-                else if(rfm12v_Pos == 2)        // Send Group ID, LSB
-                    ch = rfm12_GroupID & 0xFF;
-/*
-                else if(rfm12v_Pos == 3)        // Send packet length
-                {
-                    ch = rfm12v_RfLen;
-                    rfm12v_RfCRC = 0xFFFF;
-                    rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
-                    rfm12v_RfLen -= 1;
-                }
-                else if(rfm12v_Pos == 4)        // Send destination addr
-                {
-                    ch = rfm12v_pRfBuf[0];
-                    rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
-                }
-                else                            // Send Source addr;
-                {
-                    ch = rfm12s_NodeID;
-                    rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
-                    rfm12v_Pos = 0;
-                    rfm12v_State = RF_TRVTXDATA;
-                }
-                rfm12v_Pos++;
-                rfm12_control(RFM12_CMD_TX | ch);
-                return;
-                
+
+            // Start Tx Section
+            // Send Preamble, initialise variables
+            case RF_TRVTXPREAMB:
+                hal_rfm12_spiExch(RFM12_CMD_TX | 0xAA);
                 rfm12v_Pos = 0;
-*/
+                rfm12_state = RF_TRVTXHDR;
+                Activity(RFM12_PHY);
+                return;
+            // Send header
+            case RF_TRVTXHDR:
+                ch = rfm12_tx_hdr.raw[rfm12v_Pos];
+
+                if(rfm12v_Pos > 1)
+                {
+                    rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
+                }
+                else
+                {
+                    rfm12v_RfCRC = 0xFFFF;
+                    
+                }
+
+                rfm12v_Pos++;
+                hal_rfm12_spiExch(RFM12_CMD_TX | ch);
+                
+                if(rfm12v_Pos == sizeof(RFM12_TX_HDR_t))
+                {
+                    rfm12v_Pos = 0;
+                    rfm12_state = RF_TRVTXDATA;
+                }
+                return;
+            // Send Data
+            case RF_TRVTXDATA:
+                ch = rfm12_pTxBuf->raw[rfm12v_Pos++];
+                hal_rfm12_spiExch(RFM12_CMD_TX | ch);
+                rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
+                
+                if(rfm12v_Pos == rfm12_pTxBuf->Length)
+                {
+                    rfm12_state = RF_TRVTXCRC;
+                    rfm12v_Pos = 0;
+                }
+                return;
+            // Send CRC and dummy byte
+            case RF_TRVTXCRC:
+                if(rfm12v_Pos == 0)         // Send MSB CRC
+                    ch = rfm12v_RfCRC>>8;
+                else if(rfm12v_Pos == 1)    // Send LSB CRC
+                    ch = rfm12v_RfCRC & 0xFF;
+                else if(rfm12v_Pos == 2)    // Send Dummy
+                    ch = 0xFF;
+                else
+                {
+                    hal_rfm12_spiExch(RFM12_IDLE_MODE);
+                    hal_rfm12_spiExch(RFM12_TXFIFO_DIS);
+                    rfm12_state = RF_TRVTXDONE;
+                    rfm12v_Pos = 0;
+                    return;
+                }
+
+                hal_rfm12_spiExch(RFM12_CMD_TX | ch);
+                rfm12v_Pos++;
+                return;
+            default:            // Unknown State
                 break;
-                #warning rfm12_irq RF_TRVTXHDR
         }
     }
 
@@ -314,19 +355,30 @@ void RFM12_Init(void)
     uint8_t     Channel;
     uint16_t    FR;
 
+    // Free Tx Queue
     MQ_t * pBuf;
     while((pBuf = mqDequeue(&rfm12_tx_queue)) != NULL)
         mqFree(pBuf);
+    
+    // Free Tx Buffer;
+    if(rfm12_pTxBuf != NULL)
+    {
+        mqFree(rfm12_pTxBuf);
+        rfm12_pTxBuf = NULL;
+    }
 
     // Load Device ID
     uint8_t Len = sizeof(uint8_t);
-    ReadOD(objRFNodeId, MQTTSN_FL_TOPICID_PREDEF,  &Len, &rfm12_NodeID);
+    ReadOD(objRFNodeId, MQTTSN_FL_TOPICID_PREDEF,  &Len, &rfm12_tx_hdr.Src);
     // Load Frequency channel
     ReadOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, &Len, &Channel);
     // Load Group ID(Synchro)
     Len = sizeof(uint16_t);
-    ReadOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF,  &Len, (uint8_t *)&rfm12_GroupID);
-
+    uint16_t Group;
+    ReadOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF,  &Len, (uint8_t *)&Group);
+    rfm12_tx_hdr.Group[0] = Group >> 8;
+    rfm12_tx_hdr.Group[1] = Group & 0xFF;
+    
 // 433 MHz
 #if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
     FR = 1200 + ((uint16_t)Channel * 10);
@@ -358,13 +410,11 @@ void RFM12_Init(void)
     hal_rfm12_spiExch(RFM12_CMD_FREQUENCY |     // Frequency Setting Command
                       FR);
     hal_rfm12_spiExch(RFM12_CMD_SYNCPATTERN |   // Synchro Pattern = 0x2D[grp]
-                     (rfm12_GroupID & 0xFF));
+                      rfm12_tx_hdr.Group[1]);
 
     rfm12_state = RF_TRVIDLE;
     hal_rfm12_spiExch(RFM12_IDLE_MODE);
-
-//    hal_rfm12_spi_fast();
-//    hal_rfm12_enable_irq();
+    hal_rfm12_enable_irq();
 }
 
 void RFM12_Send(void *pBuf)
@@ -375,32 +425,52 @@ void RFM12_Send(void *pBuf)
 
 void * RFM12_Get(void)
 {
-    if(rfm12_state == RF_TRVPOR)    // Power On Reset
+    static uint16_t wd_cnt = 0;
+    
+    switch(rfm12_state)
     {
-        RFM12_Init();
-    }
-    else if(rfm12_state == RF_TRVIDLE)
-    {
-        if(rfm12_pRxBuf == NULL)
-            rfm12_pRxBuf = mqAlloc(sizeof(MQ_t));
+        case RF_TRVPOR:     // Power On Reset
+            wd_cnt = 0;
+            RFM12_Init();
+            break;
+        case RF_TRVIDLE:
+            if(rfm12_pRxBuf == NULL)
+                rfm12_pRxBuf = mqAlloc(sizeof(MQ_t));
 
-        if(rfm12_pRxBuf != NULL)
-        {
-            rfm12_state = RF_TRVRXIDLE;
-            hal_rfm12_spiExch(RFM12_RECEIVE_MODE);
-            hal_rfm12_spiExch(RFM12_RXFIFO_ENA);
-        }
-    }
-    else if(rfm12_state == RF_TRVRXDONE)
-    {
-        MQ_t * pRetVal = rfm12_pRxBuf;
-        rfm12_pRxBuf = NULL;
-        rfm12_state = RF_TRVIDLE;
-        return pRetVal;
-    }
-    else if(rfm12_state == RF_TRVRXIDLE)
-    {
-        rfm12_tx_task();
+            if(rfm12_pRxBuf != NULL)
+            {
+                wd_cnt = 0;
+                rfm12_state = RF_TRVRXIDLE;
+                hal_rfm12_spiExch(RFM12_RECEIVE_MODE);
+                hal_rfm12_spiExch(RFM12_RXFIFO_ENA);
+            }
+            break;
+        case RF_TRVRXDONE:  // Rx Data Ready
+            {
+            wd_cnt = 0;
+            MQ_t * pRetVal = rfm12_pRxBuf;
+            rfm12_pRxBuf = NULL;
+            rfm12_state = RF_TRVIDLE;
+            return pRetVal;
+            }
+        case RF_TRVRXIDLE:
+            wd_cnt = 0;
+            rfm12_tx_task();
+            break;
+        case RF_TRVTXDONE:              // Data Sent
+            mqFree(rfm12_pTxBuf);
+            rfm12_pTxBuf = NULL;
+            rfm12_state = RF_TRVIDLE;
+            break;
+        default:
+            wd_cnt--;
+            if(wd_cnt == 0)
+            {
+                hal_rfm12_spiExch(RFM12_IDLE_MODE);
+                hal_rfm12_spiExch(RFM12_RXFIFO_DIS);
+                hal_rfm12_spiExch(RFM12_TXFIFO_DIS);
+                rfm12_state = RF_TRVIDLE;
+            }
     }
 
     return NULL;
@@ -408,7 +478,7 @@ void * RFM12_Get(void)
 
 void * RFM12_GetAddr(void)
 {
-    return &rfm12_NodeID;
+    return &rfm12_tx_hdr.Src;
 }
 
 #endif  //  RFM12_PHY

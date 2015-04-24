@@ -330,25 +330,6 @@ status bits will be clocked out on the SDO pin as follows:
 #define RFM12_STATUS_CRL 	0x0040  // CRL Clock recovery locked
 #define RFM12_STATUS_ATGL 	0x0020  // ATGL Toggling in each AFC cycle
 
-///////////////////////////////////////////////////////////////
-// Configuration settings
-
-// 433 MHz
-#if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
-#define RFM12_BAND          RFM12_BAND_433
-#define OD_DEFAULT_CHANNEL  ((RF_BASE_FREQ - 433000000UL)/25000)
-// 868 MHz
-#elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
-#define RFM12_BAND          RFM12_BAND_868
-#define OD_DEFAULT_CHANNEL  ((RF_BASE_FREQ - 868000000UL)/25000)
-// 915 MHz
-#elif (RF_BASE_FREQ > 902000000UL) && (RF_BASE_FREQ < 928000000UL)
-#define RFM12_BAND          RFM12_BAND_915
-#define OD_DEFAULT_CHANNEL  ((RF_BASE_FREQ - 902000000UL)/25000)
-#else
-#error  RF_BASE_FREQ does not belond to ISM band
-#endif  // RF_BASE_FREQ
-
 // Mode definition
 #define RFM12_SLEEP_MODE    (RFM12_CMD_PWRMGT | RFM12_PWRMGT_DC)
 #define RFM12_IDLE_MODE     (RFM12_CMD_PWRMGT | \
