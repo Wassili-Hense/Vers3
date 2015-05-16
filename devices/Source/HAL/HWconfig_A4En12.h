@@ -116,7 +116,7 @@ extern "C" {
 #undef OD_MAX_INDEX_LIST
 #endif	// OD_MAX_INDEX_LIST
 
-#define OD_MAX_INDEX_LIST			40
+#define OD_MAX_INDEX_LIST           40
 
 #include "AVR/hal.h"
 #include <util/delay.h>
@@ -142,6 +142,7 @@ extern "C" {
 #define EXTAIN_MAXPORT_NR           16           // ADC0-ADC15
 #define EXTAIN_BASE_2_APIN          {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,\
                                      0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}
+#define EXTAIN_BASE_2_DIO           {40,41,42,43,44,45,46,47,72,73,74,75,76,77,78,79}
 #define EXTAIN_REF                  0x0F        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 

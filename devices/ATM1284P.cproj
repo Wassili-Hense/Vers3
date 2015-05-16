@@ -144,6 +144,12 @@
     <Compile Include="Source\EXT\extdio.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\EXT\extpwm.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\EXT\extpwm.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\EXT\extser.c">
       <SubType>compile</SubType>
     </Compile>

@@ -16,6 +16,10 @@ See LICENSE file for license details.
 #ifdef EXTDIO_USED
 #include "EXT/extdio.h"
 
+#ifdef EXTPWM_USED
+#include "EXT/extpwm.h"
+#endif  //  EXTPWM_USED
+
 #ifdef EXTAIN_USED
 #include "EXT/extain.h"
 #endif  //  EXTAIN_USED
@@ -66,11 +70,12 @@ uint8_t extCheckIdx(subidx_t * pSubidx)
         case objDin:
         case objDout:
             return dioCheckIdx(pSubidx);
-/*
+
 #ifdef EXTPWM_USED
         case objPWM:
+            return pwmCheckIdx(pSubidx);
 #endif  //  EXTPWM_USED
-*/
+
 #ifdef EXTAIN_USED
         case objAin:
             return ainCheckIdx(pSubidx);
@@ -104,16 +109,17 @@ e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx)
         case objDin:        // Digital(bool) Input's
         case objDout:       // Digital(bool) Output's
             return dioRegisterOD(pIdx);
-#ifdef EXTAIN_USED
-        case objAin:        // Analog(int16_t) Input's
-            return ainRegisterOD(pIdx);
-#endif  //  EXTAIN_USED
-/*
+
 #ifdef EXTPWM_USED
         case objPWM:        // PWM
             return pwmRegisterOD(pIdx);
 #endif  //  EXTPWM_USED
-*/
+
+#ifdef EXTAIN_USED
+        case objAin:        // Analog(int16_t) Input's
+            return ainRegisterOD(pIdx);
+#endif  //  EXTAIN_USED
+
 #endif  //  EXTDIO_USED
 
 #ifdef EXTSER_USED
@@ -142,16 +148,18 @@ void extDeleteOD(subidx_t * pSubidx)
         case objDout:
             dioDeleteOD(pSubidx);
             break;
+
+#ifdef EXTPWM_USED
+        case objPWM:        // PWM
+            pwmDeleteOD(pSubidx);
+            break;
+#endif  //  EXTPWM_USED
+            
 #ifdef EXTAIN_USED
         case objAin:
             ainDeleteOD(pSubidx);
             break;
 #endif  //  EXTAIN_USED
-/*
-#ifdef EXTPWM_USED
-        case objPWM:
-#endif  //  EXTPWM_USED
-*/
 #endif  //  EXTDIO_USED
 
 #ifdef EXTSER_USED

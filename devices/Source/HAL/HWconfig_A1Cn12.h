@@ -138,4 +138,4 @@ extern "C" {
 }
 #endif
 
-#endif // HWCONFIG_A1SN12_H
+#endif // HWCONFIG_A1CN12_H

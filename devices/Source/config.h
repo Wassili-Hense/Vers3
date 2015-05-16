@@ -64,6 +64,8 @@ extern "C" {
 #include "HAL/HWconfig_A1Sn12.h"
 #elif   (defined CFG_A1SR11)        // RFM12 vers. 1.1
 #include "HAL/HWconfig_A1SR11.h"
+#elif   (defined CFG_A1RN11)        // RFM12 vers. 1.1, node
+#include "HAL/HWconfig_A1Rn11.h"
 // ATM1284P
 #elif   (defined CFG_A3SC12)        // UART + CC1101
 #include "HAL/HWconfig_A3SC12.h"
