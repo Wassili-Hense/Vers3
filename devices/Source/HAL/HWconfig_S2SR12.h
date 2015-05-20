@@ -76,9 +76,13 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#include "STM32/hal.h"
+#ifdef OD_MAX_INDEX_LIST
+#undef OD_MAX_INDEX_LIST
+#endif  // OD_MAX_INDEX_LIST
 
-#define DIAG_USED                   1       // Enable Diagnosis
+#define OD_MAX_INDEX_LIST           40
+
+#include "STM32/hal.h"
 
 // DIO Section
 #define EXTDIO_USED                 1

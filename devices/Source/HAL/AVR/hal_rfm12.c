@@ -11,7 +11,38 @@
 #define RF_SELECT()     RF_PORT &= ~(1<<RF_PIN_SS);
 #define RF_RELEASE()    RF_PORT |= (1<<RF_PIN_SS);
 
-void rfm12_irq(void);
+// HAL section
+void        hal_rfm12_enable_irq(void);
+
+void hal_rfm12_init_hw(void)
+{
+    // ToDo IRQ only for UNode.
+    // Disable IRQ
+#ifdef RFM12_INT0           // IRQ on INT0
+    EIMSK = 0;              // INT0 disable
+#else                       // IRQ On PCINT
+    PCMSK0 = 0;
+#endif  //  RFM12_INT0
+
+    // HW Initialise
+    PRR &= ~(1<<PRSPI);                                 // Enable SPI
+    RF_PORT |= (1<<RF_PIN_SS);
+    RF_DDR  |= (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) | (1<<RF_PIN_SS);
+    RF_DDR &= ~(1<<RF_PIN_MISO);
+
+    RF_IRQ_PORT |= RF_IRQ_PIN;
+
+#if (F_CPU <= 5000000UL)    // Prescaler = 2
+    SPCR = (1<<SPE) | (1<<MSTR);
+    SPSR = (1<<SPI2X);
+#elif (F_CPU <= 10000000UL) // Prescaler = 4
+    SPCR = (1<<SPE) | (1<<MSTR);
+    SPSR = 0;
+#else // FCPU <= 20M, Prescaler = 8
+    SPCR = (1<<SPE) | (1<<MSTR) | (1<<SPR0);
+    SPSR = (1<<SPI2X);
+#endif
+}
 
 // low level SPI exchange
 uint16_t hal_rfm12_spiExch(uint16_t data)
@@ -28,62 +59,39 @@ uint16_t hal_rfm12_spiExch(uint16_t data)
     return retval;
 }
 
-void hal_rfm12_init_hw(void)
-{
-    // ToDo IRQ only for UNode.
-
-    // HW Initialise
-    PRR &= ~(1<<PRSPI);                                 // Enable SPI
-    PCMSK0 = 0;                                         // Disable RF IRQ
-    RF_PORT |= (1<<RF_PIN_SS) | (1<<RF_PIN_IRQ);        // Init DIO
-    RF_DDR  |= (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) | (1<<RF_PIN_SS);
-    RF_DDR &= ~(1<<RF_PIN_MISO);
-    // Init SPI
-#if (F_CPU > 10000000UL)
-    SPCR = (1<<SPE) | (1<<MSTR) | (1<<SPR0);
-    SPSR = (1<<SPI2X);
-#else   //  (F_CPU <= 10000000UL)
-    SPCR = (1<<SPE) | (1<<MSTR);
-    SPSR = 0;
-#endif  //  (F_CPU > 10000000UL)
-
-    // HW End
-}
-
-void hal_rfm12_spi_fast(void)
-{
-#if (F_CPU > 10000000UL)
-    SPCR &= ~(1<<SPR0);
-#else   //  (F_CPU <= 10000000UL)
-    SPSR = (1<<SPI2X);
-#endif  //  (F_CPU > 10000000UL)
-}
-
-void hal_rfm12_spi_slow(void)
-{
-#if (F_CPU > 10000000UL)
-    SPCR |= (1<<SPR0);
-#else   //  (F_CPU <= 10000000UL)
-    SPSR = 0;
-#endif  //  (F_CPU > 10000000UL)
-}
-
 bool hal_rfm12_irq_stat(void)
 {
-    return ((RF_PIN & (1<<RF_PIN_IRQ)) == 0);
+    return ((RF_IRQ_PORT_PIN & (1<<RF_IRQ_PIN)) == 0);
 }
 
 void hal_rfm12_enable_irq(void)
 {
-    PCICR = (1<<PCIE0);                                 // Enable RF IRQ;
+#ifdef RFM12_INT0
+    EICRA = (0<<ISC00);
+    EIMSK = (1<<INT0);          // INT0 int enable
+#else           // IRQ On PBx
+    PCMSK0 = (1<<RF_IRQ_PIN);
+    PCICR = (1<<PCIE0);         // PCINTx int enable
+#endif  //  RFM12_INT0
 }
 
+// defined in rfm12_phy.c
+void rfm12_irq(void);
+
+
+#ifdef RFM12_INT0
+ISR(INT0_vect)
+{
+    rfm12_irq();
+}
+#else           // IRQ On PBx
 ISR(PCINT0_vect)
 {
-    if(RF_PIN & (1<<RF_PIN_IRQ))
+    if(RF_IRQ_PORT_PIN & (1<<RF_IRQ_PIN))
         return;
 
     rfm12_irq();
 }
+#endif  //  RFM12_INT0
 
 #endif  //  RFM12_PHY
