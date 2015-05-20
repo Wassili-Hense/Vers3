@@ -144,7 +144,7 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 
     SPIx->CRCPR =  7;
     SPIx->I2SCFGR &= (uint16_t)~((uint16_t)SPI_I2SCFGR_I2SMOD);
-    SPIx->CR1 |= SPI_CR1_SPE;       // SPIc enable
+    SPIx->CR1 |= SPI_CR1_SPE;       // SPI enable
 }
 
 uint8_t hal_spi_exch8(uint8_t port, uint8_t data)
