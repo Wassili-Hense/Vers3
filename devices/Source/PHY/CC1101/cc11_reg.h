@@ -134,6 +134,8 @@ enum e_CC11_IOCFG_GPO
     CC11_GDO_CHIP_RDYn      =   0x29,           // Chip Ready
     CC11_GDO_XOSC_STABLE    =   0x2B,
     CC11_GDO_DISABLE        =   0x2E,           // High impedance (3-state)
+    CC11_GDO_CLK_XOSC       =   0x30,           // Clock XOSC Out
+    CC11_GDO_CLK_XOSC_192   =   0x3F            // Clock XOSC/192 Out
 };
 
 /**

@@ -56,7 +56,7 @@ extern "C" {
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
 #define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB}
-#define EXTDIO_PORTNUM2MASK         {(uint16_t)0xE700, (uint16_t)0xFF3C}
+#define EXTDIO_PORTNUM2MASK         {(uint16_t)0xC700, (uint16_t)0xFF3C}
 // End DIO Section
 
 // PA0-PA7: 0 - 7
@@ -74,6 +74,12 @@ extern "C" {
 #define EXTSER_USED                 1
 #define EXTSER_PORT2UART            {1}
 // End UART Section
+
+// LED Section
+//#define LED2_On()                   GPIOA->BRR = GPIO_Pin_13
+//#define LED2_Off()                  GPIOA->BSRR = GPIO_Pin_13
+//#define LEDsInit()                  hal_dio_gpio_cfg(GPIOA, GPIO_Pin_13, DIO_MODE_OUT)
+// End LED Section
 
 // CC11 Section
 #define CC11_USE_SPI                11
