@@ -75,6 +75,10 @@ extern "C" {
 #define EXTSER_PORT2UART            {1}
 // End UART Section
 
+// TWI Section
+#define EXTTWI_USED                 1
+// End TWI Section
+
 // LED Section
 //#define LED2_On()                   GPIOA->BRR = GPIO_Pin_13
 //#define LED2_Off()                  GPIOA->BSRR = GPIO_Pin_13

@@ -5,84 +5,43 @@
 #include "../../EXT/exttwi.h"
 
 // Global variable defined in exttwi.c
-extern volatile TWI_FRAME_t * pTwi_exchange;
+extern volatile TWI_QUEUE_t * pTwi_exchange;
 
-#if (EXTTWI_USED == 2)
-bool hal_twi_configure(uint8_t enable)
-{
-    GPIO_InitTypeDef  GPIO_InitStructure;
-    I2C_InitTypeDef  I2C_InitStructure;
+// I2C1, PB6 - SCL, PB7 - SDA
 
-    if(enable)
-    {
-        // I2C2 clock enable
-        RCC->APB1ENR |= RCC_APB1ENR_I2C2EN;
-
-        // I2C2 SDA and SCL configuration
-        GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-        GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
-        GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-        GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
-        GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-        // Reset I2C2
-        RCC->APB1RSTR |= RCC_APB1RSTR_I2C2RST;
-        RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C2RST;
-
-        // I2C configuration
-        I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
-        I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-        I2C_InitStructure.I2C_OwnAddress1 = 1;
-        I2C_InitStructure.I2C_Ack = I2C_Ack_Disable;    //  I2C_Ack_Enable
-        I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-        I2C_InitStructure.I2C_ClockSpeed = 100000;
-        I2C_Init(I2C1, &I2C_InitStructure);
-    }
-    else
-    {
-        // Reset I2C2
-        RCC->APB1RSTR |= RCC_APB1RSTR_I2C2RST;
-        RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C2RST;
-    
-        // I2C2 clock disable
-        RCC->APB1ENR &= ~RCC_APB1ENR_I2C2EN;
-    }
-
-    return true;
-}
-
-void hal_twi_tick(void)
-{
-
-}
-
-#endif  //  (EXTTWI_USED == 2)
-
-/*
-// HAL
 bool hal_twi_configure(uint8_t enable)
 {
     if(enable)
     {
-        // Disable TWI
-        TWCR = (1<<TWINT);
-        // Set Speed
-        TWBR = (((F_CPU/100000UL)-16)/2);   // 100kHz
-        // Clear data register
-        TWDR = 0xFF;
-        // Enable TWI & Interrupt
-        TWCR = (1<<TWEN) | (1<<TWIE);
+        // Check GPIO
+        hal_dio_gpio_cfg(GPIOB, (GPIO_Pin_6 | GPIO_Pin_7), DIO_MODE_IN_FLOAT);  // Configure GPIO as floating inputs
+        if((GPIOB->IDR & (GPIO_IDR_6 | GPIO_IDR_7)) != (GPIO_IDR_6 | GPIO_IDR_7))
+            return false;
+
+        RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;     // Enable I2C clock
+        hal_dio_gpio_cfg(GPIOB, (GPIO_Pin_6 | GPIO_Pin_7), DIO_MODE_TWI);       // Configure GPIO
+
+        // Reset I2C1
+        RCC->APB1RSTR |= RCC_APB1RSTR_I2C1RST;
+        RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C1RST;
+
+        // Set Timings, RM0091, page 542
+        // I2C Clock = 48MHz
+        // I2C Bus = 100 KHz
+        I2C1->TIMINGR |= 0xB0420F13;
+        
+        // Enable I2C
+        I2C1->CR1 = I2C_CR1_PE;
     }
     else
     {
-        // Disable TWI
-        TWCR = (1<<TWINT);
-    }
+        // Reset I2C1
+        RCC->APB1RSTR |= RCC_APB1RSTR_I2C1RST;
+        RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C1RST;
 
-    if(TWIM_SCL_STAT() == 0)
-        return false;
+        hal_dio_gpio_cfg(GPIOB, (GPIO_Pin_6 | GPIO_Pin_7), DIO_MODE_IN_FLOAT);  // Release GPIO
+        RCC->APB1ENR &= ~RCC_APB1ENR_I2C1EN;    // Disable clock
+    }
 
     return true;
 }
@@ -91,36 +50,89 @@ void hal_twi_tick(void)
 {
     assert(pTwi_exchange != NULL);
 
-    static uint8_t twi_wd = 0;
+    uint8_t counter = 0;
+    uint8_t access = pTwi_exchange->frame.access;
 
-    uint8_t access = pTwi_exchange->access;
-    
-    if((access & 0xF8) == 0)
+    if((GPIOB->IDR & (GPIO_IDR_6 | GPIO_IDR_7)) != (GPIO_IDR_6 | GPIO_IDR_7))
+        return;
+
+    pTwi_exchange->frame.access |= TWI_BUSY;
+
+    // Clear Flags
+    I2C1->ICR |= (I2C_ICR_ARLOCF | I2C_ICR_BERRCF | I2C_ICR_STOPCF | I2C_ICR_NACKCF);
+
+    if(access & TWI_WRITE)
     {
-        twi_wd = 0;
-    }
-    else
-    {
-        twi_wd--;
-        if(twi_wd == 0) // Timeout
+        I2C1->CR2 = (uint32_t)(pTwi_exchange->frame.address << 1) | // Slave address
+                    ((uint32_t)(pTwi_exchange->frame.write) << 16); // Bytes to send
+
+        if((access & TWI_READ) == 0)
+            I2C1->CR2 |= I2C_CR2_AUTOEND;
+
+        // Send Start & address
+        I2C1->CR2 |= I2C_CR2_START;
+        while((I2C1->ISR & I2C_ISR_BUSY) == 0);
+
+        while(((I2C1->ISR & I2C_ISR_TXIS) == 0) &&      // Data register is not empty
+              ((I2C1->ISR & I2C_ISR_BUSY) != 0))
         {
-            pTwi_exchange->access |= TWI_WD;
-            if(access & TWI_BUSY)
+            if(I2C1->ISR & I2C_ISR_NACKF)               // NACK received
             {
-                TWCR &= ~((1<<TWEN) | (1<<TWSTO));
-                TWCR |= (1<<TWINT) | (1<<TWEN);
+                pTwi_exchange->frame.access |= TWI_SLANACK;
+                return;
             }
         }
+        
+        counter = 0;
+        while(counter < pTwi_exchange->frame.write)
+        {
+            uint32_t isr = I2C1->ISR & (I2C_ISR_BUSY | I2C_ISR_NACKF | I2C_ISR_TXIS);
+            if(isr == (I2C_ISR_BUSY | I2C_ISR_TXIS))    // Data Buffer empty
+                I2C1->TXDR = pTwi_exchange->frame.data[counter++];
+            else if(isr != I2C_ISR_BUSY)                // NACK received, or bus error
+                break;
+        }
+
+        pTwi_exchange->frame.write = counter;
+    }
+    
+    if(access & TWI_READ)
+    {
+        I2C1->CR2 = ((uint32_t)(pTwi_exchange->frame.address << 1) |    // Slave address
+                    ((uint32_t)pTwi_exchange->frame.read << 16) |       // Bytes to read
+                    I2C_CR2_RD_WRN | I2C_CR2_AUTOEND);                  // Read request
+
+        // Send Start & address
+        I2C1->CR2 |= I2C_CR2_START;
+        while((I2C1->ISR & I2C_ISR_BUSY) == 0);
+        
+        
+        counter = 0;
+        while(counter < pTwi_exchange->frame.read)
+        {
+            uint32_t isr = I2C1->ISR & (I2C_ISR_BUSY | I2C_ISR_NACKF | I2C_ISR_RXNE);
+            if(isr == (I2C_ISR_BUSY | I2C_ISR_RXNE))                    // Data ready
+            {
+                pTwi_exchange->frame.data[counter++] = I2C1->RXDR;
+            }
+            else if(isr != I2C_ISR_BUSY)
+                break;
+        }
+        pTwi_exchange->frame.read = counter;
     }
 
-    if(access & TWI_BUSY)
-        return;
+    pTwi_exchange->frame.access &= ~(TWI_BUSY | TWI_READ | TWI_WRITE);
+    pTwi_exchange->frame.access |= TWI_RDY;
+}
+
+/*
+void hal_twi_tick(void)
+{
+
 
     if(TWIM_SCL_STAT() != 0)    // Bus Free
     {
-        twi_wd = 0;
 
-        pTwi_exchange->access |= TWI_BUSY;
 
         TWCR = (1<<TWEN) |                      // TWI Interface enabled.
                (1<<TWIE) | (1<<TWINT) |         // Enable TWI Interrupt and clear the flag.

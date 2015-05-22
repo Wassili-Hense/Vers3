@@ -57,7 +57,7 @@
       <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
       <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="HW RESET"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
@@ -149,8 +149,8 @@
     <File name="cmsis_core/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
     <File name="Source/HAL/HWconfig_S2SC13.h" path="Source/HAL/HWconfig_S2SC13.h" type="1"/>
     <File name="stm32_lib/src/stm32f0xx_flash.c" path="stm32_lib/src/stm32f0xx_flash.c" type="1"/>
-    <File name="Source/mqttsn.c" path="Source/mqttsn.c" type="1"/>
     <File name="cmsis_boot/system_stm32f0xx_temp.c" path="cmsis_boot/system_stm32f0xx_temp.c" type="1"/>
+    <File name="Source/mqttsn.c" path="Source/mqttsn.c" type="1"/>
     <File name="cmsis_boot" path="" type="2"/>
     <File name="Source/mqMEM.c" path="Source/mqMEM.c" type="1"/>
     <File name="Source/PHY/UART" path="" type="2"/>
@@ -183,10 +183,10 @@
     <File name="Source/EXT/extdio.c" path="Source/EXT/extdio.c" type="1"/>
     <File name="cmsis_core/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
     <File name="Source/mqTypes.h" path="Source/mqTypes.h" type="1"/>
-    <File name="Source/diag.h" path="Source/diag.h" type="1"/>
     <File name="Source/PHY/CC1101/cc11_reg.h" path="Source/PHY/CC1101/cc11_reg.h" type="1"/>
-    <File name="stm32_lib" path="" type="2"/>
     <File name="Source/EXT/extain.c" path="Source/EXT/extain.c" type="1"/>
+    <File name="stm32_lib" path="" type="2"/>
+    <File name="Source/diag.h" path="Source/diag.h" type="1"/>
     <File name="Source/PHY/CC1101/cc11_phy.h" path="Source/PHY/CC1101/cc11_phy.h" type="1"/>
     <File name="Source/EXT/extser.h" path="Source/EXT/extser.h" type="1"/>
     <File name="Source/PHY/UART/uart_phy.c" path="Source/PHY/UART/uart_phy.c" type="1"/>

@@ -125,7 +125,8 @@ typedef enum
     // ARM Specific definition
     DIO_MODE_OUT_HS,
     DIO_MODE_SPI,
-    DIO_MODE_UART
+    DIO_MODE_UART,
+    DIO_MODE_TWI
 }eDIOmode_t;
 
 #ifdef __cplusplus
