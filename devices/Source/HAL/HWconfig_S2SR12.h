@@ -43,8 +43,8 @@ See LICENSE file for license details.
 //  19  PB3
 //  20  PB4
 //  21  PB5
-//  22  PB6
-//  23  PB7
+//  22  PB6     SCL1
+//  23  PB7     SDA1
 //  24  PB8
 //  25  PB9
 //  26  PB10
@@ -107,6 +107,10 @@ extern "C" {
 #define EXTSER_USED                 1
 #define EXTSER_PORT2UART            {0}
 // End UART Section
+
+// TWI Section
+#define EXTTWI_USED                 1
+// End TWI Section
 
 // RFM12 Section
 #define RFM12_USE_SPI                2   // 1 - SPI1 PA4-PA7, 2 - SPI2 PB12-PB15, PB11 - IRQ

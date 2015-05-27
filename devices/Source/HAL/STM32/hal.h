@@ -55,6 +55,22 @@ void halLeaveCritical(void);
 #define GPIO_Pin_14                ((uint16_t)0x4000)  /*!< Pin 14 selected */
 #define GPIO_Pin_15                ((uint16_t)0x8000)  /*!< Pin 15 selected */
 
+// GPIO Types
+typedef enum
+{
+    DIO_MODE_IN_FLOAT = 0,
+    DIO_MODE_IN_PD,
+    DIO_MODE_IN_PU,
+    DIO_MODE_OUT,
+    DIO_MODE_PWM,
+    DIO_MODE_AIN,
+    
+    DIO_MODE_OUT_HS,
+    DIO_MODE_SPI,
+    DIO_MODE_UART,
+    DIO_MODE_TWI
+}eDIOmode_t;
+
 // Configure GPIO
 // External procedure defined in hal_dio.c
 void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode);

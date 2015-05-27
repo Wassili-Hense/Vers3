@@ -43,12 +43,12 @@ See LICENSE file for license details.
 //  19  PB3
 //  20  PB4
 //  21  PB5
-//  22  PB6
-//  23  PB7
+//  22  PB6     SCL1
+//  23  PB7     SDA1
 //  24  PB8
 //  25  PB9
-//  26  PB10
-//  27  PB11
+//  26  PB10    SCL2
+//  27  PB11    SDA2
 //  28  PB12    SPI2_NSS
 //  29  PB13    SPI2_SCK
 //  30  PB14    SPI2_MISO
@@ -108,6 +108,10 @@ extern "C" {
 #define EXTSER_USED                 1
 #define EXTSER_PORT2UART            {1}
 // End UART Section
+
+// TWI Section
+#define EXTTWI_USED                 1       // I2C_Bus 1 - I2C1, 2 - I2C2
+// End TWI Section
 
 // CC11 Section
 #define CC11_ANAREN                 1

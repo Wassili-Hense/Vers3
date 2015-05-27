@@ -28,6 +28,18 @@ extern "C" {
 #define portPOINTER_SIZE_TYPE       uintptr_t
 #define configTOTAL_HEAP_SIZE       1024
 
+// GPIO Types
+typedef enum
+{
+    DIO_MODE_IN_FLOAT = 0,
+    DIO_MODE_IN_PD,
+    DIO_MODE_IN_PU,
+    DIO_MODE_OUT,
+    DIO_MODE_PWM,
+    DIO_MODE_AIN,
+    DIO_MODE_TWI
+}eDIOmode_t;
+
 uint16_t halRNG();
 
 #ifdef __cplusplus
