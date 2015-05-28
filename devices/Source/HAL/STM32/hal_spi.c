@@ -20,7 +20,7 @@
 #define SPI3_MISO_PIN               GPIO_Pin_4
 #define SPI3_MOSI_PIN               GPIO_Pin_5
 
-#define DIO_MODE_SPI                DIO_MODE_AF_PP_MS
+#define DIO_MODE_SPI                DIO_MODE_AF_PP_HS
 
 /*
         Config 1                Config 2           

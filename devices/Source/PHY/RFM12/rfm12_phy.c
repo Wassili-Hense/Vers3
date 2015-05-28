@@ -148,14 +148,14 @@ void rfm12_irq(void)
     uint16_t intstat = hal_rfm12_spiExch(0);
     uint8_t ch;
     
-    if(intstat & RFM12_STATUS_POR)          // Power-on reset
+    if(intstat & (uint16_t)RFM12_STATUS_POR)          // Power-on reset
     {
         hal_rfm12_spiExch(RFM12_SLEEP_MODE);
         rfm12_state = RF_TRVPOR;
         return;
     }
     
-    if(intstat & RFM12_STATUS_RGIT)         // Rx/Tx FIFO events
+    if(intstat & (uint16_t)RFM12_STATUS_RGIT)         // Rx/Tx FIFO events
     {
         switch(rfm12_state)
         {

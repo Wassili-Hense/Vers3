@@ -71,12 +71,12 @@ void halLeaveCritical(void);
 #define DIO_MODE_IN_PD              0x02
 #define DIO_MODE_OUT_PP             0x08
 #define DIO_MODE_OUT_OD             0x0C
-#define DIO_MODE_OUT_PP_MS          0x28    // Output, push-pull, medium speed
+#define DIO_MODE_OUT_PP_HS          0x68    // Output, push-pull, high speed
 #define DIO_MODE_AF_PP              0x10
 #define DIO_MODE_AF_PU              0x11
 #define DIO_MODE_AF_PD              0x12
 #define DIO_MODE_AF_OD              0x14
-#define DIO_MODE_AF_PP_MS           0x30    // Alternative function, Push/pull, medium speed
+#define DIO_MODE_AF_PP_HS           0x70    // Alternative function, Push/pull, high speed
 #define DIO_MODE_AIN                0x18
 
 // Configure GPIO
