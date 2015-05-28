@@ -5,7 +5,7 @@
 void hal_enc28j60_init_hw(void)
 {
     // ENC_NSS_PIN
-    hal_dio_gpio_cfg(ENC_NSS_PORT, ENC_NSS_PIN, DIO_MODE_OUT_HS);
+    hal_dio_gpio_cfg(ENC_NSS_PORT, ENC_NSS_PIN, DIO_MODE_OUT_PP_MS);
     ENC_NSS_PORT->BSRR = ENC_NSS_PIN;
 
     // Configure SPI and SPI Pins

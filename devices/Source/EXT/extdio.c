@@ -48,7 +48,7 @@ static DIO_PORT_TYPE dio_change_flag[EXTDIO_MAXPORT_NR];
 DIO_PORT_TYPE dio_status[EXTDIO_MAXPORT_NR];
 
 // DIO HAL
-void hal_dio_configure(uint8_t PortNr, DIO_PORT_TYPE Mask, eDIOmode_t Mode);
+void hal_dio_configure(uint8_t PortNr, DIO_PORT_TYPE Mask, uint16_t Mode);
 DIO_PORT_TYPE hal_dio_read(uint8_t PortNr);
 void hal_dio_set(uint8_t PortNr, DIO_PORT_TYPE Mask);
 void hal_dio_reset(uint8_t PortNr, DIO_PORT_TYPE Mask);
@@ -177,7 +177,7 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
     if(pIdx->sidx.Place == objDout)
     {
         pIdx->cbWrite = &dioWriteOD;
-        hal_dio_configure(port, mask, DIO_MODE_OUT);
+        hal_dio_configure(port, mask, DIO_MODE_OUT_PP);
         dio_write_mask[port] |= mask;
 
         if(pIdx->sidx.Type == objPinPNP)
@@ -280,7 +280,7 @@ void dioProc(void)
     }
 }
 
-void dioConfigure(uint16_t base, eDIOmode_t Mode)
+void dioConfigure(uint16_t base, uint16_t Mode)
 {
     uint8_t port = dioBase2Port(base);
     DIO_PORT_TYPE mask = dioBase2Mask(base);

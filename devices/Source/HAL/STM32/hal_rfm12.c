@@ -7,7 +7,7 @@ void hal_rfm12_init_hw(void)
     NVIC_DisableIRQ(RFM12_IRQ);
     
     // RFM12_NSS_PIN
-    hal_dio_gpio_cfg(RFM12_NSS_PORT, RFM12_NSS_PIN, DIO_MODE_OUT_HS);
+    hal_dio_gpio_cfg(RFM12_NSS_PORT, RFM12_NSS_PIN, DIO_MODE_OUT_PP_MS);
     RFM12_NSS_PORT->BSRR = RFM12_NSS_PIN;
     // RFM12_IRQ_PIN
     hal_dio_gpio_cfg(RFM12_IRQ_PORT, RFM12_IRQ_PIN, DIO_MODE_IN_PU);

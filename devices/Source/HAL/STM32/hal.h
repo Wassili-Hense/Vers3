@@ -37,6 +37,8 @@ void halLeaveCritical(void);
 #define portBYTE_ALIGNMENT          8
 #define configTOTAL_HEAP_SIZE       2048
 
+// GPIO Section
+
 // GPIO compatibility
 #define GPIO_Pin_0                 ((uint16_t)0x0001)  /*!< Pin 0 selected */
 #define GPIO_Pin_1                 ((uint16_t)0x0002)  /*!< Pin 1 selected */
@@ -55,25 +57,31 @@ void halLeaveCritical(void);
 #define GPIO_Pin_14                ((uint16_t)0x4000)  /*!< Pin 14 selected */
 #define GPIO_Pin_15                ((uint16_t)0x8000)  /*!< Pin 15 selected */
 
-// GPIO Types
-typedef enum
-{
-    DIO_MODE_IN_FLOAT = 0,
-    DIO_MODE_IN_PD,
-    DIO_MODE_IN_PU,
-    DIO_MODE_OUT,
-    DIO_MODE_PWM,
-    DIO_MODE_AIN,
-    
-    DIO_MODE_OUT_HS,
-    DIO_MODE_SPI,
-    DIO_MODE_UART,
-    DIO_MODE_TWI
-}eDIOmode_t;
+// DIO Modes
+// 11-8 bits:   AF number
+//  6-5 bits:   Low / Medium / Fast / High Speed
+//  4-3 bits:   Input / Output / AF / Analog
+//  2 bit:      Push-Pull / Open Drain
+//  0-1 bits:   Float / PullUp / PullDown
+
+#define DIO_AF_OFFS                 8
+
+#define DIO_MODE_IN_FLOAT           0x00
+#define DIO_MODE_IN_PU              0x01
+#define DIO_MODE_IN_PD              0x02
+#define DIO_MODE_OUT_PP             0x08
+#define DIO_MODE_OUT_OD             0x0C
+#define DIO_MODE_OUT_PP_MS          0x28    // Output, push-pull, medium speed
+#define DIO_MODE_AF_PP              0x10
+#define DIO_MODE_AF_PU              0x11
+#define DIO_MODE_AF_PD              0x12
+#define DIO_MODE_AF_OD              0x14
+#define DIO_MODE_AF_PP_MS           0x30    // Alternative function, Push/pull, medium speed
+#define DIO_MODE_AIN                0x18
 
 // Configure GPIO
 // External procedure defined in hal_dio.c
-void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode);
+void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode);
 
 // Configure EXTI
 // External procedure defined in hal_exti.c

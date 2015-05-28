@@ -4,7 +4,7 @@
 
 const uint16_t dio_portnum2port[]  = EXTDIO_PORTNUM2PORT;
 
-void hal_dio_configure(uint8_t PortNr, uint8_t Mask, eDIOmode_t Mode)
+void hal_dio_configure(uint8_t PortNr, uint8_t Mask, uint16_t Mode)
 {
     uint16_t base = dio_portnum2port[PortNr];
 
@@ -19,8 +19,8 @@ void hal_dio_configure(uint8_t PortNr, uint8_t Mask, eDIOmode_t Mode)
             *pPORT |= Mask;
             *pDDR  &= ~Mask;
             break;
-        case DIO_MODE_OUT:
-        case DIO_MODE_PWM:
+        case DIO_MODE_OUT_PP:
+//        case DIO_MODE_PWM:
             *pDDR  |= Mask;
             break;
         default:

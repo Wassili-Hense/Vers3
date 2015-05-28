@@ -1,10 +1,15 @@
 #include "../../config.h"
 
-void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode)
+void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
 {
     uint16_t pinpos;
     uint32_t pos;
-    uint32_t afr = 0;
+    
+    uint32_t pupd = Mode & 0x03;            // Float / Pull-Up / Pull-Down
+    uint32_t ppod = (Mode & 0x04) >> 2;     // Push-Pull / Open Drain
+    uint32_t mod  = (Mode & 0x18) >> 3;     // Input / Output / AF / Analog
+    uint32_t spd  = (Mode & 0x60) >> 5;     // Low / Medim / Fast / High Speed
+    uint32_t afr  = (Mode & 0x0F00) >> 8;   // Alternative function
     
     for(pinpos = 0; pinpos < 0x10; pinpos++)
     {
@@ -22,25 +27,15 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode)
             GPIOx->MODER  &= ~(GPIO_MODER_MODER0 << pos);
             // without PullUp/Down
             GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPDR0 << pos);
+            
+            GPIOx->PUPDR |= pupd << pos;
+            GPIOx->OTYPER |= ppod << pinpos;    
+            GPIOx->MODER |= mod << pos;        
+            GPIOx->OSPEEDR |= spd << pos;      
 
+/*
             switch(Mode)
             {
-                case DIO_MODE_IN_PU:            // Pull Up
-                    GPIOx->PUPDR |= (GPIO_PUPDR_PUPDR0_0 << pos);
-                    break;
-
-                case DIO_MODE_IN_PD:            // Pull Down
-                    GPIOx->PUPDR |= (GPIO_PUPDR_PUPDR0_1 << pos);
-                    break;
-
-                case DIO_MODE_OUT:              // General purpose output
-                    GPIOx->MODER |= (GPIO_MODER_MODER0_0 << pos);
-                    break;
-                    
-                case DIO_MODE_AIN:              // Analog Mode
-                    GPIOx->MODER |= (GPIO_MODER_MODER0 << pos);
-                    break;
-
                 case DIO_MODE_OUT_HS:           // General purpose output, High Speed
                     GPIOx->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR0 << pos);      // High Speed
                     GPIOx->MODER |= (GPIO_MODER_MODER0_0 << pos);
@@ -69,6 +64,7 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode)
                 default:                        // Input float
                     break;
             }
+*/
             
             // Set Alternative function
             if(pinpos < 8)              // AFR0
@@ -87,6 +83,8 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode)
 #elif (defined __STM32F10x_H)
             uint32_t gpio_cr;
 
+#error Changed Mode
+/*
             switch(Mode)
             {
                 case DIO_MODE_IN_PU:            // Pull Up
@@ -139,6 +137,7 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint8_t Mode)
                 GPIOx->CRH &= ~(((uint32_t)0x0F) << pos);
                 GPIOx->CRH |= gpio_cr;
             }
+*/
 #endif
         }
     }
@@ -156,7 +155,7 @@ static GPIO_TypeDef * dioPortNr2GPIOx(uint8_t PortNr)
     return NULL;
 }
 
-void hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint8_t Mode)
+void hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint16_t Mode)
 {
     GPIO_TypeDef * GPIOx = dioPortNr2GPIOx(PortNr);
     if(GPIOx == NULL)

@@ -5,7 +5,7 @@
 void hal_cc11_init_hw(void)
 {
     // CC11_NSS_PIN
-    hal_dio_gpio_cfg(CC11_NSS_PORT, CC11_NSS_PIN, DIO_MODE_OUT_HS);
+    hal_dio_gpio_cfg(CC11_NSS_PORT, CC11_NSS_PIN, DIO_MODE_OUT_PP_MS);
     CC11_NSS_PORT->BSRR = CC11_NSS_PIN;
     
     hal_spi_cfg(CC11_USE_SPI, (HAL_SPI_MODE_0 | HAL_SPI_MSB | HAL_SPI_8B), 6500000UL);

@@ -114,7 +114,7 @@ extern "C" {
 // LEDs
 #define LED1_On()                   GPIOC->BSRR = GPIO_BSRR_BS_8
 #define LED1_Off()                  GPIOC->BSRR = GPIO_BSRR_BR_8
-#define LEDsInit()                  hal_dio_gpio_cfg(GPIOC, GPIO_Pin_8, DIO_MODE_OUT)
+#define LEDsInit()                  hal_dio_gpio_cfg(GPIOC, GPIO_Pin_8, DIO_MODE_OUT_PP)
 
 // ENC Section
 #define ENC_USE_SPI                 2   // 1 - SPI1 PA4-PA7, 2 - SPI2 PB12-PB15

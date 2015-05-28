@@ -37,7 +37,7 @@ int16_t ain_act_val[EXTAIN_MAXPORT_NR];
 
 // dio subroutines
 uint8_t dioCheckBase(uint16_t base);
-void dioConfigure(uint16_t base, eDIOmode_t Mode);
+void dioConfigure(uint16_t base, uint16_t Mode);
 
 // AIn HAL
 void hal_ain_select(uint8_t apin, uint8_t aref);

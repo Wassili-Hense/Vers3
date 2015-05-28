@@ -10,6 +10,8 @@ static volatile uint8_t twi_pnt = 0;
 
 #if (defined STM32F0XX_LD) || (defined STM32F0XX_MD)
 
+#define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)       // Alternative function, AF = 1, Open Drain
+
 #if (EXTTWI_USED == 1)
 // I2C1, PB6 - SCL, PB7 - SDA
 #define I2C_BUS         I2C1
@@ -31,12 +33,11 @@ bool hal_twi_configure(uint8_t enable)
     if(enable)
     {
         // Check GPIO
-        hal_dio_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_FLOAT);  // Configure GPIO as floating inputs
+        hal_dio_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_FLOAT);        // Configure GPIO as floating inputs
         if((GPIOB->IDR & (I2C_PIN_SCL | I2C_PIN_SDA)) != (I2C_PIN_SCL | I2C_PIN_SDA))
             return false;
 
-        hal_dio_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_TWI);       // Configure GPIO
-
+        hal_dio_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_TWI);             // Configure GPIO
 #if (EXTTWI_USED == 1)
         RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;     // Enable I2C clock
         RCC->CFGR3 |= RCC_CFGR3_I2C1SW;         // Use SysClk for I2C CLK

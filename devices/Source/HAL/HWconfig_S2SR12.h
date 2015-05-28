@@ -130,7 +130,7 @@ extern "C" {
 #define LED2_On()                   GPIOC->BSRR = GPIO_BSRR_BS_9
 #define LED2_Off()                  GPIOC->BSRR = GPIO_BSRR_BR_9
 
-#define LEDsInit()                  hal_dio_gpio_cfg(GPIOC, GPIO_Pin_8 | GPIO_Pin_8, DIO_MODE_OUT)
+#define LEDsInit()                  hal_dio_gpio_cfg(GPIOC, GPIO_Pin_8 | GPIO_Pin_8, DIO_MODE_OUT_PP)
 // End LEDs
 
 #define UART_PHY                    1
