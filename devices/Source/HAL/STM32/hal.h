@@ -23,6 +23,8 @@ extern "C" {
       defined (STM32F10X_HD) || defined (STM32F10X_HD_VL) || \
       defined (STM32F10X_XL) || defined (STM32F10X_CL) 
 #include "stm32f10x.h"
+#elif defined (STM32F4XX)
+#include "stm32f4xx.h"
 #endif  //  uC Familie
 
 void INIT_SYSTEM(void);

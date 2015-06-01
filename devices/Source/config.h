@@ -52,32 +52,18 @@ extern "C" {
 // Include Hardware definitions
 // Atmel
 // ATM328P
-#if     (defined CFG_A1Cn12)        // CC1101
-#include "HAL/HWconfig_A1Cn12.h"
-#elif   (defined CFG_A1En12)        // ENC28J60
-#include "HAL/HWconfig_A1En12.h"
-#elif   (defined CFG_A1ES12)        // ENC28J60 + UART
-#include "HAL/HWconfig_A1ES12.h"
-#elif   (defined CFG_A1SC12)        // UART + CC1101
-#include "HAL/HWconfig_A1SC12.h"
-#elif   (defined CFG_A1Sn12)        // UART
-#include "HAL/HWconfig_A1Sn12.h"
-#elif   (defined CFG_A1SR11)        // RFM12 vers. 1.1
-#include "HAL/HWconfig_A1SR11.h"
-#elif   (defined CFG_A1RN11)        // RFM12 vers. 1.1, node
-#include "HAL/HWconfig_A1Rn11.h"
-// ATM1284P
-#elif   (defined CFG_A3SC12)        // UART + CC1101
-#include "HAL/HWconfig_A3SC12.h"
-#elif   (defined CFG_A3Sn12)        // UART
-#include "HAL/HWconfig_A3Sn12.h"
-// ATM2560
-#elif   (defined CFG_A4En12)
-#include "HAL/HWconfig_A4En12.h"    // ENC28J60
-#elif   (defined CFG_A4ES12)
-#include "HAL/HWconfig_A4ES12.h"    // ENC28J60 + UART
-#elif   (defined CFG_A4Sn12)
-#include "HAL/HWconfig_A4Sn12.h"    // UART
+#if (defined __AVR_MEGA__)
+#include "HAL/HW_ATMega.h"
+#elif (defined STM32F0XX_MD)
+#include "HAL/HW_STM32F0.h"
+#elif (defined STM32F4XX)
+#include "HAL/HW_STM32F4.h"
+#else
+#error unknown uC
+#endif
+
+/*
+
 // STM32F051R8T6
 #elif   (defined CFG_S2En12)
 #include "HAL/HWconfig_S2En12.h"    // ENC28J60
@@ -100,6 +86,7 @@ extern "C" {
 #else
 #error Undefined configuration
 #endif  //  Configuration
+*/
 
 #include "mqMEM.h"
 #include "mqTypes.h"
