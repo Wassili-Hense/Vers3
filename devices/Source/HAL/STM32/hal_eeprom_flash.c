@@ -17,25 +17,38 @@
 
 #if ((defined STM32F051R8) || (defined STM32F051K8) || (defined STM32F103R8))
 
-#define FEE_BASE_ADDRESS          (uint32_t)0x0800F000    // Base for 'EEPROM'
-#define FEE_SECTOR_SIZE           (uint32_t)0x00000400    // Size of FLASH Sectors
+#define FEE_BASE_ADDRESS            (uint32_t)0x0800F000    // Base for 'EEPROM'
+#define FEE_SECTOR_SIZE             (uint32_t)0x00000400    // Size of FLASH Sectors
 
-#define FEE_EEPROM_SIZE           (uint32_t)0x00000800    // Size of 'EEPROM'
-#define FEE_MIRROR_NUMBER         (uint8_t)2
+#define FEE_EEPROM_SIZE             (uint32_t)0x00000800    // Size of 'EEPROM'
+#define FEE_MIRROR_NUMBER           (uint8_t)2
 
 #elif ((defined STM32F103RB) || (defined STM32F100RB))
 
-#define FEE_BASE_ADDRESS          (uint32_t)0x0801F000    // Base for 'EEPROM'
-#define FEE_SECTOR_SIZE           (uint32_t)0x00000400    // Size of FLASH Sectors
+#define FEE_BASE_ADDRESS            (uint32_t)0x0801F000    // Base for 'EEPROM'
+#define FEE_SECTOR_SIZE             (uint32_t)0x00000400    // Size of FLASH Sectors
 
-#define FEE_EEPROM_SIZE           (uint32_t)0x00000800    // Size of 'EEPROM'
-#define FEE_MIRROR_NUMBER         (uint8_t)2
+#define FEE_EEPROM_SIZE             (uint32_t)0x00000800    // Size of 'EEPROM'
+#define FEE_MIRROR_NUMBER           (uint8_t)2
+
+#elif (defined STM32F401RE)
+
+#define FEE_BASE_ADDRESS            (uint32_t)0x08020000    // Base for 'EEPROM'
+#define FEE_SECTOR_SIZE             (uint32_t)0x00020000    // Size of FLASH Sectors
+
+#define FEE_EEPROM_SIZE             (uint32_t)0x00020000    // Size of 'EEPROM'
+#define FEE_MIRROR_NUMBER           (uint8_t)2
+
+#define FLASH_FLAG_PGERR            (FLASH_FLAG_OPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR)
+
+#define FLASH_ErasePage(page)       FLASH_EraseSector(page, VoltageRange_3)
 
 #endif
-
+/*
 #ifndef FLASH_FLAG_WRPERR
 #define FLASH_FLAG_WRPERR FLASH_FLAG_WRPRTERR
 #endif  //  FLASH_FLAG_WRPERR
+*/
 
 #define FEE_SECTORS               (uint16_t)(FEE_EEPROM_SIZE / FEE_SECTOR_SIZE)
 

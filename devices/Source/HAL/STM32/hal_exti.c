@@ -1,5 +1,5 @@
 #include "../../config.h"
-
+/*
 void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger)
 {
 
@@ -82,3 +82,4 @@ void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger)
     else
         EXTI->RTSR &= ~u32_tmp;
 }
+*/

@@ -64,20 +64,7 @@ extern "C" {
 
 /*
 
-// STM32F051R8T6
-#elif   (defined CFG_S2En12)
-#include "HAL/HWconfig_S2En12.h"    // ENC28J60
-#elif   (defined CFG_S2SC12)
-#include "HAL/HWconfig_S2SC12.h"    // UART + CC1101
-#elif   (defined CFG_S2Sn12)
-#include "HAL/HWconfig_S2Sn12.h"    // UART
-#elif   (defined CFG_S2SR12)
-#include "HAL/HWconfig_S2SR12.h"    // UART + RFM12
-// STM32F051K8T6
-#elif   (defined CFG_S2CN13)
-#include "HAL/HWconfig_S2CN13.h"    // CC1101
-#elif   (defined CFG_S2SC13)
-#include "HAL/HWconfig_S2SC13.h"    // UART + CC1101
+
 // STM32F10x
 #elif   (defined CFG_S3En12)
 #include "HAL/HWconfig_S3En12.h"    // ENC28J60

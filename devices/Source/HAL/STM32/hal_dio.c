@@ -16,7 +16,7 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
         pos = ((uint32_t)0x01) << pinpos;
         if(Mask & pos)
         {
-#if (defined __STM32F0XX_H)
+#if (defined __STM32F0XX_H) || (defined STM32F4XX)
             pos = pinpos << 1;
 
             // Low Speed
@@ -33,39 +33,6 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
             GPIOx->MODER |= mod << pos;        
             GPIOx->OSPEEDR |= spd << pos;      
 
-/*
-            switch(Mode)
-            {
-                case DIO_MODE_OUT_HS:           // General purpose output, High Speed
-                    GPIOx->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR0 << pos);      // High Speed
-                    GPIOx->MODER |= (GPIO_MODER_MODER0_0 << pos);
-                    break;
-
-                case DIO_MODE_SPI:              // Alternate functions 0, SPI
-                    GPIOx->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR0 << pos);      // High Speed
-                    GPIOx->MODER   |= (GPIO_MODER_MODER0_1 << pos);         // Alternate function mode
-                    break;
-
-                case DIO_MODE_UART:             // Alternate functions 1, UART
-                    GPIOx->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR0 << pos);      // High Speed
-                    GPIOx->MODER   |= (GPIO_MODER_MODER0_1 << pos);         // Alternate function mode
-                    afr = 1;
-                    break;
-
-                case DIO_MODE_TWI:              // Alternate functions 1, I2C
-                    GPIOx->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR0 << pos);      // High Speed
-                    GPIOx->MODER   |= (GPIO_MODER_MODER0_1 << pos);         // Alternate function mode
-                    GPIOx->OTYPER  |= ((GPIO_OTYPER_OT_0) << pinpos);       // Open drain
-                    afr = 1;
-                    break;
-
-//                case DIO_MODE_IN_FLOAT:
-//                case DIO_MODE_PWM:
-                default:                        // Input float
-                    break;
-            }
-*/
-            
             // Set Alternative function
             if(pinpos < 8)              // AFR0
             {
