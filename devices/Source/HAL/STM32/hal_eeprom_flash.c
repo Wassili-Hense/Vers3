@@ -33,7 +33,7 @@
 
 #elif (defined STM32F401RE)
 
-#define FEE_BASE_ADDRESS            (uint32_t)0x08020000    // Base for 'EEPROM'
+#define FEE_BASE_ADDRESS            (uint32_t)0x08040000    // Base for 'EEPROM'
 #define FEE_SECTOR_SIZE             (uint32_t)0x00020000    // Size of FLASH Sectors
 
 #define FEE_EEPROM_SIZE             (uint32_t)0x00020000    // Size of 'EEPROM'
