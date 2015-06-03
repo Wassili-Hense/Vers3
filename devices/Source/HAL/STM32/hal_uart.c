@@ -18,7 +18,7 @@
     #define HAL_USART_RX_DATA           DR
     #define HAL_USART_TX_DATA           DR
 
-    #define DIO_MODE_UART               (7<<DIO_AF_OFFS) | DIO_MODE_AF_PP   // AF7
+    #define DIO_MODE_UART               (7<<DIO_AF_OFFS) | DIO_MODE_AF_PP_HS   // AF7
 #else
     #error unknown uC familie
 #endif  //  STM32

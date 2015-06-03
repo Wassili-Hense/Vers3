@@ -18,33 +18,40 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
         {
 #if (defined __STM32F0XX_H) || (defined STM32F4XX)
             pos = pinpos << 1;
-
-            // Low Speed
-            GPIOx->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR0 << pos);
-            // Output type - push/pull
-            GPIOx->OTYPER &= ~((GPIO_OTYPER_OT_0) << pinpos);
+        
             // default state input
             GPIOx->MODER  &= ~(GPIO_MODER_MODER0 << pos);
+            GPIOx->MODER |= mod << pos;
+            
+            if((mod == 1) || (mod == 2))
+            {
+                // Low Speed
+                GPIOx->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR0 << pos);
+                GPIOx->OSPEEDR |= spd << pos;
+
+                // Output type - push/pull
+                GPIOx->OTYPER &= ~((GPIO_OTYPER_OT_0) << pinpos);
+                GPIOx->OTYPER |= ppod << pinpos;
+            }
             // without PullUp/Down
             GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPDR0 << pos);
-            
             GPIOx->PUPDR |= pupd << pos;
-            GPIOx->OTYPER |= ppod << pinpos;    
-            GPIOx->MODER |= mod << pos;        
-            GPIOx->OSPEEDR |= spd << pos;      
 
-            // Set Alternative function
-            if(pinpos < 8)              // AFR0
+            if(mod == 2)
             {
-                pos = (pinpos << 2);
-                GPIOx->AFR[0] &= ~((uint32_t)0x0000000F << pos);
-                GPIOx->AFR[0] |= ((uint32_t)afr << pos);
-            }
-            else                        // AFR1
-            {
-                pos = ((pinpos - 8) << 2);
-                GPIOx->AFR[1] &= ~((uint32_t)0x0000000F << pos);
-                GPIOx->AFR[1] |= ((uint32_t)afr << pos);
+                // Set Alternative function
+                if(pinpos < 8)              // AFR0
+                {
+                    pos = (pinpos << 2);
+                    GPIOx->AFR[0] &= ~((uint32_t)0x0000000F << pos);
+                    GPIOx->AFR[0] |= ((uint32_t)afr << pos);
+                }
+                else                        // AFR1
+                {
+                    pos = ((pinpos - 8) << 2);
+                    GPIOx->AFR[1] &= ~((uint32_t)0x0000000F << pos);
+                    GPIOx->AFR[1] |= ((uint32_t)afr << pos);
+                }
             }
 
 #elif (defined __STM32F10x_H)
