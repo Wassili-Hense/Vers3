@@ -13,12 +13,14 @@
 #elif (defined __STM32F10x_H)
     #define HAL_USART_RX_DATA           DR
     #define HAL_USART_TX_DATA           DR
+    
+    #define DIO_MODE_UART               DIO_MODE_AF_PP
 
 #elif (defined STM32F4XX)
     #define HAL_USART_RX_DATA           DR
     #define HAL_USART_TX_DATA           DR
 
-    #define DIO_MODE_UART               (7<<DIO_AF_OFFS) | DIO_MODE_AF_PP_HS   // AF7
+    #define DIO_MODE_UART               (7<<DIO_AF_OFFS) | DIO_MODE_AF_PP   // AF7
 #else
     #error unknown uC familie
 #endif  //  STM32
@@ -48,11 +50,6 @@ static USART_TypeDef * hal_pUART[] =
             #else
                 NULL,
             #endif  //  USART2
-            #ifdef USART3
-                USART3
-            #else
-                NULL
-            #endif  //  USART3
             };
 
 static const uint16_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400};
@@ -61,7 +58,7 @@ static const uint16_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400};
 static inline void hal_uart_irq_handler(uint8_t port)
 {
     assert(hal_UARTv[port] != NULL);
-    
+
     uint8_t data;
     uint32_t itstat;
 #if (defined __STM32F0XX_H)                      // STM32F0
@@ -79,7 +76,7 @@ static inline void hal_uart_irq_handler(uint8_t port)
         return;
     }
 #endif  //  STM32
-    
+
     // Received data is ready to be read
     if(itstat & USART_CR1_RXNEIE)
     {
@@ -135,6 +132,8 @@ void hal_uart_deinit(uint8_t port)
             RCC->APB2RSTR &= ~RCC_APB2RSTR_USART1RST;
 
             RCC->APB2ENR  &= ~RCC_APB2ENR_USART1EN;     // Disable UART1 Clock
+
+            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9 | GPIO_Pin_10, DIO_MODE_IN_FLOAT);
             }
             break;
 #endif  //  USART1
@@ -148,6 +147,8 @@ void hal_uart_deinit(uint8_t port)
             RCC->APB1RSTR &= ~RCC_APB1RSTR_USART2RST;
 
             RCC->APB1ENR   &= ~RCC_APB1ENR_USART2EN;    // Disable UART2 Clock
+            
+            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2 | GPIO_Pin_3, DIO_MODE_IN_FLOAT);
             }
             break;
 #endif  //  USART2
@@ -180,39 +181,39 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
         case 0:
             {
             UARTx_IRQn = USART1_IRQn;
-            RCC->APB2ENR   |= RCC_APB2ENR_USART1EN;         // Enable UART1 Clock
+            RCC->APB2ENR   |= RCC_APB2ENR_USART1EN;                             // Enable UART1 Clock
 
 #if (defined __STM32F0XX_H)
             uart_clock = RCC_ClocksStatus.USART1CLK_Frequency;
-            hal_dio_gpio_cfg(GPIOA, (1<<9) | (1<<10), DIO_MODE_UART);   // PA9, PA10 - AF1
+            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9 | GPIO_Pin_10, DIO_MODE_UART);   // PA9, PA10 - AF1
 
 #elif (defined __STM32F10x_H)
             uart_clock = RCC_ClocksStatus.PCLK2_Frequency;
-            hal_dio_gpio_cfg(GPIOA, (1<<9), DIO_MODE_UART);             // PA9 - AF1
+            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9, DIO_MODE_UART);                 // PA9 - AF1
             
 #elif (defined STM32F4XX)
             uart_clock = RCC_ClocksStatus.PCLK2_Frequency;
-            hal_dio_gpio_cfg(GPIOA, (1<<9) | (1<<10), DIO_MODE_UART);   // PA9, PA10 - AF1
+            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9 | GPIO_Pin_10, DIO_MODE_UART);   // PA9, PA10 - AF1
+#endif  // uC
             }
-#endif
             break;
 #endif  //  USART1
 #ifdef USART2
         case 1:
             {
             UARTx_IRQn = USART2_IRQn;
-            RCC->APB1ENR   |= RCC_APB1ENR_USART2EN;         // Enable UART2 Clock
-            
+            RCC->APB1ENR   |= RCC_APB1ENR_USART2EN;                             // Enable UART2 Clock
+
 #if (defined __STM32F0XX_H)
             uart_clock = RCC_ClocksStatus.PCLK_Frequency;
-            hal_dio_gpio_cfg(GPIOA, (1<<2) | (1<<3), DIO_MODE_UART);   // PA2, PA3 - AF1
+            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2 | GPIO_Pin_3, DIO_MODE_UART);    // PA2, PA3 - AF1
 
 #elif (defined __STM32F10x_H)
             uart_clock = RCC_ClocksStatus.PCLK1_Frequency;
-            hal_dio_gpio_cfg(GPIOA, (1<<2), DIO_MODE_UART);            // PA2 - AF1, Tx
+            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2, DIO_MODE_UART);                 // PA2 - AF1, Tx
 #elif (defined STM32F4XX)
             uart_clock = RCC_ClocksStatus.PCLK1_Frequency;
-            hal_dio_gpio_cfg(GPIOA, (1<<2) | (1<<3), DIO_MODE_UART);   // PA2, PA3 - AF7
+            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2 | GPIO_Pin_3, DIO_MODE_UART);    // PA2, PA3 - AF7
 #endif
             }
             break;

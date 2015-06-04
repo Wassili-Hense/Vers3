@@ -42,7 +42,6 @@ APB1 clk = SystemCoreClock/4
 APB2 clk = SystemCoreClock/2
 */
 
-/*
 extern uint32_t SystemCoreClock;
 
 static SPI_TypeDef * hal_spi_port2spi(uint8_t port)
@@ -173,5 +172,3 @@ uint16_t hal_spi_exch16(uint8_t port, uint16_t data)
     while((SPIx->SR & SPI_SR_RXNE) == 0);
     return SPIx->DR;
 }
-
-*/

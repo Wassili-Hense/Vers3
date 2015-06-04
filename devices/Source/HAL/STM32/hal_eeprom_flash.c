@@ -31,6 +31,8 @@
 #define FEE_EEPROM_SIZE             (uint32_t)0x00000800    // Size of 'EEPROM'
 #define FEE_MIRROR_NUMBER           (uint8_t)2
 
+#define FLASH_FLAG_WRPERR FLASH_FLAG_WRPRTERR
+
 #elif (defined STM32F401RE)
 
 #define FEE_BASE_ADDRESS            (uint32_t)0x08040000    // Base for 'EEPROM'
@@ -44,11 +46,6 @@
 #define FLASH_ErasePage(page)       FLASH_EraseSector(page, VoltageRange_3)
 
 #endif
-/*
-#ifndef FLASH_FLAG_WRPERR
-#define FLASH_FLAG_WRPERR FLASH_FLAG_WRPRTERR
-#endif  //  FLASH_FLAG_WRPERR
-*/
 
 #define FEE_SECTORS               (uint16_t)(FEE_EEPROM_SIZE / FEE_SECTOR_SIZE)
 

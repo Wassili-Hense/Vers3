@@ -150,6 +150,7 @@
     <File name="stm32_lib/inc/stm32f10x_gpio.h" path="stm32_lib/inc/stm32f10x_gpio.h" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_hw.c" path="Source/PHY/ENC28J60/enc28j60_hw.c" type="1"/>
     <File name="Source/PHY/ENC28J60" path="" type="2"/>
+    <File name="Source/HAL/HWconfig_S3En12.h" path="Source/HAL/HWconfig_S3En12.h" type="1"/>
     <File name="Source/mqttsn.c" path="Source/mqttsn.c" type="1"/>
     <File name="cmsis_boot" path="" type="2"/>
     <File name="stm32_lib/inc/stm32f10x_rcc.h" path="stm32_lib/inc/stm32f10x_rcc.h" type="1"/>
@@ -170,8 +171,8 @@
     <File name="Source" path="" type="2"/>
     <File name="stm32_lib/inc/stm32f10x_flash.h" path="stm32_lib/inc/stm32f10x_flash.h" type="1"/>
     <File name="cmsis_boot/startup/startup_stm32f10x_md.c" path="cmsis_boot/startup/startup_stm32f10x_md.c" type="1"/>
-    <File name="Source/PHY/UART/uart_phy.h" path="Source/PHY/UART/uart_phy.h" type="1"/>
     <File name="Source/HAL/STM32/hal_spi.c" path="Source/HAL/STM32/hal_spi.c" type="1"/>
+    <File name="Source/PHY/UART/uart_phy.h" path="Source/PHY/UART/uart_phy.h" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_net.h" path="Source/PHY/ENC28J60/enc28j60_net.h" type="1"/>
     <File name="Source/HAL/STM32/hal_uart.c" path="Source/HAL/STM32/hal_uart.c" type="1"/>
     <File name="cmsis_boot/system_stm32f10x.c" path="cmsis_boot/system_stm32f10x.c" type="1"/>
@@ -188,18 +189,19 @@
     <File name="Source/PHY/ENC28J60/enc28j60_net.c" path="Source/PHY/ENC28J60/enc28j60_net.c" type="1"/>
     <File name="Source/EXT/extser.h" path="Source/EXT/extser.h" type="1"/>
     <File name="Source/PHY/UART/uart_phy.c" path="Source/PHY/UART/uart_phy.c" type="1"/>
+    <File name="Source/HAL/HW_STM32F1.h" path="Source/HAL/HW_STM32F1.h" type="1"/>
     <File name="Source/ObjDict.h" path="Source/ObjDict.h" type="1"/>
-    <File name="stm32_lib/inc" path="" type="2"/>
     <File name="Source/HAL/HWconfig_S3Sn12.h" path="Source/HAL/HWconfig_S3Sn12.h" type="1"/>
+    <File name="stm32_lib/inc" path="" type="2"/>
     <File name="Source/HAL/STM32/hal_eeprom_flash.c" path="Source/HAL/STM32/hal_eeprom_flash.c" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_phy.h" path="Source/PHY/ENC28J60/enc28j60_phy.h" type="1"/>
     <File name="stm_lib/src" path="" type="2"/>
     <File name="stm32_lib/src/stm32f10x_rcc.c" path="stm32_lib/src/stm32f10x_rcc.c" type="1"/>
-    <File name="cmsis" path="" type="2"/>
-    <File name="Source/HAL/STM32" path="" type="2"/>
     <File name="Source/mqMEM.h" path="Source/mqMEM.h" type="1"/>
-    <File name="Source/HAL/STM32/HAL.c" path="Source/HAL/STM32/HAL.c" type="1"/>
+    <File name="Source/HAL/STM32" path="" type="2"/>
+    <File name="cmsis" path="" type="2"/>
     <File name="stm_lib" path="" type="2"/>
+    <File name="Source/HAL/STM32/HAL.c" path="Source/HAL/STM32/HAL.c" type="1"/>
     <File name="Source/mqttsn.h" path="Source/mqttsn.h" type="1"/>
     <File name="Source/diag.c" path="Source/diag.c" type="1"/>
     <File name="cmsis_boot/system_stm32f10x.h" path="cmsis_boot/system_stm32f10x.h" type="1"/>
@@ -216,8 +218,8 @@
     <File name="Source/PHY/ENC28J60/enc28j60_phy.c" path="Source/PHY/ENC28J60/enc28j60_phy.c" type="1"/>
     <File name="Source/HAL/STM32/hal.h" path="Source/HAL/STM32/hal.h" type="1"/>
     <File name="Source/EXT/exttwi.c" path="Source/EXT/exttwi.c" type="1"/>
-    <File name="Source/HAL/STM32/hal_ain.c" path="Source/HAL/STM32/hal_ain.c" type="1"/>
     <File name="stm_lib/inc" path="" type="2"/>
+    <File name="Source/HAL/STM32/hal_ain.c" path="Source/HAL/STM32/hal_ain.c" type="1"/>
     <File name="stm32_lib/src" path="" type="2"/>
   </Files>
 </Project>

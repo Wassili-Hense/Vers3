@@ -8,7 +8,7 @@ void hal_rfm12_init_hw(void)
     
     // RFM12_NSS_PIN
     hal_dio_gpio_cfg(RFM12_NSS_PORT, RFM12_NSS_PIN, DIO_MODE_OUT_PP_HS);
-    RFM12_NSS_PORT->BSRR = RFM12_NSS_PIN;
+    hal_gpio_set(RFM12_NSS_PORT, RFM12_NSS_PIN);
     // RFM12_IRQ_PIN
     hal_dio_gpio_cfg(RFM12_IRQ_PORT, RFM12_IRQ_PIN, DIO_MODE_IN_PU);
 
@@ -17,9 +17,9 @@ void hal_rfm12_init_hw(void)
 
 uint16_t hal_rfm12_spiExch(uint16_t data)
 {
-    RFM12_NSS_PORT->BSRR = (RFM12_NSS_PIN<<16);
+    hal_gpio_reset(RFM12_NSS_PORT, RFM12_NSS_PIN);
     data = hal_spi_exch16(RFM12_USE_SPI, data);
-    RFM12_NSS_PORT->BSRR = RFM12_NSS_PIN;
+    hal_gpio_set(RFM12_NSS_PORT, RFM12_NSS_PIN);
     return data;
 }
 

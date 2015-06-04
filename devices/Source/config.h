@@ -56,24 +56,13 @@ extern "C" {
 #include "HAL/HW_ATMega.h"
 #elif (defined STM32F0XX_MD)
 #include "HAL/HW_STM32F0.h"
+#elif (defined STM32F10X_MD)
+#include "HAL/HW_STM32F1.h"
 #elif (defined STM32F4XX)
 #include "HAL/HW_STM32F4.h"
 #else
-#error unknown uC
+#error unknown uC Familie
 #endif
-
-/*
-
-
-// STM32F10x
-#elif   (defined CFG_S3En12)
-#include "HAL/HWconfig_S3En12.h"    // ENC28J60
-#elif   (defined CFG_S3Sn12)
-#include "HAL/HWconfig_S3Sn12.h"    // UART
-#else
-#error Undefined configuration
-#endif  //  Configuration
-*/
 
 #include "mqMEM.h"
 #include "mqTypes.h"

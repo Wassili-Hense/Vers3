@@ -120,11 +120,11 @@
     <File name="Source/EXT/extdio.c" path="Source/EXT/extdio.c" type="1"/>
     <File name="stm32_lib/src/stm32f4xx_rcc.c" path="stm32_lib/src/stm32f4xx_rcc.c" type="1"/>
     <File name="Source/mqTypes.h" path="Source/mqTypes.h" type="1"/>
-    <File name="Source/diag.h" path="Source/diag.h" type="1"/>
-    <File name="Source/PHY/CC1101/cc11_reg.h" path="Source/PHY/CC1101/cc11_reg.h" type="1"/>
-    <File name="stm32_lib" path="" type="2"/>
     <File name="Source/EXT/extain.c" path="Source/EXT/extain.c" type="1"/>
     <File name="Source/EXT/extpwm.h" path="Source/EXT/extpwm.h" type="1"/>
+    <File name="stm32_lib" path="" type="2"/>
+    <File name="Source/diag.h" path="Source/diag.h" type="1"/>
+    <File name="Source/PHY/CC1101/cc11_reg.h" path="Source/PHY/CC1101/cc11_reg.h" type="1"/>
     <File name="Source/PHY/CC1101/cc11_phy.h" path="Source/PHY/CC1101/cc11_phy.h" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_net.c" path="Source/PHY/ENC28J60/enc28j60_net.c" type="1"/>
     <File name="Source/EXT/extser.h" path="Source/EXT/extser.h" type="1"/>

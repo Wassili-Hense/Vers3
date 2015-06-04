@@ -1,16 +1,28 @@
 #include "../../config.h"
 
+#if (defined __STM32F0XX_H) || (defined __STM32F10x_H)
+void hal_gpio_set(GPIO_TypeDef * GPIOx, uint16_t Mask)   {GPIOx->BSRR = Mask;}
+void hal_gpio_reset(GPIO_TypeDef * GPIOx, uint16_t Mask) {GPIOx->BRR = Mask;}
+#elif (defined STM32F4XX)
+void hal_gpio_set(GPIO_TypeDef * GPIOx, uint16_t Mask)   {GPIOx->BSRRL = Mask;}
+void hal_gpio_reset(GPIO_TypeDef * GPIOx, uint16_t Mask) {GPIOx->BSRRH = Mask;}
+#else
+#error unknown uC Familie
+#endif
+
 void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
 {
     uint16_t pinpos;
     uint32_t pos;
     
+#if (defined __STM32F0XX_H) || (defined STM32F4XX)
     uint32_t pupd = Mode & 0x03;            // Float / Pull-Up / Pull-Down
     uint32_t ppod = (Mode & 0x04) >> 2;     // Push-Pull / Open Drain
     uint32_t mod  = (Mode & 0x18) >> 3;     // Input / Output / AF / Analog
     uint32_t spd  = (Mode & 0x60) >> 5;     // Low / Medim / Fast / High Speed
     uint32_t afr  = (Mode & 0x0F00) >> 8;   // Alternative function
-    
+#endif
+
     for(pinpos = 0; pinpos < 0x10; pinpos++)
     {
         pos = ((uint32_t)0x01) << pinpos;
@@ -56,45 +68,40 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
 
 #elif (defined __STM32F10x_H)
             uint32_t gpio_cr;
-
-#error Changed Mode
-/*
+        
             switch(Mode)
             {
-                case DIO_MODE_IN_PU:            // Pull Up
+                case DIO_MODE_IN_PU:
                     gpio_cr = GPIO_CRL_CNF0_1;  // Input with pull-up / pull-down
                     GPIOx->BSRR = pos;
                     break;
-
-                case DIO_MODE_IN_PD:            // Pull Down
+                case DIO_MODE_IN_PD:
                     gpio_cr = GPIO_CRL_CNF0_1;  // Input with pull-up / pull-down
                     GPIOx->BRR = pos;
                     break;
-
-                case DIO_MODE_OUT:              // General purpose output
+                case DIO_MODE_OUT_PP:
                     gpio_cr = GPIO_CRL_MODE0_1; // General purpose output push-pull, Low Speed (2MHz)
                     break;
-
-                case DIO_MODE_OUT_HS:           // General purpose output, High Speed
-                    gpio_cr = GPIO_CRL_MODE0;   // General purpose output push-pull, High Speed(50MHz)
+                case DIO_MODE_AF_PP:
+                    gpio_cr = GPIO_CRL_CNF0_1 | GPIO_CRL_MODE0_1;   // AF Push-Pull out, Low Speed
                     break;
-
-                case DIO_MODE_SPI:              // Alternate functions 0, SPI
-                    gpio_cr = GPIO_CRL_CNF0_1 | GPIO_CRL_MODE0;     // AF Push-Pull out, HS
-                    break;
-
-                case DIO_MODE_UART:             // Alternate functions 1, UART
-                    gpio_cr = GPIO_CRL_CNF0_1 | GPIO_CRL_MODE0_1;     // AF Push-Pull out, LS
-                    break;
-
-                case DIO_MODE_AIN:              // Analog Mode
+//                case DIO_MODE_AF_PU:
+//                case DIO_MODE_AF_PD:
+                case DIO_MODE_AF_OD:
+                    gpio_cr = GPIO_CRL_CNF0 | GPIO_CRL_MODE0_1;     // AF Open-Drain out, Low Speed
+                case DIO_MODE_AIN:
                     gpio_cr = 0;
                     break;
-                
-//                case DIO_MODE_IN_FLOAT:
-//                case DIO_MODE_PWM:
-                default:
-                    gpio_cr = GPIO_CRL_CNF0_0;  // Floating digital input
+//                case DIO_MODE_OUT_OD:
+                case DIO_MODE_AF_PP_HS:
+                    gpio_cr = GPIO_CRL_CNF0_1 | GPIO_CRL_MODE0;     // AF Push-Pull out, HS
+                    break;
+                case DIO_MODE_OUT_PP_HS:
+                    gpio_cr = GPIO_CRL_MODE0;                       // General purpose output push-pull, High Speed(50MHz)
+                    break;
+                    
+                default:                                            // Floating digital input
+                    gpio_cr = GPIO_CRL_CNF0_0;
                     break;
             }
 
@@ -111,7 +118,8 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
                 GPIOx->CRH &= ~(((uint32_t)0x0F) << pos);
                 GPIOx->CRH |= gpio_cr;
             }
-*/
+#else
+#error unknown uC Familie
 #endif
         }
     }
@@ -151,14 +159,14 @@ void hal_dio_set(uint8_t PortNr, uint16_t Mask)
 {
     GPIO_TypeDef * GPIOx = dioPortNr2GPIOx(PortNr);
     if(GPIOx != NULL)
-        GPIOx->BSRR = Mask;
+        hal_gpio_set(GPIOx, Mask);
 }
 
 void hal_dio_reset(uint8_t PortNr, uint16_t Mask)
 {
     GPIO_TypeDef * GPIOx = dioPortNr2GPIOx(PortNr);
     if(GPIOx != NULL)
-        GPIOx->BRR = Mask;
+        hal_gpio_reset(GPIOx, Mask);
 }
 
 #endif  //  EXTDIO_USED

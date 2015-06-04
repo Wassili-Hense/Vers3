@@ -72,17 +72,19 @@ void halLeaveCritical(void);
 #define DIO_MODE_IN_PU              0x01
 #define DIO_MODE_IN_PD              0x02
 #define DIO_MODE_OUT_PP             0x08
-#define DIO_MODE_OUT_OD             0x0C
+//#define DIO_MODE_OUT_OD             0x0C
 #define DIO_MODE_OUT_PP_HS          0x68    // Output, push-pull, high speed
 #define DIO_MODE_AF_PP              0x10
-#define DIO_MODE_AF_PU              0x11
-#define DIO_MODE_AF_PD              0x12
+//#define DIO_MODE_AF_PU              0x11
+//#define DIO_MODE_AF_PD              0x12
 #define DIO_MODE_AF_OD              0x14
 #define DIO_MODE_AF_PP_HS           0x70    // Alternative function, Push/pull, high speed
 #define DIO_MODE_AIN                0x18
 
 // Configure GPIO
 // External procedure defined in hal_dio.c
+inline void hal_gpio_set(GPIO_TypeDef * GPIOx, uint16_t Mask);
+inline void hal_gpio_reset(GPIO_TypeDef * GPIOx, uint16_t Mask);
 void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode);
 
 // Configure EXTI
