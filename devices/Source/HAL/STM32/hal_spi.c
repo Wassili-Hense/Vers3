@@ -20,7 +20,36 @@
 #define SPI3_MISO_PIN               GPIO_Pin_4
 #define SPI3_MOSI_PIN               GPIO_Pin_5
 
-#define DIO_MODE_SPI                DIO_MODE_AF_PP_HS
+#define SPI13_PORT                  GPIOC
+#define SPI13_SCK_PIN               GPIO_Pin_10
+#define SPI13_MISO_PIN              GPIO_Pin_11
+#define SPI13_MOSI_PIN              GPIO_Pin_12
+
+#if (defined __STM32F0XX_H)
+// STM32F051
+    #define DIO_MODE_SPI1           DIO_MODE_AF_PP_HS       // AF0
+    #define DIO_MODE_SPI11          DIO_MODE_AF_PP_HS       // AF0
+    #define DIO_MODE_SPI2           DIO_MODE_AF_PP_HS       // AF0
+    #define DIO_MODE_SPI3           DIO_MODE_AF_PP_HS       // AF0
+    #define DIO_MODE_SPI13          DIO_MODE_AF_PP_HS       // AF0
+#elif (defined __STM32F10x_H)
+    #define DIO_MODE_SPI1           DIO_MODE_AF_PP_HS
+    #define DIO_MODE_SPI11          DIO_MODE_AF_PP_HS
+    #define DIO_MODE_SPI2           DIO_MODE_AF_PP_HS
+    #define DIO_MODE_SPI3           DIO_MODE_AF_PP_HS
+    #define DIO_MODE_SPI13          DIO_MODE_AF_PP_HS
+#elif (defined STM32F4XX)
+// STM32F401RE
+    #define DIO_MODE_SPI1           (DIO_MODE_AF_PP_HS | (5<<DIO_AF_OFFS))  // AF5
+    #define DIO_MODE_SPI11          (DIO_MODE_AF_PP_HS | (5<<DIO_AF_OFFS))  // AF5
+    #define DIO_MODE_SPI2           (DIO_MODE_AF_PP_HS | (5<<DIO_AF_OFFS))  // AF5
+    #define DIO_MODE_SPI3           (DIO_MODE_AF_PP_HS | (6<<DIO_AF_OFFS))  // AF6
+    #define DIO_MODE_SPI13          (DIO_MODE_AF_PP_HS | (6<<DIO_AF_OFFS))  // AF6
+#else
+    #error unknown uC Family
+#endif  //CPU
+
+//
 
 /*
         Config 1                Config 2           
@@ -59,6 +88,7 @@ static SPI_TypeDef * hal_spi_port2spi(uint8_t port)
 #endif  //  SPI2
 #ifdef SPI3
         case 3:
+        case 13:
             return SPI3;
 #endif  //  SPI3
         default:
@@ -76,26 +106,31 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 #ifdef RCC_APB2ENR_SPI1EN
         case 1:
             RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
-            hal_dio_gpio_cfg(SPI1_PORT, (SPI1_SCK_PIN | SPI1_MISO_PIN | SPI1_MOSI_PIN), DIO_MODE_SPI);
+            hal_dio_gpio_cfg(SPI1_PORT, (SPI1_SCK_PIN | SPI1_MISO_PIN | SPI1_MOSI_PIN), DIO_MODE_SPI1);
             SPIx = SPI1;
             break;
         case 11:
             RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
-            hal_dio_gpio_cfg(SPI11_PORT, (SPI11_SCK_PIN | SPI11_MISO_PIN | SPI11_MOSI_PIN), DIO_MODE_SPI);
+            hal_dio_gpio_cfg(SPI11_PORT, (SPI11_SCK_PIN | SPI11_MISO_PIN | SPI11_MOSI_PIN), DIO_MODE_SPI11);
             SPIx = SPI1;
             break;
 #endif  //  SPI1
 #ifdef RCC_APB1ENR_SPI2EN
         case 2:
             RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
-            hal_dio_gpio_cfg(SPI2_PORT, (SPI2_SCK_PIN | SPI2_MISO_PIN | SPI2_MOSI_PIN), DIO_MODE_SPI);
+            hal_dio_gpio_cfg(SPI2_PORT, (SPI2_SCK_PIN | SPI2_MISO_PIN | SPI2_MOSI_PIN), DIO_MODE_SPI2);
             SPIx = SPI2;
             break;
 #endif  //  SPI2
 #ifdef RCC_APB1ENR_SPI3EN
         case 3:
             RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
-            hal_dio_gpio_cfg(SPI3_PORT, (SPI3_SCK_PIN | SPI3_MISO_PIN | SPI3_MOSI_PIN), DIO_MODE_SPI);
+            hal_dio_gpio_cfg(SPI3_PORT, (SPI3_SCK_PIN | SPI3_MISO_PIN | SPI3_MOSI_PIN), DIO_MODE_SPI3);
+            SPIx = SPI3;
+            break;
+        case 13:
+            RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
+            hal_dio_gpio_cfg(SPI13_PORT, (SPI13_SCK_PIN | SPI13_MISO_PIN | SPI13_MOSI_PIN), DIO_MODE_SPI13);
             SPIx = SPI3;
             break;
 #endif  //  SPI3
@@ -112,6 +147,13 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
         spi_clock = SystemCoreClock;
     else
         spi_clock = SystemCoreClock/2;
+#elif (defined STM32F4XX)
+    if(port == 1)
+        spi_clock = SystemCoreClock/2;
+    else
+        spi_clock = SystemCoreClock/4;
+#else
+    #error unknown uC Family
 #endif  //CPU
 
     spi_clock /= 2;
@@ -130,11 +172,11 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
         SPIx->CR2 = (uint16_t)(SPI_CR2_DS_3 | SPI_CR2_DS_2 | SPI_CR2_DS_1 | SPI_CR2_DS_0); // 16 bit
     else
         SPIx->CR2 = (uint16_t)(SPI_CR2_FRXTH | SPI_CR2_DS_2 | SPI_CR2_DS_1 | SPI_CR2_DS_0); // 8 bit
-#elif (defined __STM32F10x_H)
+#elif (defined __STM32F10x_H) || (defined STM32F4XX)
     if(mode & HAL_SPI_16B)
         SPIx->CR1 |= SPI_CR1_DFF;
 #else
-    #error unknown CPU
+    #error unknown uC Family
 #endif  // CPU
     if(mode & HAL_SPI_LSB)
         SPIx->CR1 |= SPI_CR1_LSBFIRST;

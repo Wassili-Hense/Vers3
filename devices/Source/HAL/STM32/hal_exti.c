@@ -1,14 +1,11 @@
 #include "../../config.h"
 
+#if (defined __STM32F0XX_H)
+
 void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger)
 {
-
-#if (defined __STM32F0XX_H)
     // Enable SYSCFG clock
     RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
-#else
-    #error Unknown uC
-#endif  //  CPU
 
     uint32_t port;
     uint8_t  pin;
@@ -59,12 +56,10 @@ void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger)
     {
         if(Mask & (1 << pin))
         {
-#if (defined __STM32F0XX_H)
             // Connect EXTIx Line to IRQ PIN
             u32_tmp = ((uint32_t)0x0F) << (0x04 * (pin & (uint8_t)0x03));
             SYSCFG->EXTICR[pin >> 0x02] &= ~u32_tmp;
             SYSCFG->EXTICR[pin >> 0x02] |= port << (0x04 * (pin & (uint8_t)0x03));
-#endif  // CPU
         }
     }
 
@@ -82,3 +77,7 @@ void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger)
     else
         EXTI->RTSR &= ~u32_tmp;
 }
+
+#else
+    #warning EXTI, only STM32F0
+#endif  //  CPU

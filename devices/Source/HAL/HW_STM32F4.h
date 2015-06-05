@@ -16,6 +16,8 @@ See LICENSE file for license details.
 // STM32F401RE
 #if     (defined CFG_S4SN12)
 #include "HWconfig_S4Sn12.h"    // UART
+#elif   (defined CFG_S4ES12)
+#include "HWconfig_S4ES12.h"    // ENC28J60, UART
 #else
 #error Unknown configuration
 #endif  //  Configuration
