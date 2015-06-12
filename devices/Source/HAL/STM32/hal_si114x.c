@@ -16,22 +16,9 @@ void si114x_irq(void);
 
 void hal_si1143x_init_hw(void)
 {
-    hal_exti_config(SI114X_IRQ_PORT, SI114X_IRQ_PIN, HAL_EXTI_TRIGGER_FALLING);
+    hal_exti_config(SI114X_IRQ_PORT, SI114X_IRQ_PIN, HAL_EXTI_TRIGGER_FALLING, &si114x_irq);
     
     // Enable and set interrupt
     NVIC_SetPriority(SI114X_IRQ, 0);
     NVIC_EnableIRQ(SI114X_IRQ);
-}
-
-
-
-void SI114X_IRQ_HANDLER(void)
-{
-    if((EXTI->PR & SI114X_IRQ_PIN) != 0)
-    {
-        si114x_irq();
-
-        // Clear the EXTI line pending bit
-        EXTI->PR = SI114X_IRQ_PIN;
-    }
 }
