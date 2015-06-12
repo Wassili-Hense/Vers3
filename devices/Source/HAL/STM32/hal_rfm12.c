@@ -1,6 +1,9 @@
 #include "../../config.h"
 
 #if (defined RFM12_PHY)
+    
+// external procedure, defined in rfm12_phy.c
+void rfm12_irq(void);
 
 void hal_rfm12_init_hw(void)
 {
@@ -33,28 +36,11 @@ bool hal_rfm12_irq_stat(void)
 
 void hal_rfm12_enable_irq(void)
 {
-    hal_exti_config(RFM12_IRQ_PORT, RFM12_IRQ_PIN, HAL_EXTI_TRIGGER_FALLING);
+    hal_exti_config(RFM12_IRQ_PORT, RFM12_IRQ_PIN, HAL_EXTI_TRIGGER_FALLING, &rfm12_irq);
 
     // Enable and set interrupt
     NVIC_SetPriority(RFM12_IRQ, 0);
     NVIC_EnableIRQ(RFM12_IRQ);
 }
-
-// external procedure, defined in rfm12_phy.c
-void rfm12_irq(void);
-
-void RFM12_IRQ_HANDLER(void)
-{
-    //(EXTI_GetITStatus(EXTI_Line0) != RESET)
-    if((EXTI->PR & RFM12_IRQ_PIN) != 0)
-    {
-        rfm12_irq();
-
-        // Clear the EXTI line 0 pending bit
-        //EXTI_ClearITPendingBit(EXTI_Line0);
-        EXTI->PR = RFM12_IRQ_PIN;
-    }
-}
-
 #endif  //  RFM12_PHY
 

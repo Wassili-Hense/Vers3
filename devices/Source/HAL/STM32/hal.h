@@ -25,6 +25,8 @@ extern "C" {
 #include "stm32f10x.h"
 #elif defined (STM32F4XX)
 #include "stm32f4xx.h"
+#else
+#error unknown uC Family
 #endif  //  uC Familie
 
 void INIT_SYSTEM(void);
@@ -89,7 +91,7 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode);
 
 // Configure EXTI
 // External procedure defined in hal_exti.c
-void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger);
+void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger, void *pCallback);
 
 #define HAL_EXTI_TRIGGER_FALLING    1
 #define HAL_EXTI_TRIGGER_RISING     2
@@ -115,6 +117,8 @@ uint16_t hal_spi_exch16(uint8_t port, uint16_t data);
 void eeprom_init_hw(void);
 void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
+
+uint32_t hal_get_ms(void);
 
 void _delay_ms(uint32_t ms);
 void _delay_us(uint32_t us);

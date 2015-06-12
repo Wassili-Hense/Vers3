@@ -1,11 +1,15 @@
 #include "../../config.h"
 
-#if (defined __STM32F0XX_H)
+typedef void (*cbEXTI_t)(void);
+    
+static void * hal_exti_cb[16] = {NULL,};
 
-void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger)
+void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger, void * pCallback)
 {
+
     // Enable SYSCFG clock
     RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+
 
     uint32_t port;
     uint8_t  pin;
@@ -60,12 +64,15 @@ void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger)
             u32_tmp = ((uint32_t)0x0F) << (0x04 * (pin & (uint8_t)0x03));
             SYSCFG->EXTICR[pin >> 0x02] &= ~u32_tmp;
             SYSCFG->EXTICR[pin >> 0x02] |= port << (0x04 * (pin & (uint8_t)0x03));
+            
+            hal_exti_cb[pin] = pCallback;
         }
     }
 
     u32_tmp = Mask;
     EXTI->IMR |= u32_tmp;               // Enable Interrupt
     EXTI->EMR &= ~u32_tmp;              // Disable Events
+    EXTI->PR = Mask;                    // Reset pending status
 
     if(Trigger & 1)                     // Falling trigger
         EXTI->FTSR |= u32_tmp;
@@ -78,6 +85,80 @@ void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger)
         EXTI->RTSR &= ~u32_tmp;
 }
 
+void exti_irq_handler(uint8_t pos, uint8_t max)
+{
+    uint32_t mask;
+    
+    for(; pos <= max; pos++)
+    {
+        mask = 1 << pos;
+        
+        if((EXTI->PR & mask) != 0)
+        {
+            if(hal_exti_cb[pos] != NULL)
+            {
+                cbEXTI_t cb = hal_exti_cb[pos];
+                cb();
+            }
+
+            EXTI->PR = mask;
+        }
+    }
+}
+
+#if (defined __STM32F0XX_H)
+
+void EXTI0_1_IRQHandler(void)
+{
+    exti_irq_handler(0,1);
+}
+
+void EXTI2_3_IRQHandler(void)
+{
+    exti_irq_handler(2,3);
+}
+
+void EXTI4_15_IRQHandler(void)
+{
+    exti_irq_handler(4,15);
+}
+#elif (defined STM32F4XX)
+
+void EXTI0_IRQHandler(void)
+{
+    exti_irq_handler(0,0);
+}
+
+void EXTI1_IRQHandler(void)
+{
+    exti_irq_handler(1,1);
+}
+
+void EXTI2_IRQHandler(void)
+{
+    exti_irq_handler(2,2);
+}
+
+void EXTI3_IRQHandler(void)
+{
+    exti_irq_handler(3,3);
+}
+
+void EXTI4_IRQHandler(void)
+{
+    exti_irq_handler(4,4);
+}
+
+void EXTI9_5_IRQHandler(void)
+{
+    exti_irq_handler(5,9);
+}
+
+void EXTI15_10_IRQHandler(void)
+{
+    exti_irq_handler(10,15);
+}
+
 #else
-    #warning EXTI, only STM32F0
-#endif  //  CPU
+    #error unknown uC Family
+#endif  //  uC Family

@@ -83,16 +83,8 @@ void Activity(uint8_t pin)
     LED_Mask |= 1 << pin;
 }
 
-static volatile uint32_t tick_count = 0;
-
-uint32_t inline GetTickCounter()
-{
-    return tick_count;
-}
-
 void SystemTick(void)
 {
-    tick_count++;
     SystemTickCnt++;
 
 #ifdef LED1_On

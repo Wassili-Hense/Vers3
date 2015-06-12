@@ -67,7 +67,7 @@ void enc28j60_init_net(void)
     {
         ip_addr = 0;
         dhcp_status = DHCP_INIT;
-        dhcp_retry_time = GetTickCounter() + POLL_TMR_FREQ;
+        dhcp_retry_time = hal_get_ms() + 1000;
     }
 #endif
 }
@@ -623,7 +623,7 @@ dhcp_filter_lbl1:
 
         dhcp_status = DHCP_ASSIGNED;
         dhcp_server = renew_server;
-        dhcp_retry_time = GetTickCounter() + (renew_time * POLL_TMR_FREQ);
+        dhcp_retry_time = hal_get_ms() + (renew_time * 1000);
 
         // network up
         memcpy(&ip_addr, dhcp->offered_addr, 4);
@@ -640,12 +640,12 @@ void dhcp_poll(void)
     if(dhcp_status == DHCP_DISABLED)
         return;
 
-    uint32_t tick_time = GetTickCounter();
+    uint32_t tick_ms = hal_get_ms();
 
-    if((dhcp_status != DHCP_ASSIGNED) && ((tick_time & 8) != 0))
+    if((dhcp_status != DHCP_ASSIGNED) && ((tick_ms & 0x00000080) != 0))
         Activity(ENC28J60_PHY);
 
-    if(dhcp_retry_time > tick_time)
+    if(dhcp_retry_time > tick_ms)
         return;
 
     eth_frame_t     * pFrame;
@@ -656,7 +656,7 @@ void dhcp_poll(void)
     uint16_t length;
     uint8_t ucTmp;
 
-    dhcp_retry_time = tick_time + (15 * POLL_TMR_FREQ);
+    dhcp_retry_time = tick_ms + 15000;
 
     pFrame = (void *)mqAlloc(MAX_FRAME_BUF);
     if(pFrame == NULL)

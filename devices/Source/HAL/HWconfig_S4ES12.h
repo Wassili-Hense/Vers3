@@ -117,8 +117,7 @@ extern "C" {
 // PHY definition section
 
 // ENC Section
-#define ENC_USE_SPI                 13
-
+#define ENC_USE_SPI                 13      // SPI3 PC10-PC12
 #define ENC_NSS_PORT                GPIOD
 #define ENC_NSS_PIN                 GPIO_Pin_2
 #define SPIe                        SPI3

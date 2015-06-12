@@ -20,20 +20,20 @@ See LICENSE file for license details.
 
 // GPIOA
 // Pin  CN  Port    Func
-//   0  3   PA0     
+//   0  3   PA0
 //   1  4   PA1
 //   2  5   PA2     _USART2_TX
 //   3  6   PA3     _USART2_RX
-//   4  15  PA4     _SPI1_NSS
-//   5  16  PA5     _SPI1_SCK
-//   6  17  PA6     _SPI1_MISO
-//   7  18  PA7     _SPI1_MOSI
-//   8      PA8     Sensor_Int
-//   9  9   PA9     USART1_TX
-//  10  10  PA10    USART1_RX
+//   4  15  PA4
+//   5  16  PA5
+//   6  17  PA6
+//   7  18  PA7
+//   8      PA8     Sensor IRQ
+//   9  9   PA9     _USART1_TX
+//  10  10  PA10    _USART1_RX
 //  11  7   PA11
-//  12  8   PA12
-//  13      PA13    SWDIO       _LED
+//  12  8   PA12    LED
+//  13      PA13    SWDIO
 //  14      PA14    SWCLK
 //  15      PA15    RF_Select
 // GPIOB
@@ -56,7 +56,7 @@ extern "C" {
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
 #define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB}
-#define EXTDIO_PORTNUM2MASK         {(uint16_t)0xC100, (uint16_t)0xFF3C}
+#define EXTDIO_PORTNUM2MASK         {(uint16_t)0xE100, (uint16_t)0xFF3C}
 // End DIO Section
 
 // PA0-PA7: 0 - 7
@@ -79,9 +79,9 @@ extern "C" {
 // End TWI Section
 
 // LED Section
-//#define LED2_On()                   GPIOA->BRR = GPIO_Pin_13
-//#define LED2_Off()                  GPIOA->BSRR = GPIO_Pin_13
-//#define LEDsInit()                  hal_dio_gpio_cfg(GPIOA, GPIO_Pin_13, DIO_MODE_OUT)
+//#define LED1_On()                   GPIOA->BRR = GPIO_Pin_12
+//#define LED1_Off()                  GPIOA->BSRR = GPIO_Pin_12
+//#define LEDsInit()                  hal_dio_gpio_cfg(GPIOA, GPIO_Pin_12, DIO_MODE_OUT)
 // End LED Section
 
 // CC11 Section

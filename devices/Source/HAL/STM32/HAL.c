@@ -15,6 +15,8 @@ void INIT_SYSTEM(void)
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN;
 #elif (defined STM32F4XX)
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN;
+#else
+    #error unknown uC Family
 #endif  //  STM32F0XX_MD
 
     CriticalNesting = 0;
@@ -50,9 +52,11 @@ void StartSheduler(void)
 }
 
 // Main program tick procedure
-void SystemTick(void);
+extern void SystemTick(void);
 
 // IRQ handlers.
+
+static uint32_t hal_ticks_counter = 0;
 
 void SysTick_Handler(void)
 {
@@ -60,6 +64,8 @@ void SysTick_Handler(void)
 
     PreviousMask = __get_PRIMASK();
     __disable_irq();
+    
+    hal_ticks_counter++;
 
     SystemTick();
 
@@ -73,11 +79,33 @@ void HardFault_Handler(void)
     while(1);
 }
 
+uint32_t hal_get_ms(void)
+{
+    uint32_t val = SysTick->VAL;
+    val /= (const uint32_t)(SystemCoreClock/1000);
+    val += hal_ticks_counter * POLL_TMR_FREQ;
+    return val;
+}
+
+/*
+uint32_t hal_get_us(void)
+{
+    uint32_t val = SysTick->VAL;
+    val /= (const uint32_t)(SystemCoreClock/1000000);
+    val += hal_ticks_counter * (const uint32_t)(POLL_TMR_FREQ * 1000);
+    return val;
+}
+*/
+
 void _delay_ms(uint32_t ms)
 {
+    uint32_t new_ms = hal_get_ms() + ms;
+    while(hal_get_ms() != new_ms);
+/*
   ms *= (SystemCoreClock / 12000UL);
   while(ms > 0)
     ms--;
+*/
 }
 
 void _delay_us(uint32_t us)

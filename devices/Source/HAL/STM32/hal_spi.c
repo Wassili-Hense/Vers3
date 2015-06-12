@@ -26,30 +26,26 @@
 #define SPI13_MOSI_PIN              GPIO_Pin_12
 
 #if (defined __STM32F0XX_H)
+
 // STM32F051
-    #define DIO_MODE_SPI1           DIO_MODE_AF_PP_HS       // AF0
-    #define DIO_MODE_SPI11          DIO_MODE_AF_PP_HS       // AF0
-    #define DIO_MODE_SPI2           DIO_MODE_AF_PP_HS       // AF0
-    #define DIO_MODE_SPI3           DIO_MODE_AF_PP_HS       // AF0
-    #define DIO_MODE_SPI13          DIO_MODE_AF_PP_HS       // AF0
-#elif (defined __STM32F10x_H)
-    #define DIO_MODE_SPI1           DIO_MODE_AF_PP_HS
-    #define DIO_MODE_SPI11          DIO_MODE_AF_PP_HS
-    #define DIO_MODE_SPI2           DIO_MODE_AF_PP_HS
-    #define DIO_MODE_SPI3           DIO_MODE_AF_PP_HS
-    #define DIO_MODE_SPI13          DIO_MODE_AF_PP_HS
+#define DIO_MODE_SPI1               DIO_MODE_AF_PP_HS
+#define DIO_MODE_SPI2               DIO_MODE_AF_PP_HS
+#define DIO_MODE_SPI3               DIO_MODE_AF_PP_HS
+#define DIO_MODE_SPI11              DIO_MODE_AF_PP_HS
+#define DIO_MODE_SPI13              DIO_MODE_AF_PP_HS
+
 #elif (defined STM32F4XX)
-// STM32F401RE
-    #define DIO_MODE_SPI1           (DIO_MODE_AF_PP_HS | (5<<DIO_AF_OFFS))  // AF5
-    #define DIO_MODE_SPI11          (DIO_MODE_AF_PP_HS | (5<<DIO_AF_OFFS))  // AF5
-    #define DIO_MODE_SPI2           (DIO_MODE_AF_PP_HS | (5<<DIO_AF_OFFS))  // AF5
-    #define DIO_MODE_SPI3           (DIO_MODE_AF_PP_HS | (6<<DIO_AF_OFFS))  // AF6
-    #define DIO_MODE_SPI13          (DIO_MODE_AF_PP_HS | (6<<DIO_AF_OFFS))  // AF6
+
+// STM32F401
+#define DIO_MODE_SPI1               (DIO_MODE_AF_PP_HS | (5<<DIO_AF_OFFS))
+#define DIO_MODE_SPI2               (DIO_MODE_AF_PP_HS | (5<<DIO_AF_OFFS))
+#define DIO_MODE_SPI3               (DIO_MODE_AF_PP_HS | (6<<DIO_AF_OFFS))
+#define DIO_MODE_SPI11              (DIO_MODE_AF_PP_HS | (5<<DIO_AF_OFFS))
+#define DIO_MODE_SPI13              (DIO_MODE_AF_PP_HS | (6<<DIO_AF_OFFS))
+
 #else
     #error unknown uC Family
-#endif  //CPU
-
-//
+#endif
 
 /*
         Config 1                Config 2           
