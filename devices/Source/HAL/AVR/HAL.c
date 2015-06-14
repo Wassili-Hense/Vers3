@@ -55,7 +55,22 @@ uint16_t halRNG()
 // Main program tick procedure
 void SystemTick(void);
 
+static uint16_t hal_sec_ticks = 0;
+static uint32_t hal_sec_counter = 0;
+
+uint32_t hal_get_sec(void)
+{
+    return hal_sec_counter;
+}
+
 ISR(TIMER2_COMPA_vect)
 {
+    hal_sec_ticks++;
+    if(hal_sec_ticks >= POLL_TMR_FREQ)
+    {
+        hal_sec_ticks = 0;
+        hal_sec_counter++;
+    }
+    
     SystemTick();
 }

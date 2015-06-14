@@ -57,6 +57,7 @@ extern void SystemTick(void);
 // IRQ handlers.
 
 static uint32_t hal_ticks_counter = 0;
+static uint32_t hal_sec_ticks = 0, hal_sec_counter = 0;
 
 void SysTick_Handler(void)
 {
@@ -64,8 +65,15 @@ void SysTick_Handler(void)
 
     PreviousMask = __get_PRIMASK();
     __disable_irq();
-    
+
     hal_ticks_counter++;
+
+    hal_sec_ticks++;
+    if(hal_sec_ticks >= POLL_TMR_FREQ)
+    {
+        hal_sec_ticks = 0;
+        hal_sec_counter++;
+    }
 
     SystemTick();
 
@@ -87,6 +95,11 @@ uint32_t hal_get_ms(void)
     return val;
 }
 
+uint32_t hal_get_sec(void)
+{
+    return hal_sec_counter;
+}
+
 /*
 uint32_t hal_get_us(void)
 {
@@ -99,13 +112,17 @@ uint32_t hal_get_us(void)
 
 void _delay_ms(uint32_t ms)
 {
-    uint32_t new_ms = hal_get_ms() + ms;
-    while(hal_get_ms() != new_ms);
-/*
-  ms *= (SystemCoreClock / 12000UL);
-  while(ms > 0)
-    ms--;
-*/
+    if(SysTick->CTRL & SysTick_CTRL_ENABLE_Msk)
+    {
+        uint32_t new_ms = hal_get_ms() + ms;
+        while(hal_get_ms() != new_ms);
+    }
+    else
+    {
+        ms *= (SystemCoreClock / 12000UL);
+        while(ms > 0)
+            ms--;
+    }
 }
 
 void _delay_us(uint32_t us)

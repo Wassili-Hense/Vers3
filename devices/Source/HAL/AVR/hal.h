@@ -40,39 +40,7 @@ typedef enum
     DIO_MODE_AIN        = 0x18
 }DIOmode_e;
 
-/*
-// GPIO Types
-typedef enum
-{
-    DIO_MODE_IN_FLOAT = 0,
-    DIO_MODE_IN_PD,
-    DIO_MODE_IN_PU,
-    DIO_MODE_OUT,
-    DIO_MODE_PWM,
-    DIO_MODE_AIN,
-    DIO_MODE_TWI
-}eDIOmode_t;
-
-// GPIO Types
-typedef enum
-{
-    DIO_MODE_IN_FLOAT   = 0,
-    DIO_MODE_IN_PU      = 0x01,
-    DIO_MODE_IN_PD      = 0x02,
-    
-    DIO_MODE_OUT_PP     = 0x08,
-    DIO_MODE_OUT_OD     = 0x0C,
-    DIO_MODE_OUT_PP_MS  = 0x28,     // Output, push-pull, medium speed
-
-    DIO_MODE_AF_PP      = 0x10,
-    DIO_MODE_AF_PU      = 0x11,
-    DIO_MODE_AF_PD      = 0x12,
-    DIO_MODE_AF_OD      = 0x14,
-    DIO_MODE_AF_PP_MS   = 0x30,     // Alternative function, Push/pull, medium speed
-
-    DIO_MODE_AIN        = 0x18
-}DIOmode_e;
-*/
+uint32_t hal_get_sec(void);
 
 uint16_t halRNG();
 

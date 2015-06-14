@@ -119,6 +119,7 @@ void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 
 uint32_t hal_get_ms(void);
+uint32_t hal_get_sec(void);
 
 void _delay_ms(uint32_t ms);
 void _delay_us(uint32_t us);
