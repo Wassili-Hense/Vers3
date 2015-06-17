@@ -103,6 +103,9 @@ extern "C" {
 // End Analogue Inputs
 
 // UART Section
+#define HAL_USE_USART1              1
+#define HAL_USE_USART2              1
+
 #define EXTSER_USED                 1
 #define EXTSER_PORT2UART            {1, 0}
 // End UART Section
@@ -120,12 +123,18 @@ extern "C" {
 #define ENC_USE_SPI                 2   // 1 - SPI1 PA4-PA7, 2 - SPI2 PB12-PB15
 
 #if (ENC_USE_SPI == 1)
+
+#define HAL_USE_SPI1                1    
+
 #define ENC_NSS_PORT                GPIOA
 #define ENC_NSS_PIN                 GPIO_Pin_4
 
 #define SPIe                        SPI1
 
 #elif (ENC_USE_SPI == 2)
+    
+#define HAL_USE_SPI2                1
+
 #define ENC_NSS_PORT                GPIOB
 #define ENC_NSS_PIN                 GPIO_Pin_12
 

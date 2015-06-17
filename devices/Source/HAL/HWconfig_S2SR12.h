@@ -103,6 +103,9 @@ extern "C" {
 // End Analogue Inputs
 
 // UART Section
+#define HAL_USE_USART1              1
+#define HAL_USE_USART2              1
+
 #define UART_PHY_PORT               1   //  0 - USART1 PA9,PA10 GPIOA MASK 0x0600, 1 - USART2 PA2,PA3 GPIO MASK 0x000C
 #define EXTSER_USED                 1
 #define EXTSER_PORT2UART            {0}
@@ -113,7 +116,10 @@ extern "C" {
 // End TWI Section
 
 // RFM12 Section
-#define RFM12_USE_SPI                2   // 1 - SPI1 PA4-PA7, 2 - SPI2 PB12-PB15, PB11 - IRQ
+#define HAL_USE_EXTI                1
+#define HAL_USE_SPI2                1
+
+#define RFM12_USE_SPI               2   // 1 - SPI1 PA4-PA7, 2 - SPI2 PB12-PB15, PB11 - IRQ
 
 #define RFM12_NSS_PORT              GPIOB
 #define RFM12_NSS_PIN               GPIO_Pin_12

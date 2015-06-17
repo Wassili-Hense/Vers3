@@ -1,5 +1,9 @@
 #include "../../config.h"
 
+#if (defined HAL_USE_SPI1) || \
+    (defined HAL_USE_SPI2) || \
+    (defined HAL_USE_SPI3)
+
 #define SPI1_PORT                   GPIOA
 #define SPI1_SCK_PIN                GPIO_Pin_5
 #define SPI1_MISO_PIN               GPIO_Pin_6
@@ -73,16 +77,16 @@ static SPI_TypeDef * hal_spi_port2spi(uint8_t port)
 {
     switch(port)
     {
-#ifdef SPI1
+#if (defined SPI1) && (defined HAL_USE_SPI1)
         case 1:
         case 11:
             return SPI1;
 #endif  //  SPI1
-#ifdef SPI2
+#if (defined SPI2) && (defined HAL_USE_SPI2)
         case 2:
             return SPI2;
 #endif  //  SPI2
-#ifdef SPI3
+#if (defined SPI3) && (defined HAL_USE_SPI3)
         case 3:
         case 13:
             return SPI3;
@@ -99,7 +103,7 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 
     switch(port)
     {
-#ifdef RCC_APB2ENR_SPI1EN
+#if (defined SPI1) && (defined HAL_USE_SPI1)
         case 1:
             RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
             hal_dio_gpio_cfg(SPI1_PORT, (SPI1_SCK_PIN | SPI1_MISO_PIN | SPI1_MOSI_PIN), DIO_MODE_SPI1);
@@ -111,14 +115,14 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
             SPIx = SPI1;
             break;
 #endif  //  SPI1
-#ifdef RCC_APB1ENR_SPI2EN
+#if (defined SPI2) && (defined HAL_USE_SPI2)
         case 2:
             RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
             hal_dio_gpio_cfg(SPI2_PORT, (SPI2_SCK_PIN | SPI2_MISO_PIN | SPI2_MOSI_PIN), DIO_MODE_SPI2);
             SPIx = SPI2;
             break;
 #endif  //  SPI2
-#ifdef RCC_APB1ENR_SPI3EN
+#if (defined SPI3) && (defined HAL_USE_SPI3)
         case 3:
             RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
             hal_dio_gpio_cfg(SPI3_PORT, (SPI3_SCK_PIN | SPI3_MISO_PIN | SPI3_MOSI_PIN), DIO_MODE_SPI3);
@@ -210,3 +214,5 @@ uint16_t hal_spi_exch16(uint8_t port, uint16_t data)
     while((SPIx->SR & SPI_SR_RXNE) == 0);
     return SPIx->DR;
 }
+
+#endif  //  HAL_USE_SPIx

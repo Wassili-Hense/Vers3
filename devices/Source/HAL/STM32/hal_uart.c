@@ -1,6 +1,11 @@
 #include "../../config.h"
 
-#if ((defined UART_PHY) || (defined EXTSER_USED))
+#if ((defined HAL_USE_USART1) || \
+     (defined HAL_USE_USART2) || \
+     (defined HAL_USE_USART3) || \
+     (defined HAL_USE_UART4) || \
+     (defined HAL_USE_UART5) || \
+     (defined HAL_USE_USART6))
 
 #define HAL_SIZEOF_UART_RX_FIFO         32      // Should be 2^n
 
@@ -17,8 +22,8 @@
 U[S]ARTx    RX      TX      RX      TX      APB
 USART1      PA10    PA9     PB7     PB6     2
 USART2      PA3     PA2                     1
-USART3      PB11    PB10                    1
-UART4       PA1     PA0     PC6     PC6     1
+USART3      PB11    PB10    PC11    PC10    1
+UART4       PA1     PA0     PC11    PC10    1
 UART5       PD2     PC12                    1
 USART6      PC7     PC6                     2
 
@@ -213,6 +218,13 @@ void hal_uart_deinit(uint8_t port)
             }
             break;
 #endif  //  USART2
+
+#if ((defined HAL_USE_USART3) || \
+     (defined HAL_USE_UART4) || \
+     (defined HAL_USE_UART5) || \
+     (defined HAL_USE_USART6))
+#warning hal_uart_deinit, ports not implemented
+#endif
         default:
             assert(0);
     }
@@ -255,6 +267,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
 
     switch(port)
     {
+
 #if (defined USART1) && (defined HAL_USE_USART1)
         case 0:
             {
@@ -262,15 +275,16 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
             RCC->APB2ENR   |= RCC_APB2ENR_USART1EN;                             // Enable UART1 Clock
 
 #if (defined __STM32F0XX_H)
-            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9 | GPIO_Pin_10, DIO_MODE_UART);   // PA9, PA10 - AF1
+            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9 | GPIO_Pin_10, (1<<DIO_AF_OFFS) | DIO_MODE_AF_PP);   // PA9, PA10 - AF1
 #elif (defined __STM32F10x_H)
-            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9, DIO_MODE_UART);                 // PA9 - AF1
+            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9, DIO_MODE_UART);                                     // PA9 - AF, Tx
 #elif (defined STM32F4XX)
             hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9 | GPIO_Pin_10, (7<<DIO_AF_OFFS) | DIO_MODE_AF_PP);   // PA9, PA10 - AF7
 #endif  // uC
             }
             break;
 #endif  //  USART1
+
 #if (defined USART2) && (defined HAL_USE_USART2)
         case 1:
             {
@@ -278,15 +292,31 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
             RCC->APB1ENR   |= RCC_APB1ENR_USART2EN;                             // Enable UART2 Clock
 
 #if (defined __STM32F0XX_H)
-            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2 | GPIO_Pin_3, DIO_MODE_UART);    // PA2, PA3 - AF1
+            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2 | GPIO_Pin_3, (1<<DIO_AF_OFFS) | DIO_MODE_AF_PP);    // PA2, PA3 - AF1
 #elif (defined __STM32F10x_H)
-            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2, DIO_MODE_UART);                 // PA2 - AF1, Tx
+            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2, DIO_MODE_UART);                                     // PA2 - AF, Tx
 #elif (defined STM32F4XX)
             hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2 | GPIO_Pin_3, (7<<DIO_AF_OFFS) | DIO_MODE_AF_PP);    // PA2, PA3 - AF7
 #endif
             }
             break;
 #endif  //  USART2
+
+#if (defined USART3) && (defined HAL_USE_USART3)
+        case 2:
+            {
+            UARTx_IRQn = USART3_IRQn;
+            RCC->APB1ENR   |= RCC_APB1ENR_USART3EN;                             // Enable UART3 Clock
+
+#if (defined __STM32F10x_H)
+            hal_dio_gpio_cfg(GPIOB, GPIO_Pin_10, DIO_MODE_UART);                                    // PB10 - AF, Tx
+#elif (defined STM32F4XX)
+            hal_dio_gpio_cfg(GPIOB, GPIO_Pin_10 | GPIO_Pin_11, (7<<DIO_AF_OFFS) | DIO_MODE_AF_PP);  // PB10, PB11 - AF7
+#endif
+            }
+            break;
+#endif  //  USART3
+
 
 #if (defined UART4) && (defined HAL_USE_UART4)
         case 3:
@@ -298,6 +328,11 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
             }
             break;
 #endif  //  UART4
+
+#if ((defined HAL_USE_UART5) || \
+     (defined HAL_USE_USART6))
+#warning hal_uart_init_hw, ports not implemented
+#endif
 
         default:
             assert(0);
@@ -367,4 +402,4 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
     USARTx->CR1 |= USART_CR1_TXEIE;
 }
 
-#endif  //  ((defined UART_PHY) || (defined EXTSER_USED))
+#endif  //  (defined HAL_USE_U[S]ARTx)

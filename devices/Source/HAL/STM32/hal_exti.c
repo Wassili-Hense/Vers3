@@ -1,5 +1,7 @@
 #include "../../config.h"
 
+#ifdef HAL_USE_EXTI
+
 typedef void (*cbEXTI_t)(void);
     
 static void * hal_exti_cb[16] = {NULL,};
@@ -162,3 +164,5 @@ void EXTI15_10_IRQHandler(void)
 #else
     #error unknown uC Family
 #endif  //  uC Family
+
+#endif  // HAL_USE_EXTI

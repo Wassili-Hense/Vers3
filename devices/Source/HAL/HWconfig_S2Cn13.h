@@ -70,6 +70,9 @@ extern "C" {
 // End Analogue Inputs
 
 // UART Section
+#define HAL_USE_USART1              1
+#define HAL_USE_USART2              1
+
 #define EXTSER_USED                 1
 #define EXTSER_PORT2UART            {1,0}
 // End UART Section
@@ -85,6 +88,8 @@ extern "C" {
 // End LED Section
 
 // CC11 Section
+#define HAL_USE_SPI1                1
+
 #define CC11_USE_SPI                11
 
 #define CC11_NSS_PORT               GPIOA
