@@ -235,7 +235,7 @@ void dioProc(void)
 
     for(port = 0; port < EXTDIO_MAXPORT_NR; port++)
     {
-        mask = dio_read_mask[port];
+        mask = dio_read_mask[port] & ~dio_write_mask[port];
         if(mask != 0)
         {
             state = hal_dio_read(port) & mask;
@@ -265,8 +265,8 @@ void dioProc(void)
                 maskp <<= 1;
             }
         }
-    
-        mask = dio_write_mask[port];
+
+        mask = dio_write_mask[port] & ~dio_read_mask[port];
         if(mask != 0)
         {
             state = dio_status[port] & mask;
@@ -280,6 +280,25 @@ void dioProc(void)
     }
 }
 
+void dioTake(uint16_t base)
+{
+    uint8_t port = dioBase2Port(base);
+    DIO_PORT_TYPE mask = dioBase2Mask(base);
+
+    dio_write_mask[port] |= mask;
+    dio_read_mask[port] |= mask;
+}
+
+void dioRelease(uint16_t base)
+{
+    uint8_t port = dioBase2Port(base);
+    DIO_PORT_TYPE mask = dioBase2Mask(base);
+
+    dio_write_mask[port] &= ~mask;
+    dio_read_mask[port] &= ~mask;
+}
+
+/*
 void dioConfigure(uint16_t base, uint16_t Mode)
 {
     uint8_t port = dioBase2Port(base);
@@ -291,5 +310,6 @@ void dioConfigure(uint16_t base, uint16_t Mode)
     else                                // Release Pin
         dio_write_mask[port] &= ~mask;
 }
+*/
 
 #endif  //  EXTDIO_USED

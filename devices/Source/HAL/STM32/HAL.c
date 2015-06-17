@@ -6,6 +6,8 @@ static uint32_t CriticalNesting = 0;
 
 void INIT_SYSTEM(void)
 {
+    __disable_irq();
+    
     SystemInit();
 
     // Enable GPIO clock
@@ -44,7 +46,7 @@ void halLeaveCritical(void)
 
 void StartSheduler(void)
 {
-    if(SysTick_Config((SystemCoreClock / POLL_TMR_FREQ) - 1UL))
+    if(SysTick_Config((SystemCoreClock / 1000) - 1UL))
         while(1);
 
     // Enable Global interrupts
@@ -56,11 +58,29 @@ extern void SystemTick(void);
 
 // IRQ handlers.
 
-static uint32_t hal_ticks_counter = 0;
-static uint32_t hal_sec_ticks = 0, hal_sec_counter = 0;
+static uint16_t hal_ms_counter = 0;
+static uint32_t hal_sec_counter = 0xFFFFFFF8;
 
+// 1ms Ticks
 void SysTick_Handler(void)
 {
+    hal_ms_counter++;
+    if(hal_ms_counter > 999)
+    {
+        hal_ms_counter = 0;
+        hal_sec_counter++;
+    }
+    
+    static uint16_t ticks_counter = 0;
+
+    if(ticks_counter < (const uint16_t)(1000/POLL_TMR_FREQ))
+        ticks_counter++;
+    else
+    {
+        SystemTick();
+        ticks_counter = 1;
+    }
+/*
     uint32_t PreviousMask;
 
     PreviousMask = __get_PRIMASK();
@@ -68,16 +88,9 @@ void SysTick_Handler(void)
 
     hal_ticks_counter++;
 
-    hal_sec_ticks++;
-    if(hal_sec_ticks >= POLL_TMR_FREQ)
-    {
-        hal_sec_ticks = 0;
-        hal_sec_counter++;
-    }
-
-    SystemTick();
-
     __set_PRIMASK(PreviousMask);
+*/
+
 }
 
 void HardFault_Handler( void ) __attribute__( ( naked ) );
@@ -89,10 +102,15 @@ void HardFault_Handler(void)
 
 uint32_t hal_get_ms(void)
 {
+    uint32_t val = hal_sec_counter;
+    val *= 1000;
+    val += hal_ms_counter;
+    return val;
+/*
     uint32_t val = SysTick->VAL;
     val /= (const uint32_t)(SystemCoreClock/1000);
     val += hal_ticks_counter * POLL_TMR_FREQ;
-    return val;
+*/
 }
 
 uint32_t hal_get_sec(void)

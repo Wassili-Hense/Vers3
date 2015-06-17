@@ -10,14 +10,20 @@
 
 static const PROGMEM uint8_t hal_ainBase2Apin[] = EXTAIN_BASE_2_APIN;
 
-void hal_ain_select(uint8_t apin, uint8_t aref)
+void hal_ain_configure(uint8_t apin, uint8_t aref)
 {
+    if(aref == 0xFF)
+        return;
+    
     if((ADCSRA & (1<<ADEN)) == 0)   // ADC disabled
     {
         PRR &= ~(1<<PRADC);
         ADCSRA = (1<<ADEN) | (7<<ADPS0);
     }
+}
 
+void hal_ain_select(uint8_t apin, uint8_t aref)
+{
     uint8_t mux = pgm_read_byte(&hal_ainBase2Apin[apin]);
     mux |= aref<<6;
 
@@ -27,7 +33,7 @@ void hal_ain_select(uint8_t apin, uint8_t aref)
 #endif  //  MUX5
 
     // Start Conversion
-    ADCSRA |= (1<<ADSC);
+    //ADCSRA |= (1<<ADSC);
 }
 
 int16_t hal_ain_get(void)

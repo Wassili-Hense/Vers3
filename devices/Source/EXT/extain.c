@@ -37,9 +37,11 @@ int16_t ain_act_val[EXTAIN_MAXPORT_NR];
 
 // dio subroutines
 uint8_t dioCheckBase(uint16_t base);
-void dioConfigure(uint16_t base, uint16_t Mode);
+void dioTake(uint16_t base);
+void dioRelease(uint16_t base);
 
 // AIn HAL
+void hal_ain_configure(uint8_t apin, uint8_t aref);
 void hal_ain_select(uint8_t apin, uint8_t aref);
 int16_t hal_ain_get(void);
 
@@ -54,6 +56,11 @@ static uint8_t ainCheckBase(uint16_t base)
         return 1;
     
     base = ain_base2dio[base];
+    
+    if(base == 0xFE)        // Analog Inputs without digital functions
+        return 0;
+    else if(base == 0xFF)   // Index not exist
+        return 2;
 
     return dioCheckBase(base);
 }
@@ -197,7 +204,8 @@ e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx)
     ain_ref[apin] = ainSubidx2Ref(&pIdx->sidx);
 
     // Configure PIN to Analog input
-    dioConfigure(ain_base2dio[apin], DIO_MODE_AIN);
+    dioTake(ain_base2dio[apin]);
+    hal_ain_configure(apin, ain_ref[apin]);
 
     pIdx->cbRead  = &ainReadOD;
     pIdx->cbWrite = &ainWriteOD;
@@ -216,7 +224,8 @@ void ainDeleteOD(subidx_t * pSubidx)
     ain_ref[(uint8_t)base] = 0xFF;
 
     // Release PIN
-    dioConfigure(ain_base2dio[base], DIO_MODE_IN_FLOAT);
+    hal_ain_configure((uint8_t)base, 0xFF);
+    dioRelease(ain_base2dio[base]);
 }
 
 void ainProc(void)

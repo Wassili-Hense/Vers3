@@ -18,6 +18,9 @@ See LICENSE file for license details.
 #include "HWconfig_S4Sn12.h"    // UART
 #elif   (defined CFG_S4ES12)
 #include "HWconfig_S4ES12.h"    // ENC28J60 + UART
+// STM32F405RG
+#elif   (defined CFG_S4SN13)
+#include "HWconfig_S4Sn13.h"    // UART
 #else
 #error Unknown configuration
 #endif  //  Configuration

@@ -119,7 +119,7 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
                 GPIOx->CRH |= gpio_cr;
             }
 #else
-#error unknown uC Familie
+#error unknown uC Family
 #endif
         }
     }
