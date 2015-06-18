@@ -6,8 +6,6 @@ static uint32_t CriticalNesting = 0;
 
 void INIT_SYSTEM(void)
 {
-    __disable_irq();
-    
     SystemInit();
 
     // Enable GPIO clock

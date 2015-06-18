@@ -73,9 +73,9 @@ extern "C" {
 #define HAL_USE_USART1              1
 #define HAL_USE_USART2              1
 
-#define UART_PHY_PORT               0   //  0 - USART1 PA9,PA10 GPIOA MASK 0x0600, 1 - USART2 PA2,PA3 GPIO MASK 0x000C
+#define UART_PHY_PORT               1   //  1 - USART1 PA9,PA10 GPIOA MASK 0x0600, 2 - USART2 PA2,PA3 GPIO MASK 0x000C
 #define EXTSER_USED                 1
-#define EXTSER_PORT2UART            {1}
+#define EXTSER_PORT2UART            {2}
 // End UART Section
 
 // TWI Section

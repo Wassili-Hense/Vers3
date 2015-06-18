@@ -16,84 +16,16 @@ See LICENSE file for license details.
 // uC: STM32F405RG
 // PHY1: UART
 
-/**
-GPIOA
-
-0     SN_TX
-1     SN_RX
-2     CCD_CLK
-3     CCD_ST
-4     DAC_OUT1
-5     DAC_OUT2
-6     AIN1
-7     AIN2
-8
-9
-10
-11    USB_DM
-12    USB_DP
-13    SWDIO
-14    SWCLK
-15    M_NSS
-
-
-GPIOB
-
-0
-1
-2     BOOT1
-3     IO_SCK
-4     IO_MISO
-5     IO_MOSI
-6     IO_TX
-7     IO_RX
-8     IO_TX_EN
-9     IO_NSS
-10    OLED_NRST
-11    OLED_DNC
-12    OLED_NCS
-13    OLED_SCK
-14    OLED_MISO
-15    OLED_MOSI
-
-
-GPIOC
-
-0     AO2_M
-1     AO2_E
-2     AO1_M
-3     AO1_E
-4     IO_O3
-5
-6     KEY1
-7     KEY2
-8     KEY3
-9     KEY4
-10    M_SCK
-11    M_MISO
-12    M_MOSI
-13    IO_IRQ
-14    IO_LI
-15    IO_O2
-
-GPIOD
-2     M_NWP
-
-**/
-
-
-
-
 // GPIOA
 // Pin  Port    Func
-//   0  PA0     USART4_TX
-//   1  PA1     USART4_RX
-//   2  PA2     USART2_TX
-//   3  PA3     USART2_RX
-//   4  PA4
-//   5  PA5     SPI1_SCK
-//   6  PA6     SPI1_MISO
-//   7  PA7     SPI1_MOSI
+//   0  PA0     USART4_TX       AIn0
+//   1  PA1     USART4_RX       AIn1
+//   2  PA2     USART2_TX       Ain2
+//   3  PA3     USART2_RX       AIn3
+//   4  PA4                     AIn4
+//   5  PA5     SPI1_SCK        AIn5    LED
+//   6  PA6     SPI1_MISO       AIn6
+//   7  PA7     SPI1_MOSI       AIn7
 //   8  PA8
 //   9  PA9     USART1_TX
 //  10  PA10    USART1_RX
@@ -103,8 +35,8 @@ GPIOD
 //  14  PA14    SWCLK
 //  15  PA15
 // GPIOB
-//  16  PB0
-//  17  PB1
+//  16  PB0                     AIn8
+//  17  PB1                     AIn9
 //  18  PB2
 //  19  PB3
 //  20  PB4
@@ -120,24 +52,24 @@ GPIOD
 //  30  PB14
 //  31  PB15
 // GPIOC
-//  32  PC0
-//  33  PC1
-//  34  PC2
-//  35  PC3
-//  36  PC4
-//  37  PC5
+//  32  PC0                     AIn10
+//  33  PC1                     AIn11
+//  34  PC2                     AIn12
+//  35  PC3                     AIn13
+//  36  PC4                     AIn14
+//  37  PC5                     AIn15
 //  38  PC6
 //  39  PC7
 //  40  PC8
 //  41  PC9
-//  42  PC10    SPI3_SCK
-//  43  PC11    SPI3_MISO
-//  44  PC12    SPI3_MOSI
-//  45  PC13
+//  42  PC10    SPI3_SCK        FRAM_CLK
+//  43  PC11    SPI3_MISO       FRAM_SO
+//  44  PC12    SPI3_MOSI       FRAM_SI
+//  45  PC13                    USER_BTN
 //  46  PC14
 //  47  PC15
 // GPIOD
-//      PD2
+//      PD2                     FRAM_CS
 
 
 #ifdef __cplusplus
@@ -152,29 +84,40 @@ extern "C" {
 
 #include "STM32/hal.h"
 
+// FRAM Section
+#define HAL_USE_SPI3
+
+#define FRAM_NSS_PORT               GPIOD
+#define FRAM_NSS_PIN                GPIO_Pin_2
+#define FRAM_SPI_PORT               13
+// End FRAM Section
+
 // DIO Section
-//#define EXTDIO_USED                 1
+#define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3
 #define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB, GPIOC}
-#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x600C, (uint16_t)0x0000, (uint16_t)0x0000}
+#define EXTDIO_PORTNUM2MASK         {(uint16_t)0x600C, (uint16_t)0x0000, (uint16_t)0x1C00}
 // End DIO Section
 
 // PA0-PA7: 0 - 7
 // PB0-PB1: 8 - 9
 // PC0-PC5: 10-15
 // Analogue Inputs
-//#define EXTAIN_USED                 0
+#define EXTAIN_USED                 0
 #define EXTAIN_MAXPORT_NR           16
 #define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
-#define EXTAIN_BASE_2_DIO           {0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 32, 33, 34, 35, 36, 37}
+#define EXTAIN_BASE_2_DIO           {0, 1, 0xFF, 0xFF, 4, 5, 6, 7, 16, 17, 32, 33, 34, 35, 36, 37}
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
 // UART Section
+#define HAL_USE_USART1
+#define HAL_USE_USART2
+#define HAL_USE_USART3
 #define HAL_USE_UART4
-#define UART_PHY_PORT               3
-//#define EXTSER_USED                 1
-//#define EXTSER_PORT2UART            {1}
+#define UART_PHY_PORT               2
+#define EXTSER_USED                 1
+#define EXTSER_PORT2UART            {1,3,4}
 // End UART Section
 
 // TWI Section

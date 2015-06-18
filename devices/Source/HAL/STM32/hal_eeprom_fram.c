@@ -1,13 +1,5 @@
 #include "../../config.h"
 
-// Hardware
-#define FRAM_NSS_PORT                   GPIOA
-#define FRAM_NSS_PIN                    GPIO_Pin_15
-#define FRAM_MWP_PORT                   GPIOD
-#define FRAM_MWP_PIN                    GPIO_Pin_2
-#define FRAM_SPI_PORT                   13
-
-
 //Op-code Commands 
 #define FRAM_CMD_WREN                   0x06    // Set Write Enable Latch
 #define FRAM_CMD_WRDI                   0x04    // Write Disable
@@ -27,11 +19,7 @@ void eeprom_init_hw(void)
     hal_dio_gpio_cfg(FRAM_NSS_PORT, FRAM_NSS_PIN, DIO_MODE_OUT_PP_HS);
     hal_gpio_set(FRAM_NSS_PORT, FRAM_NSS_PIN);       //  #CS = 1;
 
-    // M_NWP - Low Speed - not used
-    hal_dio_gpio_cfg(FRAM_MWP_PORT, FRAM_MWP_PIN, DIO_MODE_OUT_PP);
-    hal_gpio_reset(FRAM_MWP_PORT, FRAM_MWP_PIN);
-    
-    hal_spi_cfg(FRAM_SPI_PORT, (HAL_SPI_MODE_0 | HAL_SPI_MSB | HAL_SPI_8B), 20000000UL);
+    hal_spi_cfg(FRAM_SPI_PORT, (HAL_SPI_MODE_0 | HAL_SPI_MSB | HAL_SPI_8B), 25000000UL);
 }
 
 // Read data from EEPROM
