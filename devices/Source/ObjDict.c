@@ -454,7 +454,6 @@ void InitOD(void)
 
     extInit();
 
-
     // Load Saved Variables
     uint16_t pos = 0;
     for(uiTmp = 0; uiTmp < OD_MAX_INDEX_LIST; uiTmp++)

@@ -18,17 +18,17 @@ See LICENSE file for license details.
 
 // GPIOA
 // Pin  Port    Func
-//   0  PA0     USART4_TX       AIn0
-//   1  PA1     USART4_RX       AIn1
+//   0  PA0     _USART4_TX      AIn0
+//   1  PA1     _USART4_RX      AIn1
 //   2  PA2     USART2_TX       Ain2
 //   3  PA3     USART2_RX       AIn3
 //   4  PA4                     AIn4
-//   5  PA5     SPI1_SCK        AIn5    LED
-//   6  PA6     SPI1_MISO       AIn6
-//   7  PA7     SPI1_MOSI       AIn7
+//   5  PA5     _SPI1_SCK       AIn5    LED
+//   6  PA6     _SPI1_MISO      AIn6
+//   7  PA7     _SPI1_MOSI      AIn7
 //   8  PA8
-//   9  PA9     USART1_TX
-//  10  PA10    USART1_RX
+//   9  PA9     _USART1_TX
+//  10  PA10    _USART1_RX
 //  11  PA11
 //  12  PA12
 //  13  PA13    SWDIO
@@ -45,8 +45,8 @@ See LICENSE file for license details.
 //  23  PB7
 //  24  PB8     I2C1-SCL
 //  25  PB9     I2C1-SDA
-//  26  PB10
-//  27  PB11
+//  26  PB10    _USART3_TX
+//  27  PB11    _USART3_RX
 //  28  PB12
 //  29  PB13
 //  30  PB14
