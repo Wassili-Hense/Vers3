@@ -146,14 +146,10 @@ void ainInit()
     ainLoadAverage();
 }
 
-
 // Check index analog input
-uint8_t ainCheckIdx(subidx_t * pSubidx)
+bool ainCheckSubidx(subidx_t * pSubidx)
 {
-    if(ainSubidx2Ref(pSubidx) == 0xFF)
-        return 2;
-
-    return ainCheckBase(pSubidx->Base);
+    return ((ainSubidx2Ref(pSubidx) != 0xFF) && (ainCheckBase(pSubidx->Base) != 2));
 }
 
 // Read analog inputs

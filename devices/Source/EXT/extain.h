@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 void ainInit(void);
-uint8_t ainCheckIdx(subidx_t * pSubidx);
+bool ainCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx);
 void ainDeleteOD(subidx_t * pSubidx);
 void ainProc(void);

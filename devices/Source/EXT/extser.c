@@ -65,7 +65,7 @@ void serInit()
 }
 
 // Check Index
-uint8_t serCheckIdx(subidx_t * pSubidx)
+bool serCheckSubidx(subidx_t * pSubidx)
 {
     uint8_t type = pSubidx->Type;
     uint8_t port = pSubidx->Base/10;
@@ -74,12 +74,9 @@ uint8_t serCheckIdx(subidx_t * pSubidx)
     if((port >= MAX_SER_PORT) ||
        (nBaud > 4) ||
        ((type != ObjSerRx) && (type != ObjSerTx)))
-        return 2;
+        return false;
 
-//    if(extSerV[port] != NULL)
-//        return 1;
-
-    return 0;
+    return true;
 }
 
 // Read data
@@ -224,14 +221,14 @@ void serDeleteOD(subidx_t * pSubidx)
         else
         {
             extSerV[port]->flags &= ~EXTSER_FLAG_RXEN;
-            
+
             if(extSerV[port]->pRxBuf != NULL)
             {
                 mqFree(extSerV[port]->pRxBuf);
                 extSerV[port]->pRxBuf = NULL;
             }
         }
-        
+
         if((extSerV[port]->flags & (EXTSER_FLAG_TXEN | EXTSER_FLAG_RXEN)) == 0)
         {
             hal_uart_deinit(extser2uart[port]);

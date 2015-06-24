@@ -274,7 +274,8 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
         case MQTTSN_MSGTYP_REGACK:
             if(msg_from_gw)
             {
-                if(vMQTTSN.Status == MQTTSN_STATUS_PRE_CONNECT)
+                if((vMQTTSN.Status == MQTTSN_STATUS_PRE_CONNECT) ||
+                   (vMQTTSN.Status == MQTTSN_STATUS_CONNECT))
                 {
                     if((vMQTTSN.MsgType == MQTTSN_MSGTYP_REGISTER) &&
                        (vMQTTSN.pMessage->mq.regist.MsgId[0] == pPHY1outBuf->mq.regack.MsgId[0]) &&
@@ -741,6 +742,16 @@ void MQTTSN_Poll(void)
                     pMessage = vMQTTSN.pMessage;
                     vMQTTSN.MsgType = MQTTSN_MSGTYP_PINGREQ;
                 }
+            }
+            else if(vMQTTSN.MsgType == MQTTSN_MSGTYP_REGISTER)  // Send Register message
+            {
+                vMQTTSN.Tretry = MQTTSN_T_RETR_BASED;
+
+                pMessage = mqAlloc(sizeof(MQ_t));
+                if(pMessage == NULL)
+                    return;
+
+                memcpy(pMessage, vMQTTSN.pMessage, sizeof(MQ_t));
             }
             else    // No messages, send PingReq
             {

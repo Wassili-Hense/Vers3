@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 void extInit(void);                                         // Initialise extensions
-uint8_t extCheckIdx(subidx_t * pSubidx);                    // Check Subindex ->free/busy/invalid
+bool extCheckSubidx(subidx_t * pSubidx);                    // Check Subindex , true -> Ok
 e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx);      // Register Object
 void extDeleteOD(subidx_t * pSubidx);                       // Delete Object
 void extProc(void);                                         // Update IO's

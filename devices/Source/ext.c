@@ -62,38 +62,39 @@ void extInit(void)
 }
 
 // Check Subindex: 0 - free / 1 - busy / 2 - invalid
-uint8_t extCheckIdx(subidx_t * pSubidx)
+bool extCheckSubidx(subidx_t * pSubidx)
 {
     switch(pSubidx->Place)
     {
 #ifdef EXTDIO_USED
         case objDin:
         case objDout:
-            return dioCheckIdx(pSubidx);
+            return dioCheckSubidx(pSubidx);
 
 #ifdef EXTPWM_USED
         case objPWM:
-            return pwmCheckIdx(pSubidx);
+            return pwmCheckSubidx(pSubidx);
 #endif  //  EXTPWM_USED
 
 #ifdef EXTAIN_USED
         case objAin:
-            return ainCheckIdx(pSubidx);
+            return ainCheckSubidx(pSubidx);
 #endif  //  EXTAIN_USED
 #endif  //  EXTDIO_USED
 
 #ifdef EXTSER_USED
         case objSer:
-            return serCheckIdx(pSubidx);
+            return serCheckSubidx(pSubidx);
 #endif  //  EXTSER_USED
 #ifdef EXTPLC_USED
         case objMerker:
-            return plcCheckIdx(pSubidx);
+            return plcCheckSubidx(pSubidx);
 #endif  //  EXTPLC_USED
         default:
             break;
   }
-  return 2;
+
+  return false;
 }
 
 // Register Object

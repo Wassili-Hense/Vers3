@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 void dioInit(void);
-uint8_t dioCheckIdx(subidx_t * pSubidx);
+bool dioCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx);
 void dioDeleteOD(subidx_t * pSubidx);
 void dioProc(void);

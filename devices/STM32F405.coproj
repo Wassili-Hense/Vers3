@@ -83,15 +83,15 @@
     <File name="Source/HAL" path="" type="2"/>
     <File name="Source/PHY/UART" path="" type="2"/>
     <File name="Source/HAL/STM32/hal_cc11.c" path="Source/HAL/STM32/hal_cc11.c" type="1"/>
-    <File name="cmsis_boot/startup" path="" type="2"/>
     <File name="cmsis/core_cm4_simd.h" path="cmsis/core_cm4_simd.h" type="1"/>
+    <File name="cmsis_boot/startup" path="" type="2"/>
     <File name="cmsis_boot/stm32f4xx.h" path="cmsis_boot/stm32f4xx.h" type="1"/>
     <File name="cmsis/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
-    <File name="cmsis/core_cm4.h" path="cmsis/core_cm4.h" type="1"/>
     <File name="Source/EXT/extdio.h" path="Source/EXT/extdio.h" type="1"/>
-    <File name="Source/EXT/extpwm.c" path="Source/EXT/extpwm.c" type="1"/>
-    <File name="Source/PHY" path="" type="2"/>
+    <File name="cmsis/core_cm4.h" path="cmsis/core_cm4.h" type="1"/>
     <File name="Source/EXT/extain.h" path="Source/EXT/extain.h" type="1"/>
+    <File name="Source/PHY" path="" type="2"/>
+    <File name="Source/EXT/extpwm.c" path="Source/EXT/extpwm.c" type="1"/>
     <File name="Source/HAL/STM32/hal_exti.c" path="Source/HAL/STM32/hal_exti.c" type="1"/>
     <File name="Source/HAL/HWconfig_S4ES12.h" path="Source/HAL/HWconfig_S4ES12.h" type="1"/>
     <File name="Source/HAL/HW_STM32F4.h" path="Source/HAL/HW_STM32F4.h" type="1"/>
@@ -114,10 +114,10 @@
     <File name="Source/EXT/extdio.c" path="Source/EXT/extdio.c" type="1"/>
     <File name="stm32_lib/src/stm32f4xx_rcc.c" path="stm32_lib/src/stm32f4xx_rcc.c" type="1"/>
     <File name="Source/mqTypes.h" path="Source/mqTypes.h" type="1"/>
-    <File name="Source/EXT/extain.c" path="Source/EXT/extain.c" type="1"/>
-    <File name="Source/diag.h" path="Source/diag.h" type="1"/>
-    <File name="stm32_lib" path="" type="2"/>
     <File name="Source/EXT/extpwm.h" path="Source/EXT/extpwm.h" type="1"/>
+    <File name="Source/EXT/extain.c" path="Source/EXT/extain.c" type="1"/>
+    <File name="stm32_lib" path="" type="2"/>
+    <File name="Source/diag.h" path="Source/diag.h" type="1"/>
     <File name="Source/EXT/extser.h" path="Source/EXT/extser.h" type="1"/>
     <File name="Source/PHY/UART/uart_phy.c" path="Source/PHY/UART/uart_phy.c" type="1"/>
     <File name="cmsis_boot/system_stm32f4xx.c" path="cmsis_boot/system_stm32f4xx.c" type="1"/>
@@ -125,18 +125,18 @@
     <File name="stm32_lib/inc" path="" type="2"/>
     <File name="Source/EXT/extplc.c" path="Source/EXT/extplc.c" type="1"/>
     <File name="Source/mqMEM.h" path="Source/mqMEM.h" type="1"/>
-    <File name="cmsis" path="" type="2"/>
     <File name="Source/HAL/STM32" path="" type="2"/>
+    <File name="cmsis" path="" type="2"/>
     <File name="Source/HAL/STM32/HAL.c" path="Source/HAL/STM32/HAL.c" type="1"/>
+    <File name="stm32_lib/inc/stm32f4xx_rcc.h" path="stm32_lib/inc/stm32f4xx_rcc.h" type="1"/>
     <File name="Source/mqttsn.h" path="Source/mqttsn.h" type="1"/>
     <File name="Source/diag.c" path="Source/diag.c" type="1"/>
-    <File name="stm32_lib/inc/stm32f4xx_rcc.h" path="stm32_lib/inc/stm32f4xx_rcc.h" type="1"/>
-    <File name="Source/main.c" path="Source/main.c" type="1"/>
     <File name="Source/EXT/extser.c" path="Source/EXT/extser.c" type="1"/>
-    <File name="Source/HAL/STM32/hal_dio.c" path="Source/HAL/STM32/hal_dio.c" type="1"/>
+    <File name="Source/main.c" path="Source/main.c" type="1"/>
     <File name="Source/HAL/STM32/hal_twi.c" path="Source/HAL/STM32/hal_twi.c" type="1"/>
-    <File name="stm32_lib/src/stm32f4xx_flash.c" path="stm32_lib/src/stm32f4xx_flash.c" type="1"/>
+    <File name="Source/HAL/STM32/hal_dio.c" path="Source/HAL/STM32/hal_dio.c" type="1"/>
     <File name="Source/HAL/STM32/hal_eeprom_fram.c" path="Source/HAL/STM32/hal_eeprom_fram.c" type="1"/>
+    <File name="stm32_lib/src/stm32f4xx_flash.c" path="stm32_lib/src/stm32f4xx_flash.c" type="1"/>
     <File name="Source/ObjDict.c" path="Source/ObjDict.c" type="1"/>
     <File name="Source/EXT/extplc.h" path="Source/EXT/extplc.h" type="1"/>
     <File name="Source/HAL/STM32/hal.h" path="Source/HAL/STM32/hal.h" type="1"/>

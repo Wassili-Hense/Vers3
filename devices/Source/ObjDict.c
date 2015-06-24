@@ -112,13 +112,13 @@ uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     uint16_t Base = pSubidx->Base;
 
-  if(Base == eeMACAddr)
-  {
-    if(Len != 6)
-      return MQTTSN_RET_REJ_CONG;
-  }
-  else if(Len != 4)
-    return MQTTSN_RET_REJ_CONG;
+    if(Base == eeMACAddr)
+    {
+        if(Len != 6)
+            return MQTTSN_RET_REJ_CONG;
+    }
+    else if(Len != 4)
+        return MQTTSN_RET_REJ_CONG;
 
     eeprom_write(pBuf, Base, Len);
     return MQTTSN_RET_ACCEPTED;
@@ -126,15 +126,15 @@ uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
 uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-  uint16_t Base = pSubidx->Base;
+    uint16_t Base = pSubidx->Base;
 
-  if(Base == eeMACAddr)
-    *pLen = 6;
-  else
-    *pLen = 4;
+    if(Base == eeMACAddr)
+        *pLen = 6;
+    else
+        *pLen = 4;
 
-  eeprom_read(pBuf, Base, *pLen);
-  return MQTTSN_RET_ACCEPTED;
+    eeprom_read(pBuf, Base, *pLen);
+    return MQTTSN_RET_ACCEPTED;
 }
 #endif  //  LAN_NODE
 // End callback's
@@ -214,76 +214,76 @@ static uint8_t cvtSubidx2Len(subidx_t * pSubIdx)
 // Read predefined object from EEPROM
 static uint8_t eepromReadOD(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-  uint8_t Len;
-  uint16_t Base;
+    uint8_t Len;
+    uint16_t Base;
 
-  Base = pSubidx->Base;
+    Base = pSubidx->Base;
 
-  switch(pSubidx->Type)
-  {
-    case objBool:
-    case objInt8:
-    case objUInt8:
-      *pLen = sizeof(uint8_t);
-      break;
-    case objInt16:
-    case objUInt16:
-      *pLen = sizeof(uint16_t);
-      break;
-    case objInt32:
-    case objUInt32:
-      *pLen = sizeof(uint32_t);
-      break;
-    case objString:
-    case objArray:
-      eeprom_read(&Len, Base, 1);
-      *pLen = Len < *pLen ? Len : *pLen;
-      if(*pLen == 0)
-        return MQTTSN_RET_ACCEPTED;
-      Base++;
-      break;
-    default:
-      return MQTTSN_RET_REJ_NOT_SUPP;
-  }
-  eeprom_read(pBuf, Base, *pLen);
+    switch(pSubidx->Type)
+    {
+        case objBool:
+        case objInt8:
+        case objUInt8:
+            *pLen = sizeof(uint8_t);
+            break;
+        case objInt16:
+        case objUInt16:
+            *pLen = sizeof(uint16_t);
+            break;
+        case objInt32:
+        case objUInt32:
+            *pLen = sizeof(uint32_t);
+            break;
+        case objString:
+        case objArray:
+            eeprom_read(&Len, Base, 1);
+            *pLen = Len < *pLen ? Len : *pLen;
+            if(*pLen == 0)
+                return MQTTSN_RET_ACCEPTED;
+            Base++;
+            break;
+        default:
+            return MQTTSN_RET_REJ_NOT_SUPP;
+    }
+    eeprom_read(pBuf, Base, *pLen);
 
-  return MQTTSN_RET_ACCEPTED;
+    return MQTTSN_RET_ACCEPTED;
 }
 
 // Write predefined object to EEPROM
 static uint8_t eepromWriteOD(subidx_t *pSubidx, uint8_t Len, uint8_t *pBuf)
 {
-  uint16_t Base;
+    uint16_t Base;
 
-  Base = pSubidx->Base;
+    Base = pSubidx->Base;
 
-  switch(pSubidx->Type)
-  {
-    case objBool:
-    case objInt8:
-    case objUInt8:
-      Len = sizeof(uint8_t);
-      break;
-    case objInt16:
-    case objUInt16:
-      Len = sizeof(uint16_t);
-      break;
-    case objInt32:
-    case objUInt32:
-      Len = sizeof(uint32_t);
-      break;
-    case objString:
-    case objArray:
-      eeprom_write(&Len, Base, 1);
-      if(Len == 0)
-        return MQTTSN_RET_ACCEPTED;
-      Base++;
-      break;
-    default:
-      return MQTTSN_RET_REJ_NOT_SUPP;
-  }
-  eeprom_write(pBuf, Base, Len);
-  return MQTTSN_RET_ACCEPTED;
+    switch(pSubidx->Type)
+    {
+        case objBool:
+        case objInt8:
+        case objUInt8:
+            Len = sizeof(uint8_t);
+            break;
+        case objInt16:
+        case objUInt16:
+            Len = sizeof(uint16_t);
+            break;
+        case objInt32:
+        case objUInt32:
+            Len = sizeof(uint32_t);
+            break;
+        case objString:
+        case objArray:
+            eeprom_write(&Len, Base, 1);
+            if(Len == 0)
+                return MQTTSN_RET_ACCEPTED;
+            Base++;
+            break;
+        default:
+            return MQTTSN_RET_REJ_NOT_SUPP;
+    }
+    eeprom_write(pBuf, Base, Len);
+    return MQTTSN_RET_ACCEPTED;
 }
 
 // Predefined Object's
@@ -316,7 +316,6 @@ static uint8_t readDeviceInfo(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
     }
     
     // Read PHY address
-
     uint16_t index = 0xFFFF;
 
     if(Base == 1)
@@ -335,45 +334,45 @@ static uint8_t readDeviceInfo(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
 
 static void RestoreSubindex(uint16_t sidxn, subidx_t *pSubidx)
 {
-  uint16_t addr = sidxn;
-  addr *= sizeof(subidx_t);
-  addr += eelistOdbu;
-  eeprom_read((uint8_t *)pSubidx, addr, sizeof(subidx_t));
+    uint16_t addr = sidxn;
+    addr *= sizeof(subidx_t);
+    addr += eelistOdbu;
+    eeprom_read((uint8_t *)pSubidx, addr, sizeof(subidx_t));
 }
 
 static void SaveSubindex(uint16_t sidxn, subidx_t *pSubidx)
 {
-  uint16_t addr = sidxn;
-  addr *= sizeof(subidx_t);
-  addr += eelistOdbu;
-  eeprom_write((uint8_t *)pSubidx, addr, sizeof(subidx_t));
+    uint16_t addr = sidxn;
+    addr *= sizeof(subidx_t);
+    addr += eelistOdbu;
+    eeprom_write((uint8_t *)pSubidx, addr, sizeof(subidx_t));
 }
 
 // delete object
 static void deleteIndexOD(uint8_t id)
 {
-  if(id >= OD_MAX_INDEX_LIST)
-    return;
+    if(id >= OD_MAX_INDEX_LIST)
+        return;
     
-  ListOD[id].Index = 0xFFFF;
+    ListOD[id].Index = 0xFFFF;
 
-  // delete from EEPROM
-  uint16_t i;
-  subidx_t subidx;
-  for(i = 0; i < OD_MAX_INDEX_LIST; i++)
-  {
-    RestoreSubindex(i, &subidx);
-    if(memcmp((const void *)&subidx, (const void *)&ListOD[id].sidx, sizeof(subidx_t)) == 0)
+    // delete from EEPROM
+    uint16_t i;
+    subidx_t subidx;
+    for(i = 0; i < OD_MAX_INDEX_LIST; i++)
     {
-      subidx.Place = 0xFF;
-      subidx.Type = 0xFF;
-      subidx.Base  = 0xFFFF;
-      SaveSubindex(i, &subidx);
-      break;
+        RestoreSubindex(i, &subidx);
+        if(memcmp((const void *)&subidx, (const void *)&ListOD[id].sidx, sizeof(subidx_t)) == 0)
+        {
+            subidx.Place = 0xFF;
+            subidx.Type = 0xFF;
+            subidx.Base  = 0xFFFF;
+            SaveSubindex(i, &subidx);
+            break;
+        }
     }
-  }
 
-  extDeleteOD(&ListOD[id].sidx);
+    extDeleteOD(&ListOD[id].sidx);
 }
 // End Local Subroutines
 //////////////////////////
@@ -383,9 +382,9 @@ void InitOD(void)
     eeprom_init_hw();
 
     // Check Settings
-    uint8_t Len = 1;
-    uint8_t ucTmp = 0;
-    uint16_t  uiTmp;
+    uint8_t     Len = 1;
+    uint8_t     ucTmp = 0;
+    uint16_t    uiTmp;
 
     ReadOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, &Len, &ucTmp);
     if(ucTmp == 0xFF)                                                                       // Not Configured
@@ -496,78 +495,78 @@ indextable_t * getFreeIdxOD(void)
 
 e_MQTTSN_RETURNS_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf)
 {
-  indextable_t * pIndex = scanIndexOD(Id, Flags);
-  if(pIndex == NULL)
-  {
-    *pLen = 0;
-    return MQTTSN_RET_REJ_INV_ID;
-  }
-  if(pIndex->cbRead == NULL)
-  {
-    *pLen = 0;
-    return MQTTSN_RET_REJ_NOT_SUPP;
-  }
+    indextable_t * pIndex = scanIndexOD(Id, Flags);
+    if(pIndex == NULL)
+    {
+        *pLen = 0;
+        return MQTTSN_RET_REJ_INV_ID;
+    }
+    if(pIndex->cbRead == NULL)
+    {
+        *pLen = 0;
+        return MQTTSN_RET_REJ_NOT_SUPP;
+    }
   
-  e_MQTTSN_RETURNS_t retval;
-  retval = (pIndex->cbRead)(&pIndex->sidx, pLen, pBuf);
-  if(retval != MQTTSN_RET_ACCEPTED)
-    *pLen = 0;
+    e_MQTTSN_RETURNS_t retval;
+    retval = (pIndex->cbRead)(&pIndex->sidx, pLen, pBuf);
+    if(retval != MQTTSN_RET_ACCEPTED)
+        *pLen = 0;
 
-  return retval;
+    return retval;
 }
 
 e_MQTTSN_RETURNS_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf)
 {
-  indextable_t * pIndex = scanIndexOD(Id, Flags);
-  if(pIndex == NULL)
-    return MQTTSN_RET_REJ_INV_ID;
-  if(pIndex->cbWrite == NULL)
-    return MQTTSN_RET_REJ_NOT_SUPP;
+    indextable_t * pIndex = scanIndexOD(Id, Flags);
+    if(pIndex == NULL)
+        return MQTTSN_RET_REJ_INV_ID;
+    if(pIndex->cbWrite == NULL)
+        return MQTTSN_RET_REJ_NOT_SUPP;
 
-  return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
+    return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
 }
 
 // Make Topic Name from record number
 uint8_t MakeTopicName(uint8_t RecNR, uint8_t *pBuf)
 {
-  *(uint8_t*)(pBuf++) = ListOD[RecNR].sidx.Place;
-  *(uint8_t*)(pBuf++) = ListOD[RecNR].sidx.Type;
+    *(uint8_t*)(pBuf++) = ListOD[RecNR].sidx.Place;
+    *(uint8_t*)(pBuf++) = ListOD[RecNR].sidx.Type;
 
-  uint16_t addr = ListOD[RecNR].sidx.Base;
-  // sprintf(pBuf,"%d",addr);
-  uint16_t div = 10000;
-  uint8_t ch, fl = 0, len = 3;
+    uint16_t addr = ListOD[RecNR].sidx.Base;
+    // sprintf(pBuf,"%d",addr);
+    uint16_t div = 10000;
+    uint8_t ch, fl = 0, len = 3;
 
-  while(div >= 10)
-  {
-    if(addr >= div)
+    while(div >= 10)
     {
-      ch = addr / div;
-      addr = addr % div;
-    }
-    else
-      ch = 0;
+        if(addr >= div)
+        {
+            ch = addr / div;
+            addr = addr % div;
+        }
+        else
+            ch = 0;
 
-    div = div/10;
+        div = div/10;
 
-    if((ch != 0) || (fl != 0))
-    {
-      fl = 1;
-      *(pBuf++) = ch + '0';
-      len++;
+        if((ch != 0) || (fl != 0))
+        {
+            fl = 1;
+            *(pBuf++) = ch + '0';
+            len++;
+        }
     }
-  }
-  *pBuf = addr + '0';
-  return len;
+    *pBuf = addr + '0';
+    return len;
 }
 
 void RegAckOD(uint16_t index)
 {
-  if(index != 0xFFFF)
-    ListOD[idxUpdate].Index = index;
-  else    // Delete Message
-    deleteIndexOD(idxUpdate);
-  idxUpdate++;
+    if(index != 0xFFFF)
+        ListOD[idxUpdate].Index = index;
+    else    // Delete Message
+        deleteIndexOD(idxUpdate);
+    idxUpdate++;
 }
 
 e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
@@ -598,7 +597,7 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
     Subidx.Base = val;
     }
 
-    if(extCheckIdx(&Subidx) == 2)
+    if(!extCheckSubidx(&Subidx))
         return MQTTSN_RET_REJ_NOT_SUPP;
 
     uint16_t TopicId = (pMsg->regist.TopicId[0]<<8) | pMsg->regist.TopicId[1];
@@ -670,80 +669,80 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
 // Read and pack object by Index. 
 e_MQTTSN_RETURNS_t ReadODpack(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf)
 {
-  indextable_t * pIndex = scanIndexOD(Id, Flags);
-  if(pIndex == NULL)
-  {
-    *pLen = 0;
-    return MQTTSN_RET_REJ_INV_ID;
-  }
-  if(pIndex->cbRead == NULL)
-  {
-    *pLen = 0;
-    return MQTTSN_RET_REJ_NOT_SUPP;
-  }
-
-  e_MQTTSN_RETURNS_t retval = (pIndex->cbRead)(&pIndex->sidx, pLen, pBuf);
-
-  if(retval == MQTTSN_RET_ACCEPTED)    // Pack Object
-  {
-    uint8_t len;
-    len = cvtSubidx2Len(&pIndex->sidx);
-
-    if(len & 0x80)      // Signed
+    indextable_t * pIndex = scanIndexOD(Id, Flags);
+    if(pIndex == NULL)
     {
-      len &= 0x7F;
-      while(len > 1)
-      {
-        if(((pBuf[len-1] == 0)    && ((pBuf[len-2] & 0x80) == 0)) ||
-          ((pBuf[len-1] == 0xFF) && ((pBuf[len-2] & 0x80) == 0x80)))
-            len--;
-        else
-          break;
-      }
-      *pLen = len;
+        *pLen = 0;
+        return MQTTSN_RET_REJ_INV_ID;
     }
-    else if(len > 0)    // Unsigned
+    if(pIndex->cbRead == NULL)
     {
-      if(pBuf[len - 1] & 0x80)
-      {
-        pBuf[len] = 0;
-        len++;
-      }
-      else while((len > 1) && (pBuf[len-1] == 0) && ((pBuf[len-2] & 0x80) == 0))
-        len--;
-      *pLen = len;
+        *pLen = 0;
+        return MQTTSN_RET_REJ_NOT_SUPP;
     }
-  }
-  else
-    *pLen = 0;
 
-  return retval;
+    e_MQTTSN_RETURNS_t retval = (pIndex->cbRead)(&pIndex->sidx, pLen, pBuf);
+
+    if(retval == MQTTSN_RET_ACCEPTED)    // Pack Object
+    {
+        uint8_t len;
+        len = cvtSubidx2Len(&pIndex->sidx);
+
+        if(len & 0x80)      // Signed
+        {
+            len &= 0x7F;
+            while(len > 1)
+            {
+                if(((pBuf[len-1] == 0)    && ((pBuf[len-2] & 0x80) == 0)) ||
+                   ((pBuf[len-1] == 0xFF) && ((pBuf[len-2] & 0x80) == 0x80)))
+                        len--;
+                else
+                    break;
+            }
+            *pLen = len;
+        }
+        else if(len > 0)    // Unsigned
+        {
+            if(pBuf[len - 1] & 0x80)
+            {
+                pBuf[len] = 0;
+                len++;
+            }
+            else while((len > 1) && (pBuf[len-1] == 0) && ((pBuf[len-2] & 0x80) == 0))
+                len--;
+            *pLen = len;
+        }
+    }
+    else
+        *pLen = 0;
+
+    return retval;
 }
 
 // Unpack and write object by Index.
 e_MQTTSN_RETURNS_t WriteODpack(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf)
 {
-  indextable_t * pIndex = scanIndexOD(Id, Flags);
-  if(pIndex == NULL)
-    return MQTTSN_RET_REJ_INV_ID;
-  if(pIndex->cbWrite == NULL)
-    return MQTTSN_RET_REJ_NOT_SUPP;
+    indextable_t * pIndex = scanIndexOD(Id, Flags);
+    if(pIndex == NULL)
+        return MQTTSN_RET_REJ_INV_ID;
+    if(pIndex->cbWrite == NULL)
+        return MQTTSN_RET_REJ_NOT_SUPP;
 
-  // Unpack Object
-  uint8_t len;
-  len = cvtSubidx2Len(&pIndex->sidx) & 0x7F;
-  if(len > Len)
-  {
-    uint8_t fill;
-    fill = (pBuf[Len-1] & 0x80) ? 0xFF: 0x00;
-    while(Len < len)
-      pBuf[Len++] = fill;
-  }
+    // Unpack Object
+    uint8_t len;
+    len = cvtSubidx2Len(&pIndex->sidx) & 0x7F;
+    if(len > Len)
+    {
+        uint8_t fill;
+        fill = (pBuf[Len-1] & 0x80) ? 0xFF: 0x00;
+        while(Len < len)
+            pBuf[Len++] = fill;
+    }
 
-  if(len)
-    Len = len;
+    if(len)
+        Len = len;
 
-  return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
+    return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
 }
 
 // OD Main task
@@ -761,13 +760,23 @@ void OD_Poll(void)
 
         while(MQTTSN_CanSend() && (idxUpdate < OD_MAX_INDEX_LIST))
         {
-            if((ListOD[idxUpdate].Index != 0xFFFF) &&
-               (ListOD[idxUpdate].cbPoll != NULL) &&
-               (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx, 0))
+            uint16_t index = ListOD[idxUpdate].Index;
+
+            if(index == 0x0000)                         // Register new variable
             {
-                MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
+                MQTTSN_Send(MQTTSN_MSGTYP_REGISTER,     // Message type
+                            idxUpdate,                  // Flags
+                            index);                     // Topic Id
+            }
+            else if(index != 0xFFFF)                    // Poll data & publish on ready
+            {
+                if((ListOD[idxUpdate].cbPoll != NULL) &&
+                   (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx, 0))
+                {
+                    MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
                             (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
-                            ListOD[idxUpdate].Index);
+                            index);
+                }
             }
             idxUpdate++;
         }

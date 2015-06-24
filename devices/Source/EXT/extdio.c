@@ -154,13 +154,11 @@ uint8_t dioCheckBase(uint16_t base)
     return 0; // Port free
 }
 
-// Check Index digital input/output
-uint8_t dioCheckIdx(subidx_t * pSubidx)
+// Check Subindex digital input/output
+bool dioCheckSubidx(subidx_t * pSubidx)
 {
-    if((pSubidx->Type == objPinNPN) || (pSubidx->Type == objPinPNP))
-        return dioCheckBase(pSubidx->Base);
-
-    return 2;
+    return (((pSubidx->Type == objPinNPN) || (pSubidx->Type == objPinPNP)) &&
+            (dioCheckBase(pSubidx->Base) != 2));
 }
 
 // Register digital inp/out Object
