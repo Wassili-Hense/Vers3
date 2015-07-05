@@ -83,7 +83,6 @@ extern "C" {
 
 // TWI Section
 #define EXTTWI_USED                 1
-#define TWIM_SCL_STAT()             (PINC & (1<<PC5))
 // End TWI Section
 
 // LEDs

@@ -84,8 +84,7 @@ extern "C" {
 // End Analogue Inputs
 
 // TWI Section
-//#define EXTTWI_USED                 1
-#define TWIM_SCL_STAT()             (PINC & (1<<PC0))
+#define EXTTWI_USED                 1
 // End TWI Section
 
 // LEDs

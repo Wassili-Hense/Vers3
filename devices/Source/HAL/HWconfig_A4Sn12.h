@@ -146,7 +146,6 @@ extern "C" {
 
 // TWI Section
 #define EXTTWI_USED                 1
-#define TWIM_SCL_STAT()             (PIND & (1<<PD0))
 // End TWI Section
 
 // UART Section

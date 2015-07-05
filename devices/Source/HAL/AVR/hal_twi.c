@@ -7,6 +7,14 @@
 #include <avr/interrupt.h>
 #include <util/twi.h>
 
+#if (defined __AVR_ATmega328P__)
+#define TWIM_SCL_STAT()             (PINC & (1<<PC5))
+#elif (defined __AVR_ATmega1284P__)
+#define TWIM_SCL_STAT()             (PINC & (1<<PC0))
+#elif defined (__AVR_ATmega2560__)
+#define TWIM_SCL_STAT()             (PIND & (1<<PD0))
+#endif  // uC
+
 // Global variable defined in exttwi.c
 extern volatile TWI_QUEUE_t * pTwi_exchange;
 
