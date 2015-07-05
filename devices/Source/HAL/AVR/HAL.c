@@ -3,25 +3,27 @@
 #include <avr/interrupt.h>
 
 // Hardware constants for timer 2.
-#if (((F_CPU/32/POLL_TMR_FREQ) - 1) < 255)
+#if (((F_CPU/8000) - 1) < 255)
+#define halCLOCK_CONFIG     2
+#define halCLOCK_COMPARE_VALUE ((F_CPU/8000)-1)
+#elif (((F_CPU/32000) - 1) < 255)
 #define halCLOCK_CONFIG     3
-#define halCLOCK_COMPARE_VALUE ((F_CPU/32/POLL_TMR_FREQ)-1)
-#elif (((F_CPU/64/POLL_TMR_FREQ) - 1) < 255)
+#define halCLOCK_COMPARE_VALUE ((F_CPU/32000)-1)
+#elif (((F_CPU/64000) - 1) < 255)
 #define halCLOCK_CONFIG     4
-#define halCLOCK_COMPARE_VALUE ((F_CPU/64/POLL_TMR_FREQ)-1)
-#elif (((F_CPU/128/POLL_TMR_FREQ) - 1) < 255)
+#define halCLOCK_COMPARE_VALUE ((F_CPU/64000)-1)
+#elif (((F_CPU/128000) - 1) < 255)
 #define halCLOCK_CONFIG     5
-#define halCLOCK_COMPARE_VALUE ((F_CPU/128/POLL_TMR_FREQ)-1)
-#elif (((F_CPU/256/POLL_TMR_FREQ) - 1) < 255)
+#define halCLOCK_COMPARE_VALUE ((F_CPU/128000)-1)
+#elif (((F_CPU/256000) - 1) < 255)
 #define halCLOCK_CONFIG     6
-#define halCLOCK_COMPARE_VALUE ((F_CPU/256/POLL_TMR_FREQ)-1)
-#elif (((F_CPU/1024/POLL_TMR_FREQ) - 1) < 255)
+#define halCLOCK_COMPARE_VALUE ((F_CPU/256000)-1)
+#elif (((F_CPU/1024000) - 1) < 255)
 #define halCLOCK_CONFIG     7
-#define halCLOCK_COMPARE_VALUE ((F_CPU/1024/POLL_TMR_FREQ)-1)
+#define halCLOCK_COMPARE_VALUE ((F_CPU/1024000)-1)
 #else
-#error Check F_CPU and POLL_TMR_FREQ
+#error Check F_CPU
 #endif
-
 
 void StartSheduler(void)
 {
@@ -55,8 +57,13 @@ uint16_t halRNG()
 // Main program tick procedure
 void SystemTick(void);
 
-static uint16_t hal_sec_ticks = 0;
+static uint32_t hal_ms_counter = 0;
 static uint32_t hal_sec_counter = 0;
+
+uint32_t hal_get_ms(void)
+{
+    return hal_ms_counter;
+}
 
 uint32_t hal_get_sec(void)
 {
@@ -65,12 +72,21 @@ uint32_t hal_get_sec(void)
 
 ISR(TIMER2_COMPA_vect)
 {
-    hal_sec_ticks++;
-    if(hal_sec_ticks >= POLL_TMR_FREQ)
+    hal_ms_counter++;
+
+    static uint16_t ms_counter = 0;
+    if(ms_counter > 999)
     {
-        hal_sec_ticks = 0;
+        ms_counter = 0;
         hal_sec_counter++;
     }
-    
-    SystemTick();
+
+    static uint16_t ticks_counter = 0;
+    if(ticks_counter < (const uint16_t)(1000/POLL_TMR_FREQ))
+        ticks_counter++;
+    else
+    {
+        SystemTick();
+        ticks_counter = 1;
+    }
 }

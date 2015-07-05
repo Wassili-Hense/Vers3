@@ -26,14 +26,10 @@ See LICENSE file for license details.
 // AIn Variables
 
 // Local Variables
-static const uint8_t ain_base2dio[EXTAIN_MAXPORT_NR] = EXTAIN_BASE_2_DIO;
-
 static uint8_t ain_mask[AIN_MASK_SIZE];
 static uint8_t ain_ref[EXTAIN_MAXPORT_NR];
 static uint16_t ain_average;
-
-// Global variable, used in PLC
-int16_t ain_act_val[EXTAIN_MAXPORT_NR];
+static int16_t ain_act_val[EXTAIN_MAXPORT_NR];
 
 // dio subroutines
 uint8_t dioCheckBase(uint16_t base);
@@ -41,6 +37,7 @@ void dioTake(uint16_t base);
 void dioRelease(uint16_t base);
 
 // AIn HAL
+uint8_t hal_ain_apin2dio(uint8_t apin);
 void hal_ain_configure(uint8_t apin, uint8_t aref);
 void hal_ain_select(uint8_t apin, uint8_t aref);
 int16_t hal_ain_get(void);
@@ -55,7 +52,7 @@ static uint8_t ainCheckBase(uint16_t base)
     if(ain_ref[(uint8_t)(base & 0xFF)] != 0xFF)
         return 1;
     
-    base = ain_base2dio[base];
+    base = hal_ain_apin2dio(base);
     
     if(base == 0xFE)        // Analog Inputs without digital functions
         return 0;
@@ -166,6 +163,13 @@ static e_MQTTSN_RETURNS_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
     return MQTTSN_RET_ACCEPTED;
 }
 
+#ifdef EXTPLC_USED
+int16_t ain_get(uint8_t apin)
+{
+    return ain_act_val[apin];
+}
+#endif  // EXTPLC_USED
+
 static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     // Prevent hard fault on ARM
@@ -200,7 +204,7 @@ e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx)
     ain_ref[apin] = ainSubidx2Ref(&pIdx->sidx);
 
     // Configure PIN to Analog input
-    dioTake(ain_base2dio[apin]);
+    dioTake(hal_ain_apin2dio(apin));
     hal_ain_configure(apin, ain_ref[apin]);
 
     pIdx->cbRead  = &ainReadOD;
@@ -221,7 +225,7 @@ void ainDeleteOD(subidx_t * pSubidx)
 
     // Release PIN
     hal_ain_configure((uint8_t)base, 0xFF);
-    dioRelease(ain_base2dio[base]);
+    dioRelease(hal_ain_apin2dio(base));
 }
 
 void ainProc(void)

@@ -40,6 +40,7 @@ typedef enum
     DIO_MODE_AIN        = 0x18
 }DIOmode_e;
 
+uint32_t hal_get_ms(void);
 uint32_t hal_get_sec(void);
 
 uint16_t halRNG();

@@ -70,7 +70,7 @@ extern "C" {
 // End DIO Section
 
 // PWM Section
-#define EXTPWM_USED                 1
+//#define EXTPWM_USED                 1
 #define EXTPWM_MAXPORT_NR           5
 #define EXTPWM_PORT2CFG             {0, 9, 8, 24, 25}           // bits 7-3 Timer, bits 2-0 Channel
 #define EXTPWM_PORT2DIO             {11, 28, 29, 14, 15}        // Mapping PWM channel to DIO
@@ -79,13 +79,12 @@ extern "C" {
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           3           // ADC4-ADC5, Vbg
-#define EXTAIN_BASE_2_APIN          {4, 5, 14}
-#define EXTAIN_BASE_2_DIO           {4, 5, 0xFF}
+#define EXTAIN_BASE_2_APIN          {4, 5, 30}
 #define EXTAIN_REF                  0x0E        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
 // TWI Section
-#define EXTTWI_USED                 1
+//#define EXTTWI_USED                 1
 #define TWIM_SCL_STAT()             (PINC & (1<<PC0))
 // End TWI Section
 

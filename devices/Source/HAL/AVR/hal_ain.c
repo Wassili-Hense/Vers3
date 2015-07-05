@@ -10,6 +10,36 @@
 
 static const PROGMEM uint8_t hal_ainBase2Apin[] = EXTAIN_BASE_2_APIN;
 
+#if (defined __AVR_ATmega328P__)
+static const PROGMEM uint8_t hal_ainBase2Dio[] = {16,   17,   18,   19,   20,   21,   0xFE, 0xFE,   // PC0 - PC5, Ain6, Ain7
+                                                  0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE};  // TempSens, Vbg, GND
+#elif (defined __AVR_ATmega1284P__)
+static const PROGMEM uint8_t hal_ainBase2Dio[] = {0,    1,    2,    3,    4,    5,    6,    7,      // PA0 - PA7
+                                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,   // Diff AIn not used
+                                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF};  // Vbg
+#elif defined (__AVR_ATmega2560__)
+static const PROGMEM uint8_t hal_ainBase2Dio[] = {40,   41,   42,   43,   44,   45,   46,   47,     // PF0 - PF7
+                                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF,   // Vbg
+                                                  72,   73,   74,   75,   76,   77,   78,   79,     // PK0 - PK7
+                                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,   // Diff AIn not used
+                                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                                  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+#endif  // uC
+
+uint8_t hal_ain_apin2dio(uint8_t apin)
+{
+    if(apin > sizeof(hal_ainBase2Dio))
+        return 0xFF;
+
+    uint8_t base = pgm_read_byte(&hal_ainBase2Apin[apin]);
+
+    assert(base < sizeof(hal_ainBase2Dio));
+    return pgm_read_byte(&hal_ainBase2Dio[base]);
+}
+
 void hal_ain_configure(uint8_t apin, uint8_t aref)
 {
     if(aref == 0xFF)

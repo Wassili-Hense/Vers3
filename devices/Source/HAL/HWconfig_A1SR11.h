@@ -74,7 +74,6 @@ extern "C" {
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           9           // ADC0-ADC7, Vbg
 #define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 14}
-#define EXTAIN_BASE_2_DIO           {16, 17, 18, 19, 20, 21, 0xFF, 0xFF, 0xFF}
 #define EXTAIN_REF                  0x06        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
