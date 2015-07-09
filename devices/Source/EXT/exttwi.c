@@ -24,7 +24,12 @@ volatile TWI_QUEUE_t  * pTwi_exchange = NULL;
 // local queues
 static Queue_t  twi_tx_queue = {NULL, NULL, 0, 0};
 
+// ext_dio 
+void dioTake(uint16_t base);
+void dioRelease(uint16_t base);
+
 // HAL
+void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA);
 bool hal_twi_configure(uint8_t enable);
 void hal_twi_tick(void);
 
@@ -113,8 +118,18 @@ uint8_t twiPollOD(subidx_t * pSubidx, uint8_t sleep)
 
 void twiInit()
 {
+    uint8_t scl, sda;
+
+    hal_twi_get_pins(&scl, &sda);
+    dioTake(scl);
+    dioTake(sda);
+
     if(!hal_twi_configure(1))           // Enable
+    {
+        dioRelease(scl);
+        dioRelease(sda);
         return;
+    }
 
     if(pTwi_exchange != NULL)
     {
@@ -126,6 +141,8 @@ void twiInit()
     indextable_t * pIndex = getFreeIdxOD();
     if(pIndex == NULL)
     {
+        dioRelease(scl);
+        dioRelease(sda);
         hal_twi_configure(0);
         return;
     }

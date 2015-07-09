@@ -76,6 +76,13 @@ bool serCheckSubidx(subidx_t * pSubidx)
        ((type != ObjSerRx) && (type != ObjSerTx)))
         return false;
 
+    uint16_t pinRx, pinTx;
+    hal_uart_get_pins(port, &pinRx, &pinTx);
+    
+    if((dioCheckBase(pinRx) != 0) ||
+       (dioCheckBase(pinTx) != 0))
+       return false;
+
     return true;
 }
 
@@ -162,6 +169,9 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
     }
     else
     {
+        //uint8_t TxPin, RxPin;
+        //hal_uart_get_pins(port, &TxPin, &RxPin);
+
         extSerV[port] = mqAlloc(sizeof(EXTSER_VAR_t));
         if(extSerV[port] == NULL)
             return MQTTSN_RET_REJ_CONG;

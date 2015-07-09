@@ -19,6 +19,9 @@ static volatile uint8_t twi_pnt = 0;
 #define I2C_PIN_SCL     GPIO_Pin_6
 #define I2C_PIN_SDA     GPIO_Pin_7
 
+#define I2C_DIO_SCL     22
+#define I2C_DIO_SDA     23
+
 #else
 // I2C2, PB10 - SCL, PB11 - SDA
 #define I2C_BUS         I2C2
@@ -26,14 +29,23 @@ static volatile uint8_t twi_pnt = 0;
 #define I2C_PIN_SCL     GPIO_Pin_10
 #define I2C_PIN_SDA     GPIO_Pin_11
 
+#define I2C_DIO_SCL     26
+#define I2C_DIO_SDA     27
+
 #endif
+
+void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA)
+{
+    *pSCL = I2C_DIO_SCL;
+    *pSDA = I2C_DIO_SDA;
+}
 
 bool hal_twi_configure(uint8_t enable)
 {
     if(enable)
     {
         // Check GPIO
-        hal_dio_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_FLOAT);        // Configure GPIO as floating inputs
+        hal_dio_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_PD);           // Configure GPIO as inputs with pull down
         if((GPIOB->IDR & (I2C_PIN_SCL | I2C_PIN_SDA)) != (I2C_PIN_SCL | I2C_PIN_SDA))
             return false;
 

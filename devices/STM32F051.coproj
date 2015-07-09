@@ -276,7 +276,7 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="S2Sn12" isCurrent="0">
+  <Target name="S2Sn12" isCurrent="1">
     <Device manufacturerId="9" manufacturerName="ST" chipId="249" chipName="STM32F051R8" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
@@ -345,7 +345,7 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="S2SR12" isCurrent="1">
+  <Target name="S2SR12" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="249" chipName="STM32F051R8" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
@@ -465,10 +465,10 @@
     <File name="Source/HAL/STM32/hal_enc28j60.c" path="Source/HAL/STM32/hal_enc28j60.c" type="1"/>
     <File name="Source/EXT/extdio.c" path="Source/EXT/extdio.c" type="1"/>
     <File name="Source/mqTypes.h" path="Source/mqTypes.h" type="1"/>
-    <File name="Source/PHY/CC1101/cc11_reg.h" path="Source/PHY/CC1101/cc11_reg.h" type="1"/>
     <File name="Source/diag.h" path="Source/diag.h" type="1"/>
-    <File name="stm32_lib" path="" type="2"/>
     <File name="Source/EXT/extain.c" path="Source/EXT/extain.c" type="1"/>
+    <File name="stm32_lib" path="" type="2"/>
+    <File name="Source/PHY/CC1101/cc11_reg.h" path="Source/PHY/CC1101/cc11_reg.h" type="1"/>
     <File name="Source/PHY/CC1101/cc11_phy.h" path="Source/PHY/CC1101/cc11_phy.h" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_net.c" path="Source/PHY/ENC28J60/enc28j60_net.c" type="1"/>
     <File name="Source/EXT/extser.h" path="Source/EXT/extser.h" type="1"/>
@@ -486,9 +486,9 @@
     <File name="Source/diag.c" path="Source/diag.c" type="1"/>
     <File name="Source/mqttsn.h" path="Source/mqttsn.h" type="1"/>
     <File name="stm32_lib/inc/stm32f0xx_rcc.h" path="stm32_lib/inc/stm32f0xx_rcc.h" type="1"/>
-    <File name="Source/PHY/ENC28J60/enc28j60_def.h" path="Source/PHY/ENC28J60/enc28j60_def.h" type="1"/>
     <File name="Source/main.c" path="Source/main.c" type="1"/>
     <File name="Source/EXT/extser.c" path="Source/EXT/extser.c" type="1"/>
+    <File name="Source/PHY/ENC28J60/enc28j60_def.h" path="Source/PHY/ENC28J60/enc28j60_def.h" type="1"/>
     <File name="Source/HAL/STM32/hal_dio.c" path="Source/HAL/STM32/hal_dio.c" type="1"/>
     <File name="Source/HAL/STM32/hal_twi.c" path="Source/HAL/STM32/hal_twi.c" type="1"/>
     <File name="Source/HAL/HW_STM32F0.h" path="Source/HAL/HW_STM32F0.h" type="1"/>

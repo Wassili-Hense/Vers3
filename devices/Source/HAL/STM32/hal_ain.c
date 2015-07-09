@@ -4,6 +4,25 @@
 
 static const uint8_t hal_ainBase2Apin[] = EXTAIN_BASE_2_APIN;
 
+uint8_t hal_ain_apin2dio(uint8_t apin)
+{
+    if(apin >= sizeof(hal_ainBase2Apin))
+        return 0xFF;
+    
+    uint8_t base = hal_ainBase2Apin[apin];
+
+    if(base == 0xFF)        // pin not exist
+        return 0xFF;
+    else if(base > 15)      // DIO not used
+        return 0xFE;
+    else if(base < 8)       // PA0 - PA7
+        return base;
+    else if(base < 10)      // PB0, PB1
+        return (base + 8);
+
+    return (base + 22);     // PC0 - PC5
+}
+
 void hal_ain_configure(uint8_t apin, uint8_t aref)
 {
     uint8_t base = hal_ainBase2Apin[apin];
@@ -20,20 +39,23 @@ void hal_ain_configure(uint8_t apin, uint8_t aref)
         GPIOx = GPIOB;
         Mask = 1 << (base - 8);
     }
-    else                // PC0 - PC5
+    else if(base < 16)  // PC0 - PC5
     {
         GPIOx = GPIOC;
         Mask = 1 << (base - 10);
     }
+    else
+        Mask = 0;
 
     if(aref == 0xFF)
     {
-        hal_dio_gpio_cfg(GPIOx, Mask, DIO_MODE_IN_FLOAT);
+        if(Mask != 0)
+            hal_dio_gpio_cfg(GPIOx, Mask, DIO_MODE_IN_FLOAT);
         return;
     }
 
-    hal_dio_gpio_cfg(GPIOx, Mask, DIO_MODE_AIN);
-
+    if(Mask != 0)
+        hal_dio_gpio_cfg(GPIOx, Mask, DIO_MODE_AIN);
 
     if((RCC->APB2ENR & RCC_APB2ENR_ADC1EN) == 0)
     {
