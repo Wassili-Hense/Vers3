@@ -9,14 +9,26 @@
 
 #if (defined __AVR_ATmega328P__)
 #define TWIM_SCL_STAT()             (PINC & (1<<PC5))
+#define I2C_DIO_SDA                 20
+#define I2C_DIO_SCL                 21
 #elif (defined __AVR_ATmega1284P__)
 #define TWIM_SCL_STAT()             (PINC & (1<<PC0))
+#define I2C_DIO_SCL                 16
+#define I2C_DIO_SDA                 17
 #elif defined (__AVR_ATmega2560__)
 #define TWIM_SCL_STAT()             (PIND & (1<<PD0))
+#define I2C_DIO_SCL                 24
+#define I2C_DIO_SDA                 25
 #endif  // uC
 
 // Global variable defined in exttwi.c
 extern volatile TWI_QUEUE_t * pTwi_exchange;
+
+void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA)
+{
+    *pSCL = I2C_DIO_SCL;
+    *pSDA = I2C_DIO_SDA;
+}
 
 // HAL
 bool hal_twi_configure(uint8_t enable)
