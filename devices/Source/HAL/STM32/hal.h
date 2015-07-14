@@ -37,11 +37,14 @@ void halLeaveCritical(void);
 #define LEAVE_CRITICAL_SECTION      halLeaveCritical
 
 // Hardware specific options
-#define DIO_PORT_SIZE               16
 #define portBYTE_ALIGNMENT          8
 #define configTOTAL_HEAP_SIZE       2048
 
-// GPIO Section
+//////////////////////////////////////////////////////////////
+// DIO/GPIO Section
+#define DIO_PORT_POS                4
+#define DIO_PORT_MASK               0x0F
+#define DIO_PORT_TYPE               uint16_t
 
 // GPIO compatibility
 #define GPIO_Pin_0                 ((uint16_t)0x0001)  /*!< Pin 0 selected */
@@ -89,6 +92,10 @@ inline void hal_gpio_set(GPIO_TypeDef * GPIOx, uint16_t Mask);
 inline void hal_gpio_reset(GPIO_TypeDef * GPIOx, uint16_t Mask);
 void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode);
 
+// DIO/GPIO Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
 // Configure EXTI
 // External procedure defined in hal_exti.c
 void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger, void *pCallback);
@@ -96,6 +103,8 @@ void hal_exti_config(GPIO_TypeDef *GPIOx, uint16_t Mask, uint8_t Trigger, void *
 #define HAL_EXTI_TRIGGER_FALLING    1
 #define HAL_EXTI_TRIGGER_RISING     2
 #define HAL_EXTI_TRIGGER_BOTH       3
+// EXTI
+//////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
 // SPI Section
@@ -118,13 +127,8 @@ void eeprom_init_hw(void);
 void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 
-uint32_t hal_get_ms(void);
-uint32_t hal_get_sec(void);
-
 void _delay_ms(uint32_t ms);
 void _delay_us(uint32_t us);
-
-uint16_t halRNG();
 
 #ifdef __cplusplus
 }

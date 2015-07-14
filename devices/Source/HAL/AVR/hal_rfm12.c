@@ -8,8 +8,8 @@
 #define PRR     PRR0
 #endif  //  PRR
 
-#define RF_SELECT()     RF_PORT &= ~(1<<RF_PIN_SS);
-#define RF_RELEASE()    RF_PORT |= (1<<RF_PIN_SS);
+#define RFM12_SELECT()     RFM12_PORT &= ~(1<<RFM12_PIN_SS);
+#define RFM12_RELEASE()    RFM12_PORT |= (1<<RFM12_PIN_SS);
 
 // HAL section
 void        hal_rfm12_enable_irq(void);
@@ -26,11 +26,11 @@ void hal_rfm12_init_hw(void)
 
     // HW Initialise
     PRR &= ~(1<<PRSPI);                                 // Enable SPI
-    RF_PORT |= (1<<RF_PIN_SS);
-    RF_DDR  |= (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) | (1<<RF_PIN_SS);
-    RF_DDR &= ~(1<<RF_PIN_MISO);
+    RFM12_PORT |= (1<<RFM12_PIN_SS);
+    RFM12_DDR  |= (1<<RFM12_PIN_SCK) | (1<<RFM12_PIN_MOSI) | (1<<RFM12_PIN_SS);
+    RFM12_DDR &= ~(1<<RFM12_PIN_MISO);
 
-    RF_IRQ_PORT |= RF_IRQ_PIN;
+    RFM12_IRQ_PORT |= RFM12_IRQ_PIN;
 
 #if (F_CPU <= 5000000UL)    // Prescaler = 2
     SPCR = (1<<SPE) | (1<<MSTR);
@@ -48,20 +48,20 @@ void hal_rfm12_init_hw(void)
 uint16_t hal_rfm12_spiExch(uint16_t data)
 {
     uint16_t retval;
-    RF_SELECT();
+    RFM12_SELECT();
     SPDR = data>>8;
     while(!(SPSR &(1<<SPIF)));          // Wait until SPI operation is terminated
     retval = SPDR<<8;
     SPDR = data & 0xFF;
     while(!(SPSR &(1<<SPIF)));          // Wait until SPI operation is terminated
     retval |= SPDR;
-    RF_RELEASE();
+    RFM12_RELEASE();
     return retval;
 }
 
 bool hal_rfm12_irq_stat(void)
 {
-    return ((RF_IRQ_PORT_PIN & (1<<RF_IRQ_PIN)) == 0);
+    return ((RFM12_IRQ_PORT_PIN & (1<<RFM12_IRQ_PIN)) == 0);
 }
 
 void hal_rfm12_enable_irq(void)
@@ -70,7 +70,7 @@ void hal_rfm12_enable_irq(void)
     EICRA = (0<<ISC00);
     EIMSK = (1<<INT0);          // INT0 int enable
 #else           // IRQ On PBx
-    PCMSK0 = (1<<RF_IRQ_PIN);
+    PCMSK0 = (1<<RFM12_IRQ_PIN);
     PCICR = (1<<PCIE0);         // PCINTx int enable
 #endif  //  RFM12_INT0
 }
@@ -87,7 +87,7 @@ ISR(INT0_vect)
 #else           // IRQ On PBx
 ISR(PCINT0_vect)
 {
-    if(RF_IRQ_PORT_PIN & (1<<RF_IRQ_PIN))
+    if(RFM12_IRQ_PORT_PIN & (1<<RFM12_IRQ_PIN))
         return;
 
     rfm12_irq();

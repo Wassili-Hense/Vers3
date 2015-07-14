@@ -123,7 +123,7 @@ extern "C" {
 
 #if (ENC_USE_SPI == 1)
 
-#define HAL_USE_SPI1                1    
+#define HAL_USE_SPI1                1
 
 #define ENC_NSS_PORT                GPIOA
 #define ENC_NSS_PIN                 GPIO_Pin_4

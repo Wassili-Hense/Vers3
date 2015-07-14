@@ -20,11 +20,11 @@ See LICENSE file for license details.
 // 0 - 7    PORTA - not exist
 // PORTB
 // --   PB0     --          LED
-// --   PB1     --          RF_GDO
-// --   PB2     --          RF_CSN
-// --   PB3     ISP-4       RF_MOSI
-// --   PB4     ISP-1       RF_MISO
-// --   PB5     ISP-3       RF_SCK
+// --   PB1     --          CC11_GDO
+// --   PB2     --          CC11_CSN
+// --   PB3     ISP-4       CC11_MOSI
+// --   PB4     ISP-1       CC11_MISO
+// --   PB5     ISP-3       CC11_SCK
 // --   PB6     --          OSC
 // --   PB7     --          OSC
 // PORT C
@@ -64,12 +64,14 @@ extern "C" {
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0x00}
 // End DIO Section
 
+/*
 // PWM Section
 //#define EXTPWM_USED                 1
 #define EXTPWM_MAXPORT_NR           2
 #define EXTPWM_PORT2CFG             {1, 0}          // bits 7-3 Timer, bits 2-0 Channel
 #define EXTPWM_PORT2DIO             {29,30}         // Mapping PWM channel to DIO
 // End PWM Section
+*/
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
@@ -83,11 +85,6 @@ extern "C" {
 // End TWI Section
 
 // UART Section
-#define UART0_PORT                  PORTD
-#define UART0_DDR                   DDRD
-#define UART0_RX_PIN                PD0
-#define UART0_TX_PIN                PD1
-
 #define EXTSER_USED                 1
 #define EXTSER_PORT2UART            {0}
 // End UART Section
@@ -98,13 +95,17 @@ extern "C" {
 #define LEDsInit()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // RF Section
-#define RF_PORT                     PORTB
-#define RF_DDR                      DDRB
-#define RF_PIN                      PINB
-#define RF_PIN_SS                   PB2
-#define RF_PIN_MOSI                 PB3
-#define RF_PIN_MISO                 PB4
-#define RF_PIN_SCK                  PB5
+#define CC11_PORT                   PORTB
+#define CC11_DDR                    DDRB
+#define CC11_PIN                    PINB
+#define CC11_PIN_SS                 PB2
+#define CC11_PIN_MOSI               PB3
+#define CC11_PIN_MISO               PB4
+#define CC11_PIN_SCK                PB5
+
+#define CC11_WAIT_LOW_MISO()        while(CC11_PIN & (1<<CC11_PIN_MISO))
+#define CC11_SELECT()               CC11_PORT &= ~(1<<CC11_PIN_SS)
+#define CC11_RELEASE()              CC11_PORT |= (1<<CC11_PIN_SS)
 //  End RF Section
 
 #define CC11_PHY                    1

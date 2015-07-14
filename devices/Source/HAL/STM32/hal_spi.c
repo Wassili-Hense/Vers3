@@ -38,6 +38,11 @@
 #define DIO_MODE_SPI11              DIO_MODE_AF_PP_HS
 #define DIO_MODE_SPI13              DIO_MODE_AF_PP_HS
 
+#elif (defined __STM32F10x_H)
+
+#define DIO_MODE_SPI1               DIO_MODE_AF_PP_HS
+#define DIO_MODE_SPI2               DIO_MODE_AF_PP_HS
+
 #elif (defined STM32F4XX)
 
 // STM32F401
@@ -103,37 +108,41 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 
     switch(port)
     {
-#if (defined SPI1) && (defined HAL_USE_SPI1)
+#ifdef DIO_MODE_SPI1
         case 1:
             RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
             hal_dio_gpio_cfg(SPI1_PORT, (SPI1_SCK_PIN | SPI1_MISO_PIN | SPI1_MOSI_PIN), DIO_MODE_SPI1);
             SPIx = SPI1;
             break;
+#endif  //  DIO_MODE_SPI1
+#ifdef DIO_MODE_SPI11
         case 11:
             RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
             hal_dio_gpio_cfg(SPI11_PORT, (SPI11_SCK_PIN | SPI11_MISO_PIN | SPI11_MOSI_PIN), DIO_MODE_SPI11);
             SPIx = SPI1;
             break;
-#endif  //  SPI1
-#if (defined SPI2) && (defined HAL_USE_SPI2)
+#endif  //  DIO_MODE_SPI11
+#ifdef DIO_MODE_SPI2
         case 2:
             RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
             hal_dio_gpio_cfg(SPI2_PORT, (SPI2_SCK_PIN | SPI2_MISO_PIN | SPI2_MOSI_PIN), DIO_MODE_SPI2);
             SPIx = SPI2;
             break;
-#endif  //  SPI2
-#if (defined SPI3) && (defined HAL_USE_SPI3)
+#endif  //  DIO_MODE_SPI2
+#ifdef DIO_MODE_SPI3
         case 3:
             RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
             hal_dio_gpio_cfg(SPI3_PORT, (SPI3_SCK_PIN | SPI3_MISO_PIN | SPI3_MOSI_PIN), DIO_MODE_SPI3);
             SPIx = SPI3;
             break;
+#endif  //  DIO_MODE_SPI3
+#ifdef DIO_MODE_SPI13
         case 13:
             RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
             hal_dio_gpio_cfg(SPI13_PORT, (SPI13_SCK_PIN | SPI13_MISO_PIN | SPI13_MOSI_PIN), DIO_MODE_SPI13);
             SPIx = SPI3;
             break;
-#endif  //  SPI3
+#endif  //  SPI13
         default:
             assert(0);      // Unknown SPI port
             return;

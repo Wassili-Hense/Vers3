@@ -69,6 +69,8 @@
         <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
       </AvrGcc>
     </ToolchainSettings>
+    <OutputFileName>A4Sn12</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'A4En12' ">
     <ToolchainSettings>
@@ -101,6 +103,8 @@
       </AvrGcc>
     </ToolchainSettings>
     <OutputPath>A4En12\</OutputPath>
+    <OutputFileName>A4En12</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'A4ES12' ">
     <ToolchainSettings>
@@ -133,6 +137,8 @@
       </AvrGcc>
     </ToolchainSettings>
     <OutputPath>bin\A4ES12\</OutputPath>
+    <OutputFileName>A4ES12</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Source" />

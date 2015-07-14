@@ -105,11 +105,16 @@ extern "C" {
 // End Analogue Inputs
 
 // UART Section
+#define HAL_USE_USART1              1
+#define HAL_USE_USART2              1
+
 #define EXTSER_USED                 1
-#define EXTSER_PORT2UART            {1, 0}
+#define EXTSER_PORT2UART            {2, 1}
 // End UART Section
 
 // ENC Section
+#define HAL_USE_SPI1                1
+
 #define ENC_USE_SPI                 1   // SPI1 PA5-PA7
 #define SPIe                        SPI1
 #define ENC_NSS_PORT                GPIOB

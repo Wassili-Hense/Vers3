@@ -132,7 +132,7 @@ extern "C" {
                                      (uint8_t)0xC7, (uint8_t)0xF0, (uint8_t)0xD8, (uint8_t)0x84,  \
                                      (uint8_t)0xFC, (uint8_t)0x00, (uint8_t)0x00}
 // End DIO Section
-#define EXTPWM_USED                 1
+//#define EXTPWM_USED                 1
 #define EXTPWM_MAXPORT_NR           13
 #define EXTPWM_PORT2CFG             {0x19, 0x1A, 0x01, 0x18, 0x20, 0x21, 0x22, 0x08, 0x09, 0x0A, 0x28, 0x29, 0x2A}  // bits 7-3 Timer, bits 2-0 Channel
 #define EXTPWM_PORT2DIO             {36, 37, 53, 35, 59, 60, 61, 13, 14, 15, 83, 84, 85}    // Mapping PWM channel to DIO
@@ -151,26 +151,6 @@ extern "C" {
 // End TWI Section
 
 // UART Section
-#define UART0_PORT                  PORTE
-#define UART0_DDR                   DDRE
-#define UART0_RX_PIN                PE0
-#define UART0_TX_PIN                PE1
-
-#define UART1_PORT                  PORTD
-#define UART1_DDR                   DDRD
-#define UART1_RX_PIN                PD2
-#define UART1_TX_PIN                PD3
-
-#define UART2_PORT                  PORTH
-#define UART2_DDR                   DDRH
-#define UART2_RX_PIN                PH0
-#define UART2_TX_PIN                PH1
-
-#define UART3_PORT                  PORTJ
-#define UART3_DDR                   DDRJ
-#define UART3_RX_PIN                PJ0
-#define UART3_TX_PIN                PJ1
-
 #define UART_PHY_PORT               0
 
 #define EXTSER_USED                 1
@@ -178,16 +158,16 @@ extern "C" {
 // End UART Section
 
 // LAN Section
-#define LAN_PORT                    PORTB
-#define LAN_DDR                     DDRB
-#define LAN_PIN                     PINB
-#define LAN_PIN_SS                  PB0
-#define LAN_PIN_SCK                 PB1
-#define LAN_PIN_MOSI                PB2
-#define LAN_PIN_MISO                PB3
+#define ENC_PORT                    PORTB
+#define ENC_DDR                     DDRB
+#define ENC_PIN                     PINB
+#define ENC_PIN_SS                  PB0
+#define ENC_PIN_SCK                 PB1
+#define ENC_PIN_MOSI                PB2
+#define ENC_PIN_MISO                PB3
 
-#define ENC_SELECT()                (PORTB &= ~(1<<LAN_PIN_SS))
-#define ENC_RELEASE()               (PORTB |= (1<<LAN_PIN_SS))
+#define ENC_SELECT()                (PORTB &= ~(1<<ENC_PIN_SS))
+#define ENC_RELEASE()               (PORTB |= (1<<ENC_PIN_SS))
 // End LAN Section
 
 #define ENC28J60_PHY                1

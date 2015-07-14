@@ -385,6 +385,9 @@
     <Compile Include="Source\HAL\HW_ATMega.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\HAL\HW_Common.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\main.c">
       <SubType>compile</SubType>
     </Compile>

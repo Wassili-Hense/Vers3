@@ -48,7 +48,7 @@ See LICENSE file for license details.
 //  24  PB8
 //  25  PB9
 //  26  PB10
-//  27  PB11    RF_IRQ
+//  27  PB11    RFM12_IRQ
 //  28  PB12    SPI2_NSS
 //  29  PB13    SPI2_SCK
 //  30  PB14    SPI2_MISO

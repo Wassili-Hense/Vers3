@@ -21,11 +21,11 @@ See LICENSE file for license details.
 // 0 - 7    PORTA - not exist
 // PORTB
 // --   PB0     --      LED1
-// --   PB1     --      LAN_IRQ / NC
-// --   PB2     --      LAN_CSN
-// --   PB3     ISP-4   LAN_MOSI
-// --   PB4     ISP-1   LAN_MISO
-// --   PB5     ISP-3   LAN_SCK
+// --   PB1     --      ENC_IRQ / NC
+// --   PB2     --      ENC_CSN
+// --   PB3     ISP-4   ENC_MOSI
+// --   PB4     ISP-1   ENC_MISO
+// --   PB5     ISP-3   ENC_SCK
 // --   PB6     --      OSC
 // --   PB7     --      OSC
 // PORT C
@@ -89,24 +89,19 @@ extern "C" {
 #define LEDsInit()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // LAN Section
-#define LAN_PORT                    PORTB
-#define LAN_DDR                     DDRB
-#define LAN_PIN                     PINB
-#define LAN_PIN_SS                  PB2
-#define LAN_PIN_MOSI                PB3
-#define LAN_PIN_MISO                PB4
-#define LAN_PIN_SCK                 PB5
+#define ENC_PORT                    PORTB
+#define ENC_DDR                     DDRB
+#define ENC_PIN                     PINB
+#define ENC_PIN_SS                  PB2
+#define ENC_PIN_MOSI                PB3
+#define ENC_PIN_MISO                PB4
+#define ENC_PIN_SCK                 PB5
 
-#define ENC_SELECT()                (PORTB &= ~(1<<LAN_PIN_SS))
-#define ENC_RELEASE()               (PORTB |= (1<<LAN_PIN_SS))
+#define ENC_SELECT()                (PORTB &= ~(1<<ENC_PIN_SS))
+#define ENC_RELEASE()               (PORTB |= (1<<ENC_PIN_SS))
 // End LAN Section
 
 // UART Section
-#define UART0_PORT                  PORTD
-#define UART0_DDR                   DDRD
-#define UART0_RX_PIN                PD0
-#define UART0_TX_PIN                PD1
-
 #define UART_PHY_PORT               0
 // End UART Section
 

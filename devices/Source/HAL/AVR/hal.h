@@ -23,12 +23,17 @@ extern "C" {
 #define eeprom_write(pBuf, Addr, Len) eeprom_write_block((const void *)pBuf, (void *)Addr, (size_t)Len)
 
 // AVR Architecture specifics.
-#define DIO_PORT_SIZE               8
 #define portBYTE_ALIGNMENT          1
 #define portPOINTER_SIZE_TYPE       uintptr_t
 #define configTOTAL_HEAP_SIZE       1024
 
-// GPIO Types
+//////////////////////////////////////////////////////////////
+// DIO Section
+#define DIO_PORT_POS        3
+#define DIO_PORT_MASK       0x07
+#define DIO_PORT_TYPE       uint8_t
+
+// DIO Types
 typedef enum
 {
     DIO_MODE_IN_FLOAT   = 0,
@@ -39,15 +44,11 @@ typedef enum
     
     DIO_MODE_AIN        = 0x18
 }DIOmode_e;
-
-uint32_t hal_get_ms(void);
-uint32_t hal_get_sec(void);
-
-uint16_t halRNG();
+// DIO Section
+//////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif  //  __HAL_H

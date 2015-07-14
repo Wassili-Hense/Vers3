@@ -149,10 +149,10 @@ extern "C" {
 #error unknown CC11 configuration
 #endif  //  CC11_USE_SPI
 
-#define RF_WAIT_LOW_MISO()          while(SPIc_PORT->IDR & SPIc_MISO_PIN)
+#define CC11_WAIT_LOW_MISO()        while(SPIc_PORT->IDR & SPIc_MISO_PIN)
 
-#define RF_SELECT()                 CC11_NSS_PORT->BRR = CC11_NSS_PIN
-#define RF_RELEASE()                CC11_NSS_PORT->BSRR = CC11_NSS_PIN
+#define CC11_SELECT()               CC11_NSS_PORT->BRR = CC11_NSS_PIN
+#define CC11_RELEASE()              CC11_NSS_PORT->BSRR = CC11_NSS_PIN
 
 // End CC11 Section
 

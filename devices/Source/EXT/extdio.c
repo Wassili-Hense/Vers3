@@ -18,22 +18,6 @@ See LICENSE file for license details.
 
 #include "extdio.h"
 
-#if (DIO_PORT_SIZE == 8)
-    #define DIO_PORT_POS        3
-    #define DIO_PORT_MASK       0x07
-    #define DIO_PORT_TYPE       uint8_t
-#elif (DIO_PORT_SIZE == 16)
-    #define DIO_PORT_POS        4
-    #define DIO_PORT_MASK       0x0F
-    #define DIO_PORT_TYPE       uint16_t
-#elif (DIO_PORT_SIZE == 32)
-    #define DIO_PORT_POS        5
-    #define DIO_PORT_MASK       0x1F
-    #define DIO_PORT_TYPE       uint32_t
-#else
-    #error DIO_PORT_SIZE unknown size
-#endif  //  DIO_PORT_SIZE
-
 // DIO Variables
 
 // Local Variables
@@ -43,15 +27,7 @@ static DIO_PORT_TYPE dio_write_mask[EXTDIO_MAXPORT_NR];
 static DIO_PORT_TYPE dio_read_mask[EXTDIO_MAXPORT_NR];
 static DIO_PORT_TYPE dio_state_flag[EXTDIO_MAXPORT_NR];
 static DIO_PORT_TYPE dio_change_flag[EXTDIO_MAXPORT_NR];
-
-// DIO Global variables, used in PLC
-DIO_PORT_TYPE dio_status[EXTDIO_MAXPORT_NR];
-
-// DIO HAL
-void hal_dio_configure(uint8_t PortNr, DIO_PORT_TYPE Mask, uint16_t Mode);
-DIO_PORT_TYPE hal_dio_read(uint8_t PortNr);
-void hal_dio_set(uint8_t PortNr, DIO_PORT_TYPE Mask);
-void hal_dio_reset(uint8_t PortNr, DIO_PORT_TYPE Mask);
+static DIO_PORT_TYPE dio_status[EXTDIO_MAXPORT_NR];
 
 // DIO local subroutines
 
@@ -278,7 +254,7 @@ void dioProc(void)
     }
 }
 
-void dioTake(uint16_t base)
+void dioTake(uint8_t base)
 {
     uint8_t port = dioBase2Port(base);
     DIO_PORT_TYPE mask = dioBase2Mask(base);
@@ -287,7 +263,7 @@ void dioTake(uint16_t base)
     dio_read_mask[port] |= mask;
 }
 
-void dioRelease(uint16_t base)
+void dioRelease(uint8_t base)
 {
     uint8_t port = dioBase2Port(base);
     DIO_PORT_TYPE mask = dioBase2Mask(base);
@@ -295,19 +271,4 @@ void dioRelease(uint16_t base)
     dio_write_mask[port] &= ~mask;
     dio_read_mask[port] &= ~mask;
 }
-
-/*
-void dioConfigure(uint16_t base, uint16_t Mode)
-{
-    uint8_t port = dioBase2Port(base);
-    DIO_PORT_TYPE mask = dioBase2Mask(base);
-    hal_dio_configure(port, mask, Mode);
- 
-    if(Mode != DIO_MODE_IN_FLOAT)       // Occupy Pin
-        dio_write_mask[port] |= mask;
-    else                                // Release Pin
-        dio_write_mask[port] &= ~mask;
-}
-*/
-
 #endif  //  EXTDIO_USED

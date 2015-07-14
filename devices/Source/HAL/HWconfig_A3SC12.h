@@ -29,13 +29,13 @@ See LICENSE file for license details.
 // PA7  --
 // PORTB
 // PB0  CN30
-// PB1  CN22  RF_GDO0
+// PB1  CN22  CC11_GDO0
 // PB2  CN24
 // PB3  CN25
-// PB4  --    RF_NCS
-// PB5  CN28  RF_MOSI
-// PB6  CN27  RF_MISO
-// PB7  CN29  RF_SCK
+// PB4  --    CC11_NCS
+// PB5  CN28  CC11_MOSI
+// PB6  CN27  CC11_MISO
+// PB7  CN29  CC11_SCK
 // PORTC
 // PC0  CN15  SCL
 // PC1  CN14  SDA
@@ -48,7 +48,7 @@ See LICENSE file for license details.
 // PORTD
 // PD0  CN3   RXD0
 // PD1  CN4   TXD0
-// PD2  CN23  RF_GDO2
+// PD2  CN23  CC11_GDO2
 // PD3  CN6
 // PD4  CN7
 // PD5  --    LEDB
@@ -71,12 +71,14 @@ extern "C" {
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC3, (uint8_t)0xF0, (uint8_t)0x83}
 // End DIO Section
 
+/*
 // PWM Section
 #define EXTPWM_USED                 1
 #define EXTPWM_MAXPORT_NR           3
 #define EXTPWM_PORT2CFG             {0, 9, 8}           // bits 7-3 Timer, bits 2-0 Channel
 #define EXTPWM_PORT2DIO             {11, 28, 29}        // Mapping PWM channel to DIO
 // End PWM Section
+*/
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
@@ -97,23 +99,22 @@ extern "C" {
 #define LEDsInit()                  {DDRA |= ((1<<PA0) | (1<<PA1)); PORTA |= (1<<PA0) | (1<<PA1);}
 
 // UART Section
-#define UART0_PORT                  PORTD
-#define UART0_DDR                   DDRD
-#define UART0_RX_PIN                PD0
-#define UART0_TX_PIN                PD1
-
 #define UART_PHY_PORT               0
 // End UART Section
 
-// RF Section
-#define RF_PORT                     PORTB
-#define RF_DDR                      DDRB
-#define RF_PIN                      PINB
-#define RF_PIN_SS                   PB4
-#define RF_PIN_MOSI                 PB5
-#define RF_PIN_MISO                 PB6
-#define RF_PIN_SCK                  PB7
-// End RF Section
+// CC11 Section
+#define CC11_PORT                   PORTB
+#define CC11_DDR                    DDRB
+#define CC11_PIN                    PINB
+#define CC11_PIN_SS                 PB4
+#define CC11_PIN_MOSI               PB5
+#define CC11_PIN_MISO               PB6
+#define CC11_PIN_SCK                PB7
+
+#define CC11_WAIT_LOW_MISO()        while(CC11_PIN & (1<<CC11_PIN_MISO))
+#define CC11_SELECT()               CC11_PORT &= ~(1<<CC11_PIN_SS)
+#define CC11_RELEASE()              CC11_PORT |= (1<<CC11_PIN_SS)
+// End CC11 Section
 
 #define UART_PHY                    1
 #define CC11_PHY                    2

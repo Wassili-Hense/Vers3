@@ -17,6 +17,21 @@
     #define HAL_USART_TX_DATA           DR
 #endif  //  STM32
 
+#if (defined __STM32F0XX_H)
+    #define HAL_USART1_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+    #define HAL_USART2_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+#elif (defined __STM32F10x_H)
+    #define HAL_USART1_AF           DIO_MODE_AF_PP
+    #define HAL_USART2_AF           DIO_MODE_AF_PP
+#elif (defined STM32F4XX)
+    #define HAL_USART1_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+    #define HAL_USART2_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+    #define HAL_USART3_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+    #define HAL_USART4_AF           ((8<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+#else
+    #error unknown uC Family
+#endif  // uC
+
 /*
             Config 1        Config 2
 U[S]ARTx    RX      TX      RX      TX      APB
@@ -184,6 +199,40 @@ void USART6_IRQHandler(void)
 }
 #endif  //  USART3
 
+void hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx)
+{
+    switch(port)
+    {
+#if (defined USART1) && (defined HAL_USE_USART1)
+        case 1:
+            *pRx = 10;      // GPIOA PIN10
+            *pTx = 9;       // GPIOA PIN9
+            break;
+#endif  //  USART1
+#if (defined USART2) && (defined HAL_USE_USART2)
+        case 2:
+            *pRx = 3;       // GPIOA PIN3
+            *pTx = 2;       // GPIOA PIN2
+            break;
+#endif  //  USART2
+#if (defined USART3) && (defined HAL_USE_USART3)
+        case 3:
+            *pRx = 27;      // GPIOB PIN11
+            *pTx = 26;      // GPIOB PIN10
+            break;
+#endif  //  USART3
+#if (defined UART4) && (defined HAL_USE_UART4)
+        case 4:
+            *pRx = 1;       // GPIOA PIN1
+            *pTx = 0;       // GPIOA PIN0
+            break;
+#endif  //  UART4
+        default:
+            assert(0);
+            break;
+    }
+}
+
 void hal_uart_deinit(uint8_t port)
 {
     switch(port)
@@ -269,7 +318,8 @@ void hal_uart_deinit(uint8_t port)
     }
 }
 
-void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
+// enable bit 0 - Rx, 1 - Tx
+void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 {
     assert(nBaud < 5);
     
@@ -300,20 +350,17 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
 
     switch(port)
     {
-
 #if (defined USART1) && (defined HAL_USE_USART1)
         case 1:
             {
             UARTx_IRQn = USART1_IRQn;
             RCC->APB2ENR   |= RCC_APB2ENR_USART1EN;                             // Enable UART1 Clock
-
-#if (defined __STM32F0XX_H)
-            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9 | GPIO_Pin_10, (1<<DIO_AF_OFFS) | DIO_MODE_AF_PP);   // PA9, PA10 - AF1
-#elif (defined __STM32F10x_H)
-            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9, DIO_MODE_UART);                                     // PA9 - AF, Tx
-#elif (defined STM32F4XX)
-            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9 | GPIO_Pin_10, (7<<DIO_AF_OFFS) | DIO_MODE_AF_PP);   // PA9, PA10 - AF7
-#endif  // uC
+#ifndef __STM32F10x_H
+            if(enable & 1) // Enable Rx
+                hal_dio_gpio_cfg(GPIOA, GPIO_Pin_10, HAL_USART1_AF);            // PA10(Rx)
+#endif  //  __STM32F10x_H
+            if(enable & 2) // Enable Tx
+                hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9, HAL_USART1_AF);             // PA9(Tx) - AF1
             }
             break;
 #endif  //  USART1
@@ -323,14 +370,13 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
             {
             UARTx_IRQn = USART2_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_USART2EN;                             // Enable UART2 Clock
-
-#if (defined __STM32F0XX_H)
-            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2 | GPIO_Pin_3, (1<<DIO_AF_OFFS) | DIO_MODE_AF_PP);    // PA2, PA3 - AF1
-#elif (defined __STM32F10x_H)
-            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2, DIO_MODE_UART);                                     // PA2 - AF, Tx
-#elif (defined STM32F4XX)
-            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2 | GPIO_Pin_3, (7<<DIO_AF_OFFS) | DIO_MODE_AF_PP);    // PA2, PA3 - AF7
-#endif
+            
+#ifndef __STM32F10x_H
+            if(enable & 1) // Enable Rx
+                hal_dio_gpio_cfg(GPIOA, GPIO_Pin_3, HAL_USART2_AF);             // PA3(Rx)
+#endif  //  __STM32F10x_H
+            if(enable & 2) // Enable Tx
+                hal_dio_gpio_cfg(GPIOA, GPIO_Pin_2, HAL_USART2_AF);             // PA2(Tx) - AF1
             }
             break;
 #endif  //  USART2
@@ -340,12 +386,13 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
             {
             UARTx_IRQn = USART3_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_USART3EN;                             // Enable UART3 Clock
-
-#if (defined __STM32F10x_H)
-            hal_dio_gpio_cfg(GPIOB, GPIO_Pin_10, DIO_MODE_UART);                                    // PB10 - AF, Tx
-#elif (defined STM32F4XX)
-            hal_dio_gpio_cfg(GPIOB, GPIO_Pin_10 | GPIO_Pin_11, (7<<DIO_AF_OFFS) | DIO_MODE_AF_PP);  // PB10, PB11 - AF7
-#endif
+            
+#ifndef __STM32F10x_H
+            if(enable & 1) // Enable Rx
+                hal_dio_gpio_cfg(GPIOB, GPIO_Pin_11, HAL_USART3_AF);            // PB11(Rx)
+#endif  //  __STM32F10x_H
+            if(enable & 2) // Enable Tx
+                hal_dio_gpio_cfg(GPIOB, GPIO_Pin_10, HAL_USART3_AF);            // PB10(Tx)
             }
             break;
 #endif  //  USART3
@@ -357,7 +404,10 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
             UARTx_IRQn = UART4_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_UART4EN;                              // Enable UART4 Clock
 
-            hal_dio_gpio_cfg(GPIOA, GPIO_Pin_0 | GPIO_Pin_1, (8<<DIO_AF_OFFS) | DIO_MODE_AF_PP);    // PA0, PA1 - AF8
+            if(enable & 1) // Enable Rx
+                hal_dio_gpio_cfg(GPIOA, GPIO_Pin_1, HAL_USART4_AF);             // PA1(Rx)
+            if(enable & 2) // Enable Tx
+                hal_dio_gpio_cfg(GPIOA, GPIO_Pin_0, HAL_USART4_AF);             // PA0(Tx)
             }
             break;
 #endif  //  UART4
@@ -379,22 +429,34 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud)
         assert(hal_UARTv[port] != NULL);
     }
 
-    hal_UARTv[port]->rx_head = 0;
-    hal_UARTv[port]->rx_tail = 0;
-    
-    hal_UARTv[port]->pTxBuf = NULL;
-    hal_UARTv[port]->tx_len = 0;
-    hal_UARTv[port]->tx_pos = 0;
-    
     USART_TypeDef * USARTx = (USART_TypeDef *)hal_pUART[port];
 
-    USARTx->CR1 = 0;                                // Disable USART1
-    USARTx->CR2 = 0;                                // 8N1
-    USARTx->CR3 = 0;                                // Without flow control
-    USARTx->BRR  = ((uart_clock + baud/2)/baud);    // Speed
-    USARTx->CR1 |= USART_CR1_TE |                   // Enable TX
-                   USART_CR1_RE |                   // Enable RX
-                   USART_CR1_RXNEIE;                // Enable RX Not Empty IRQ
+    if(USARTx->CR1 & USART_CR1_UE)
+    {
+        USARTx->CR1 &= ~USART_CR1_UE;
+    }
+    else
+    {
+        hal_UARTv[port]->rx_head = 0;
+        hal_UARTv[port]->rx_tail = 0;
+    
+        hal_UARTv[port]->pTxBuf = NULL;
+        hal_UARTv[port]->tx_len = 0;
+        hal_UARTv[port]->tx_pos = 0;
+
+        USARTx->CR1 = 0;                                // Disable USART1
+        USARTx->CR2 = 0;                                // 8N1
+        USARTx->CR3 = 0;                                // Without flow control
+        USARTx->BRR  = ((uart_clock + baud/2)/baud);    // Speed
+    }
+    
+    if(enable & 1) // Enable Rx
+        USARTx->CR1 |= USART_CR1_RE |               // Enable RX
+                       USART_CR1_RXNEIE;            // Enable RX Not Empty IRQ
+
+    if(enable & 2) // Enable Tx
+        USARTx->CR1 |= USART_CR1_TE;                // Enable TX
+                   
     NVIC_EnableIRQ(UARTx_IRQn);                     // Enable UASRT IRQ
     USARTx->CR1 |= USART_CR1_UE;                    // Enable USART
 }

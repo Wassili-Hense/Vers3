@@ -26,14 +26,6 @@ See LICENSE file for license details.
 
 #endif  //  UART_PHY
 
-// HAL Section
-void hal_uart_init_hw(uint8_t port, uint8_t nBaud);
-bool hal_uart_datardy(uint8_t port);
-uint8_t hal_uart_get(uint8_t port);
-
-bool hal_uart_free(uint8_t port);
-void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf);
-
 static Queue_t      uart_tx_queue = {NULL, NULL, 0, 0};
 static UART_ADDR_t  uart_addr;
 
@@ -68,7 +60,7 @@ void UART_Init(void)
     uint8_t Len = sizeof(UART_ADDR_t);
     ReadOD(UART_NODE_ID, MQTTSN_FL_TOPICID_PREDEF, &Len, (uint8_t *)&uart_addr);
 
-    hal_uart_init_hw(UART_PHY_PORT, 4);
+    hal_uart_init_hw(UART_PHY_PORT, 4, 3);      // init uart 38400, Rx + Tx
 }
 
 void UART_Send(void *pBuf)

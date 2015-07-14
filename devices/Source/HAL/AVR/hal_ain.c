@@ -27,6 +27,8 @@ static const PROGMEM uint8_t hal_ainBase2Dio[] = {40,   41,   42,   43,   44,   
                                                   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                                                   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                                                   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+#else
+    #error unknown uC
 #endif  // uC
 
 uint8_t hal_ain_apin2dio(uint8_t apin)

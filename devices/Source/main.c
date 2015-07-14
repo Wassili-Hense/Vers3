@@ -75,13 +75,14 @@ int main(void)
     }
 }
 
+#ifdef  LEDsInit
 static uint8_t LED_Mask = 0;
-
 // PHY activity indicator
 void Activity(uint8_t pin)
 {
     LED_Mask |= 1 << pin;
 }
+#endif  //  LEDsInit
 
 void SystemTick(void)
 {

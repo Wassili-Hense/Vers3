@@ -19,12 +19,12 @@ See LICENSE file for license details.
 
 // 0 - 7    PORTA - not exist
 // PORTB
-// --   PB0     --          RF_IRQ
+// --   PB0     --          RFM12_IRQ
 // --   PB1     --          LED
-// --   PB2     --          RF_CSN
-// --   PB3     ISP-4       RF_MOSI
-// --   PB4     ISP-1       RF_MISO
-// --   PB5     ISP-3       RF_SCK
+// --   PB2     --          RFM12_CSN
+// --   PB3     ISP-4       RFM12_MOSI
+// --   PB4     ISP-1       RFM12_MISO
+// --   PB5     ISP-3       RFM12_SCK
 // --   PB6     --          OSC
 // --   PB7     --          OSC
 // PORT C
@@ -87,25 +87,20 @@ extern "C" {
 #define LEDsInit()                  {DDRB |= (1<<PB1); PORTB |= (1<<PB1);}
 
 // UART Section
-#define UART0_PORT                  PORTD
-#define UART0_DDR                   DDRD
-#define UART0_RX_PIN                PD0
-#define UART0_TX_PIN                PD1
-
 #define UART_PHY_PORT               0
 // End UART Section
 
 // RF Section
-#define RF_PORT                     PORTB
-#define RF_DDR                      DDRB
-#define RF_PIN_SS                   PB2
-#define RF_PIN_MOSI                 PB3
-#define RF_PIN_MISO                 PB4
-#define RF_PIN_SCK                  PB5
+#define RFM12_PORT                  PORTB
+#define RFM12_DDR                   DDRB
+#define RFM12_PIN_SS                PB2
+#define RFM12_PIN_MOSI              PB3
+#define RFM12_PIN_MISO              PB4
+#define RFM12_PIN_SCK               PB5
 
-#define RF_IRQ_PORT                 PORTB
-#define RF_IRQ_PORT_PIN             PINB
-#define RF_IRQ_PIN                  PB0
+#define RFM12_IRQ_PORT              PORTB
+#define RFM12_IRQ_PORT_PIN          PINB
+#define RFM12_IRQ_PIN               PB0
 //  End RF Section
 
 #define UART_PHY                    1

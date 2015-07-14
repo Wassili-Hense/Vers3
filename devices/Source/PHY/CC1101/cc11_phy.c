@@ -64,16 +64,6 @@ See LICENSE file for license details.
 
 #endif  // CC11_PHY
 
-// ToDo loop on problem
-#ifndef RF_WAIT_LOW_MISO
-#define RF_WAIT_LOW_MISO()      while(RF_PIN & (1<<RF_PIN_MISO))
-#endif  //  RF_WAIT_LOW_MISO
-
-#ifndef RF_SELECT
-#define RF_SELECT()             RF_PORT &= ~(1<<RF_PIN_SS)
-#define RF_RELEASE()            RF_PORT |= (1<<RF_PIN_SS)
-#endif  //  RF_SELECT()
-
 static const uint8_t cc11config[][2] =
 {
     {CC11_IOCFG0,   CC11_GDO_DISABLE},  // High impedance (3-State)
@@ -115,20 +105,20 @@ uint8_t  hal_cc11_spiExch(uint8_t data);
 // Send command strobe to the CC1101 IC via SPI
 static void cc11_cmdStrobe(uint8_t cmd) 
 {
-    RF_SELECT();                        // Select CC1101
-    RF_WAIT_LOW_MISO();                 // Wait until MISO goes low
+    CC11_SELECT();                      // Select CC1101
+    CC11_WAIT_LOW_MISO();               // Wait until MISO goes low
     hal_cc11_spiExch(cmd);
-    RF_RELEASE();                       // Release CC1101
+    CC11_RELEASE();                     // Release CC1101
 }
 
 // Write single register into the CC1101 IC via SPI
 static void cc11_writeReg(uint8_t Addr, uint8_t value) 
 {
-    RF_SELECT();                        // Select CC1101
-    RF_WAIT_LOW_MISO();                 // Wait until MISO goes low
+    CC11_SELECT();                      // Select CC1101
+    CC11_WAIT_LOW_MISO();               // Wait until MISO goes low
     hal_cc11_spiExch(Addr);             // Send register address
     hal_cc11_spiExch(value);            // Send value
-    RF_RELEASE();                       // Release CC1101
+    CC11_RELEASE();                     // Release CC1101
 }
 
 // Read single CC1101 register via SPI
@@ -136,12 +126,12 @@ static uint8_t cc11_readReg(uint8_t Addr)
 {
     uint8_t retval;
 
-    RF_SELECT();                        // Select CC1101
-    RF_WAIT_LOW_MISO();                 // Wait until MISO goes low
+    CC11_SELECT();                      // Select CC1101
+    CC11_WAIT_LOW_MISO();               // Wait until MISO goes low
     hal_cc11_spiExch(Addr);             // Send register address
     // Read result
     retval = hal_cc11_spiExch(0);
-    RF_RELEASE();                       // Release CC1101
+    CC11_RELEASE();                     // Release CC1101
     return retval;
 }
 
@@ -188,15 +178,15 @@ static void cc11_tx_task(void)
 
     len = pTxBuf->Length;
     // Send burst
-    RF_SELECT();                                // Select CC1101
-    RF_WAIT_LOW_MISO();                         // Wait until MISO goes low
+    CC11_SELECT();                              // Select CC1101
+    CC11_WAIT_LOW_MISO();                       // Wait until MISO goes low
     hal_cc11_spiExch(CC11_BIT_BURST | CC11_TXFIFO);
     hal_cc11_spiExch(len + 2);                  // Set data length at the first position of the TX FIFO
-    hal_cc11_spiExch(pTxBuf->phy1addr[0]);		// Send destination address
+    hal_cc11_spiExch(pTxBuf->phy1addr[0]);      // Send destination address
     hal_cc11_spiExch(cc11s_NodeID);             // Send Source address
     for(i = 0; i < len; i++)                    // Send Payload
         hal_cc11_spiExch(pTxBuf->raw[i]);
-    RF_RELEASE();                               // Release CC1101
+    CC11_RELEASE();                             // Release CC1101
 
     mqFree(pTxBuf);
 
@@ -232,19 +222,19 @@ static MQ_t * cc11_rx_task(void)
     pRxBuf->Length = frameLen;
 
     // Read Burst
-    RF_SELECT();                                    // Select CC1101
-    RF_WAIT_LOW_MISO();                             // Wait until MISO goes low
+    CC11_SELECT();                                  // Select CC1101
+    CC11_WAIT_LOW_MISO();                           // Wait until MISO goes low
     hal_cc11_spiExch(CC11_BIT_READ | CC11_BIT_BURST | CC11_RXFIFO);
     hal_cc11_spiExch(0);                            // Read Length
     hal_cc11_spiExch(0);                            // Read Destination address
-    pRxBuf->phy1addr[0] = hal_cc11_spiExch(0);		// Read Source address
+    pRxBuf->phy1addr[0] = hal_cc11_spiExch(0);      // Read Source address
 
     for(i = 0; i < frameLen; i++)                   // Read Payload
         pRxBuf->raw[i] = hal_cc11_spiExch(0);
 
     cc11_rssi = hal_cc11_spiExch(0);                // Read RSSI
     tmp  = hal_cc11_spiExch(0);                     // Read LQI 
-    RF_RELEASE();                                   // Release CC1101
+    CC11_RELEASE();                                 // Release CC1101
 
     //int8_t Foffs = cc11_readReg(CC11_FREQEST | CC11_STATUS_REGISTER);    // int8_t frequency offset
 
@@ -283,15 +273,15 @@ void CC11_Init(void)
     hal_cc11_init_hw();
     // Reset CC1101
     _delay_us(5);
-    RF_SELECT();
+    CC11_SELECT();
     _delay_us(10);
-    RF_RELEASE();
+    CC11_RELEASE();
     _delay_us(40);
-    RF_SELECT();
-    RF_WAIT_LOW_MISO();                     // Wait until MISO goes low
+    CC11_SELECT();
+    CC11_WAIT_LOW_MISO();                   // Wait until MISO goes low
     hal_cc11_spiExch(CC11_SRES);            // Reset CC1101 chip
-    RF_WAIT_LOW_MISO();                     // Wait until MISO goes low
-    RF_RELEASE();
+    CC11_WAIT_LOW_MISO();                   // Wait until MISO goes low
+    CC11_RELEASE();
 
     // verify that SPI is working and the correct radio is installed
     assert((cc11_readReg(CC11_PARTNUM | CC11_STATUS_REGISTER) == 0) && 

@@ -18,9 +18,9 @@ void hal_cc11_init_hw(void)
 {
     // Init Ports
     PRR &= ~(1<<PRSPI);
-    RF_PORT |= (1<<RF_PIN_SS);
-    RF_DDR |= (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) | (1<<RF_PIN_SS);
-    RF_DDR &= ~(1<<RF_PIN_MISO);
+    CC11_PORT |= (1<<CC11_PIN_SS);
+    CC11_DDR |= (1<<CC11_PIN_SCK) | (1<<CC11_PIN_MOSI) | (1<<CC11_PIN_SS);
+    CC11_DDR &= ~(1<<CC11_PIN_MISO);
 
 #if (F_CPU > 13000000UL)
     // F_CPU/4

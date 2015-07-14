@@ -61,19 +61,15 @@ extern "C" {
 #elif (defined STM32F4XX)
 #include "HAL/HW_STM32F4.h"
 #else
-#error unknown uC Familie
+#error unknown uC Family
 #endif
+
+#include "HAL/HW_Common.h"
 
 #include "mqMEM.h"
 #include "mqTypes.h"
 #include "mqttsn.h"
 #include "ObjDict.h"
-
-// PHY activity indicator
-void Activity(uint8_t pin);
-
-// Time Counters
-uint32_t GetTickCounter();
 
 #ifdef __cplusplus
 }

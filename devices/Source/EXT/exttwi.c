@@ -16,6 +16,7 @@ See LICENSE file for license details.
 
 #ifdef EXTTWI_USED
 
+#include "extdio.h"
 #include "exttwi.h"
 
 // Global variable used in HAL
@@ -23,15 +24,6 @@ volatile TWI_QUEUE_t  * pTwi_exchange = NULL;
 
 // local queues
 static Queue_t  twi_tx_queue = {NULL, NULL, 0, 0};
-
-// ext_dio 
-void dioTake(uint16_t base);
-void dioRelease(uint16_t base);
-
-// HAL
-void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA);
-bool hal_twi_configure(uint8_t enable);
-void hal_twi_tick(void);
 
 e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {

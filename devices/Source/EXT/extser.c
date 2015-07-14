@@ -16,6 +16,7 @@ See LICENSE file for license details.
 
 #ifdef EXTSER_USED
 
+#include "extdio.h"
 #include "extser.h"
 
 #define EXTSER_FLAG_TXEN    1
@@ -35,16 +36,10 @@ typedef struct
 }EXTSER_VAR_t;
 
 static const uint8_t extser2uart[] = EXTSER_PORT2UART;
-#define MAX_SER_PORT    (sizeof(extser2uart)/sizeof(extser2uart[0]))
-static EXTSER_VAR_t * extSerV[MAX_SER_PORT] = {NULL,};
 
-// HAL Section, subroutines defined in hal_uart.c
-void hal_uart_deinit(uint8_t port);
-void hal_uart_init_hw(uint8_t port, uint8_t nBaud);
-bool hal_uart_free(uint8_t port);
-void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf);
-bool hal_uart_datardy(uint8_t port);
-uint8_t hal_uart_get(uint8_t port);
+#define MAX_SER_PORT    (sizeof(extser2uart)/sizeof(extser2uart[0]))
+
+static EXTSER_VAR_t * extSerV[MAX_SER_PORT] = {NULL,};
 
 void serInit()
 {
@@ -76,7 +71,7 @@ bool serCheckSubidx(subidx_t * pSubidx)
        ((type != ObjSerRx) && (type != ObjSerTx)))
         return false;
 
-    uint16_t pinRx, pinTx;
+    uint8_t pinRx, pinTx;
     hal_uart_get_pins(port, &pinRx, &pinTx);
     
     if((dioCheckBase(pinRx) != 0) ||
@@ -161,6 +156,9 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
 {
     uint8_t port = pIdx->sidx.Base / 10;
     uint8_t nBaud = pIdx->sidx.Base % 10;
+
+    uint8_t TxPin, RxPin;
+    hal_uart_get_pins(port, &TxPin, &RxPin);
     
     if(extSerV[port] != NULL)
     {
@@ -169,9 +167,6 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
     }
     else
     {
-        //uint8_t TxPin, RxPin;
-        //hal_uart_get_pins(port, &TxPin, &RxPin);
-
         extSerV[port] = mqAlloc(sizeof(EXTSER_VAR_t));
         if(extSerV[port] == NULL)
             return MQTTSN_RET_REJ_CONG;
@@ -184,8 +179,6 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
         extSerV[port]->RxTail = 0;
 
         extSerV[port]->pTxBuf = NULL;
-
-        hal_uart_init_hw(extser2uart[port], nBaud);
     }
 
     if(pIdx->sidx.Type == ObjSerTx)
@@ -196,6 +189,9 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
         extSerV[port]->flags |= EXTSER_FLAG_TXEN;
         
         pIdx->cbWrite = &serWriteOD;
+        
+        dioTake(TxPin);
+        hal_uart_init_hw(extser2uart[port], nBaud, 2);
     }
     else // ObjSerRx
     {
@@ -213,6 +209,9 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
         
         pIdx->cbRead = &serReadOD;
         pIdx->cbPoll = &serPollOD;
+        
+        dioTake(RxPin);
+        hal_uart_init_hw(extser2uart[port], nBaud, 1);
     }
 
     return MQTTSN_RET_ACCEPTED;
@@ -221,6 +220,9 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
 void serDeleteOD(subidx_t * pSubidx)
 {
     uint8_t port = pSubidx->Base / 10;
+    
+    uint8_t TxPin, RxPin;
+    hal_uart_get_pins(port, &TxPin, &RxPin);
 
     if(extSerV[port] != NULL)
     {
@@ -244,6 +246,9 @@ void serDeleteOD(subidx_t * pSubidx)
             hal_uart_deinit(extser2uart[port]);
             mqFree(extSerV[port]);
             extSerV[port] = NULL;
+            
+            dioRelease(TxPin);
+            dioRelease(RxPin);
         }
     }
 }

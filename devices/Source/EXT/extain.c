@@ -16,6 +16,7 @@ See LICENSE file for license details.
 
 #ifdef EXTAIN_USED
 
+#include "extdio.h"
 #include "extain.h"
 
 /////////////////////////////////////////////////////
@@ -31,19 +32,7 @@ static uint8_t ain_ref[EXTAIN_MAXPORT_NR];
 static uint16_t ain_average;
 static int16_t ain_act_val[EXTAIN_MAXPORT_NR];
 
-// dio subroutines
-uint8_t dioCheckBase(uint16_t base);
-void dioTake(uint16_t base);
-void dioRelease(uint16_t base);
-
-// AIn HAL
-uint8_t hal_ain_apin2dio(uint8_t apin);
-void hal_ain_configure(uint8_t apin, uint8_t aref);
-void hal_ain_select(uint8_t apin, uint8_t aref);
-int16_t hal_ain_get(void);
-
 // AIn local subroutines
-
 static uint8_t ainCheckBase(uint16_t base)
 {
     if(base >= EXTAIN_MAXPORT_NR)

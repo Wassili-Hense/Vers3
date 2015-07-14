@@ -35,13 +35,13 @@ See LICENSE file for license details.
 //  12  8   PA12    LED
 //  13      PA13    SWDIO
 //  14      PA14    SWCLK
-//  15      PA15    RF_Select
+//  15      PA15    CC11_Select
 // GPIOB
 //  16  19  PB0
 //  17  20  PB1
-//  19      PB3     RF_SCK
-//  20      PB4     RF_MISO
-//  21      PB5     RF_MOSI
+//  19      PB3     CC11_SCK
+//  20      PB4     CC11_MISO
+//  21      PB5     CC11_MOSI
 //  22  13  PB6     SCL
 //  23  14  PB7     SDA
 
@@ -98,10 +98,10 @@ extern "C" {
 #define CC11_SPI_PORT               GPIOB
 #define CC11_SPI_MISO_PIN           GPIO_Pin_4
 
-#define RF_WAIT_LOW_MISO()          while(CC11_SPI_PORT->IDR & CC11_SPI_MISO_PIN)
+#define CC11_WAIT_LOW_MISO()        while(CC11_SPI_PORT->IDR & CC11_SPI_MISO_PIN)
 
-#define RF_SELECT()                 CC11_NSS_PORT->BRR = CC11_NSS_PIN
-#define RF_RELEASE()                CC11_NSS_PORT->BSRR = CC11_NSS_PIN
+#define CC11_SELECT()               CC11_NSS_PORT->BRR = CC11_NSS_PIN
+#define CC11_RELEASE()              CC11_NSS_PORT->BSRR = CC11_NSS_PIN
 
 // End CC11 Section
 
