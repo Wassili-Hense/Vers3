@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 void plcInit(void);
-uint8_t plcCheckIdx(subidx_t * pSubidx);
+bool plcCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx);
 
 void plcProc(void);

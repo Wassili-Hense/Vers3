@@ -33,10 +33,14 @@ void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA)
 // HAL
 bool hal_twi_configure(uint8_t enable)
 {
+    // Disable TWI
+    TWCR = (1<<TWINT);
+
     if(enable)
     {
-        // Disable TWI
-        TWCR = (1<<TWINT);
+        if(TWIM_SCL_STAT() == 0)
+            return false;
+
         // Set Speed
         TWBR = (((F_CPU/100000UL)-16)/2);   // 100kHz
         // Clear data register
@@ -44,14 +48,6 @@ bool hal_twi_configure(uint8_t enable)
         // Enable TWI & Interrupt
         TWCR = (1<<TWEN) | (1<<TWIE);
     }
-    else
-    {
-        // Disable TWI
-        TWCR = (1<<TWINT);
-    }
-
-    if(TWIM_SCL_STAT() == 0)
-        return false;
 
     return true;
 }

@@ -27,6 +27,10 @@ uint8_t dioCheckBase(uint16_t base);
 void dioTake(uint8_t base);
 void dioRelease(uint8_t base);
 
+bool dioGet(uint16_t base);
+void dioSet(uint16_t base);
+void dioReset(uint16_t base);
+
 #ifdef __cplusplus
 }
 #endif

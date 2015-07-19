@@ -152,13 +152,6 @@ static e_MQTTSN_RETURNS_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
     return MQTTSN_RET_ACCEPTED;
 }
 
-#ifdef EXTPLC_USED
-int16_t ain_get(uint8_t apin)
-{
-    return ain_act_val[apin];
-}
-#endif  // EXTPLC_USED
-
 static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     // Prevent hard fault on ARM
@@ -261,6 +254,13 @@ void ainProc(void)
             ain_pos = 0;
     }
 }
+
+#ifdef EXTPLC_USED
+int16_t ainGet(uint8_t apin)
+{
+    return ain_act_val[apin];
+}
+#endif  // EXTPLC_USED
 
 // AIn Section
 /////////////////////////////////////////////////////

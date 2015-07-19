@@ -142,7 +142,7 @@ void plcInit(void)
 }
 
 // Check Index
-uint8_t plcCheckIdx(subidx_t * pSubidx)
+bool plcCheckSubidx(subidx_t * pSubidx)
 {
     uint8_t len = plcType2Lenght(pSubidx->Type);
     uint16_t base = pSubidx->Base;

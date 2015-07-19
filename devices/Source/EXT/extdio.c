@@ -31,39 +31,43 @@ static DIO_PORT_TYPE dio_status[EXTDIO_MAXPORT_NR];
 
 // DIO local subroutines
 
-// Convert Base to Mask
-static DIO_PORT_TYPE dioBase2Mask(uint16_t base)
+// Convert base to port & mask
+static void dioBase2hw(uint16_t base, uint8_t * pPort, DIO_PORT_TYPE * pMask)
 {
-    DIO_PORT_TYPE retval = 1;
-    base &= DIO_PORT_MASK;
-    while(base--)
-        retval <<= 1;
-    return retval;
-}
-
-// Convert Base to Port Number
-static uint8_t dioBase2Port(uint16_t base)     // Digital Ports
-{
-    uint8_t tmp;
+    // Convert Base to Port Number
+    uint8_t port;
 #ifdef EXTDIO_BASE_OFFSET
-    tmp = (base>>DIO_PORT_POS) - EXTDIO_BASE_OFFSET;
+    port = (base>>DIO_PORT_POS) - EXTDIO_BASE_OFFSET;
 #else
-    tmp = (base>>DIO_PORT_POS);
+    port = (base>>DIO_PORT_POS);
 #endif  //  EXTDIO_BASE_OFFSET
 
-    if(tmp >= EXTDIO_MAXPORT_NR)
-        return EXTDIO_MAXPORT_NR;
-    return tmp;
+    if(port >= EXTDIO_MAXPORT_NR)
+    {
+        *pPort = 0xFF;
+        *pMask = 0;
+        return;
+    }
+    *pPort = port;
+
+    // Convert Base to Mask
+    DIO_PORT_TYPE mask = 1;
+    base &= DIO_PORT_MASK;
+    while(base--)
+        mask <<= 1;
+    
+    *pMask = mask;
 }
 
 // Write DIO Object's
 static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
-    uint16_t base = pSubidx->Base;
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioBase2hw(pSubidx->Base, &port, &mask);
+
     uint8_t state = *pBuf;
-    uint8_t port = dioBase2Port(base);
-    DIO_PORT_TYPE mask = dioBase2Mask(base);
-    dio_change_flag[dioBase2Port(base)] &= ~mask;
+    dio_change_flag[port] &= ~mask;
 
     if(pSubidx->Type == objPinNPN)
         state = ~state;
@@ -79,10 +83,12 @@ static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *p
 // Read digital Inputs
 static e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    uint16_t base = pSubidx->Base;
-    DIO_PORT_TYPE state = dio_status[dioBase2Port(base)];
-    DIO_PORT_TYPE mask = dioBase2Mask(base);
-    dio_change_flag[dioBase2Port(base)] &= ~mask;
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioBase2hw(pSubidx->Base, &port, &mask);
+
+    DIO_PORT_TYPE state = dio_status[port];
+    dio_change_flag[port] &= ~mask;
   
     if(pSubidx->Type == objPinNPN)
         state = ~state;
@@ -94,8 +100,11 @@ static e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
 // Poll Procedure
 static uint8_t dioPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
-    uint16_t base = pSubidx->Base;
-    return ((dio_change_flag[dioBase2Port(base)] & dioBase2Mask(base)) != 0);
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioBase2hw(pSubidx->Base, &port, &mask);
+
+    return ((dio_change_flag[port] & mask) != 0);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -118,13 +127,14 @@ void dioInit()
 // Is Pin free ? Check with base
 uint8_t dioCheckBase(uint16_t base)
 {
-    DIO_PORT_TYPE pinmask = dioBase2Mask(base);
-    uint8_t port = dioBase2Port(base);
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioBase2hw(base, &port, &mask);
 
-    if((port == EXTDIO_MAXPORT_NR) || (dio_portnum2mask[port] & pinmask))
+    if((port == 0xFF) || (dio_portnum2mask[port] & mask))
         return 2; // Port not exist
 
-    if((dio_read_mask[port] & pinmask) || (dio_write_mask[port] & pinmask))
+    if((dio_read_mask[port] & mask) || (dio_write_mask[port] & mask))
         return 1; // Port busy
 
     return 0; // Port free
@@ -144,8 +154,10 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
     if(dioCheckBase(base) != 0)
         return MQTTSN_RET_REJ_INV_ID;
 
-    uint8_t port = dioBase2Port(base);
-    DIO_PORT_TYPE mask = dioBase2Mask(base);
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioBase2hw(base, &port, &mask);
+
     dio_change_flag[port] &= ~mask;
 
     if(pIdx->sidx.Place == objDout)
@@ -191,10 +203,9 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
 
 void dioDeleteOD(subidx_t * pSubidx)
 {
-    uint16_t base = pSubidx->Base;
-
-    uint8_t port = dioBase2Port(base);
-    DIO_PORT_TYPE mask = dioBase2Mask(base);
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioBase2hw(pSubidx->Base, &port, &mask);
   
     dio_write_mask[port] &= ~mask;
     dio_read_mask[port] &= ~mask;
@@ -256,8 +267,9 @@ void dioProc(void)
 
 void dioTake(uint8_t base)
 {
-    uint8_t port = dioBase2Port(base);
-    DIO_PORT_TYPE mask = dioBase2Mask(base);
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioBase2hw(base, &port, &mask);
 
     dio_write_mask[port] |= mask;
     dio_read_mask[port] |= mask;
@@ -265,10 +277,41 @@ void dioTake(uint8_t base)
 
 void dioRelease(uint8_t base)
 {
-    uint8_t port = dioBase2Port(base);
-    DIO_PORT_TYPE mask = dioBase2Mask(base);
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioBase2hw(base, &port, &mask);
 
     dio_write_mask[port] &= ~mask;
     dio_read_mask[port] &= ~mask;
 }
-#endif  //  EXTDIO_USED
+
+#ifdef EXTPLC_USED
+bool dioGet(uint16_t base)
+{
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioBase2hw(base, &port, &mask);
+
+    return ((dio_status[port] & mask) != 0);
+}
+
+void dioSet(uint16_t base)
+{
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioBase2hw(base, &port, &mask);
+    
+    dio_status[port] |= mask;
+}
+
+void dioReset(uint16_t base)
+{
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioBase2hw(base, &port, &mask);
+    
+    dio_status[port] &= ~mask;
+}
+#endif  // EXTPLC_USED
+
+#endif  // EXTDIO_USED
