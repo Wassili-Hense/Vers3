@@ -84,7 +84,6 @@ extern "C" {
 
 // UART Section
 #define EXTSER_USED                 1
-#define EXTSER_PORT2UART            {0}
 // End UART Section
 
 // LEDs

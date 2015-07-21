@@ -153,8 +153,7 @@ extern "C" {
 // UART Section
 #define UART_PHY_PORT               0
 
-#define EXTSER_USED                 1
-#define EXTSER_PORT2UART            {1,2,3}
+#define EXTSER_USED                 4
 // End UART Section
 
 // LAN Section

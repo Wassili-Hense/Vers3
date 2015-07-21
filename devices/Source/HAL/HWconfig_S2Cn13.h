@@ -74,8 +74,7 @@ extern "C" {
 #define HAL_UART_PORTS              {USART2, USART1}
 #define HAL_UART_NUM_PORTS          2
 
-#define EXTSER_USED                 1
-#define EXTSER_PORTS                2
+#define EXTSER_USED                 2
 // End UART Section
 
 // TWI Section

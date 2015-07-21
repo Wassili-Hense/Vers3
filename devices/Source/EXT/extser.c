@@ -35,13 +35,13 @@ typedef struct
     MQ_t      * pTxBuf;
 }EXTSER_VAR_t;
 
-static EXTSER_VAR_t * extSerV[EXTSER_PORTS] = {NULL,};
+static EXTSER_VAR_t * extSerV[EXTSER_USED] = {NULL,};
 
 void serInit()
 {
     uint8_t port;
     
-    for(port = 0; port < EXTSER_PORTS; port++)
+    for(port = 0; port < EXTSER_USED; port++)
     {
         hal_uart_deinit(port);
         if(extSerV[port] != NULL)
@@ -62,7 +62,7 @@ bool serCheckSubidx(subidx_t * pSubidx)
     uint8_t port = pSubidx->Base/10;
     uint8_t nBaud = pSubidx->Base % 10;
 
-    if((port >= EXTSER_PORTS) ||
+    if((port >= EXTSER_USED) ||
        (nBaud > 4) ||
        ((type != ObjSerRx) && (type != ObjSerTx)))
         return false;
@@ -261,7 +261,7 @@ void serProc(void)
 {
     uint8_t port;
 
-    for(port = 0; port < EXTSER_PORTS; port++)
+    for(port = 0; port < EXTSER_USED; port++)
     {
         if(extSerV[port] != NULL)
         {

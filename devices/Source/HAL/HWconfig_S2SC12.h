@@ -109,7 +109,6 @@ extern "C" {
 #define HAL_UART_NUM_PORTS          2
 
 #define EXTSER_USED                 1
-#define EXTSER_PORTS                1
 
 #define UART_PHY_PORT               1   // Mapped Port 0/1/2...
 // End UART Section
