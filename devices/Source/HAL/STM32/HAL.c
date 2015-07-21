@@ -51,9 +51,6 @@ void StartSheduler(void)
     __enable_irq();
 }
 
-// Main program tick procedure
-extern void SystemTick(void);
-
 // IRQ handlers.
 
 static uint32_t hal_ms_counter = 0;
@@ -128,7 +125,7 @@ void _delay_us(uint32_t us)
 }
 
 // Generate pseudo random uint16
-uint16_t halRNG()
+uint16_t halRNG(void)
 {
     static uint16_t rand16 = 0xA15E;
 

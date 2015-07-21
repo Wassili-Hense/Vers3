@@ -15,9 +15,6 @@ See LICENSE file for license details.
 
 static volatile uint8_t SystemTickCnt;
 
-// External procedure defined in HAL
-void StartSheduler(void);
-
 int main(void)
 {
     // Initialise System Hardware

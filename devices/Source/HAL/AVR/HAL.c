@@ -38,7 +38,7 @@ void StartSheduler(void)
 }
 
 // Generate pseudo random uint16
-uint16_t halRNG()
+uint16_t halRNG(void)
 {
     static uint16_t rand16 = 0xA15E;
 
@@ -53,9 +53,6 @@ uint16_t halRNG()
   
     return rand16;
 }
-
-// Main program tick procedure
-void SystemTick(void);
 
 static uint32_t hal_ms_counter = 0;
 static uint32_t hal_sec_counter = 0;        // Max Uptime 136 Jr.

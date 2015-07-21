@@ -19,10 +19,13 @@ See LICENSE file for license details.
 
 //////////////////////////////////////////////////////////////
 // general HAL procedures
+void StartSheduler(void);
+void SystemTick(void);
+
 uint32_t hal_get_ms(void);
 uint32_t hal_get_sec(void);
 
-uint16_t halRNG();
+uint16_t halRNG(void);
 // general HAL procedures
 //////////////////////////////////////////////////////////////
 

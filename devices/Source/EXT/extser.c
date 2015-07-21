@@ -37,6 +37,11 @@ typedef struct
 
 static EXTSER_VAR_t * extSerV[EXTSER_USED] = {NULL,};
 
+// Prototypes
+uint8_t serPollOD(subidx_t * pSubidx, uint8_t sleep);
+e_MQTTSN_RETURNS_t serReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);
+e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
+
 void serInit()
 {
     uint8_t port;
