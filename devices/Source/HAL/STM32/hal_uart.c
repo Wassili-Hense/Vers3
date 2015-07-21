@@ -3,9 +3,7 @@
 #if ((defined HAL_USE_USART1) || \
      (defined HAL_USE_USART2) || \
      (defined HAL_USE_USART3) || \
-     (defined HAL_USE_UART4) || \
-     (defined HAL_USE_UART5) || \
-     (defined HAL_USE_USART6))
+     (defined HAL_USE_UART4))
 
 #define HAL_SIZEOF_UART_RX_FIFO         32      // Should be 2^n
 
@@ -66,49 +64,15 @@ typedef struct
     uint8_t             tx_pos;
 }HAL_UART_t;
 
-static HAL_UART_t * hal_UARTv[6] = {NULL, };
-
-static const USART_TypeDef * hal_pUART[6] =
-            {
-            #if (defined USART1) && (defined HAL_USE_USART1)
-                USART1,
-            #else
-                NULL,
-            #endif  //  USART1
-            #if (defined USART2) && (defined HAL_USE_USART2)
-                USART2,
-            #else
-                NULL,
-            #endif  //  USART2
-            #if (defined USART3) && (defined HAL_USE_USART3)
-                USART3,
-            #else
-                NULL,
-            #endif  //  USART3
-            #if (defined UART4) && (defined HAL_USE_UART4)
-                UART4,
-            #else
-                NULL,
-            #endif  //  UART4
-            #if (defined UART5) && (defined HAL_USE_UART5)
-                UART5,
-            #else
-                NULL,
-            #endif  //  UART5
-            #if (defined USART6) && (defined HAL_USE_USART6)
-                USART6,
-            #else
-                NULL,
-            #endif  //  USART6
-            };
-
 static const uint16_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400};
+static const USART_TypeDef * hal_pUART[] = HAL_UART_PORTS;
+static HAL_UART_t * hal_UARTv[HAL_UART_NUM_PORTS] = {NULL, };
 
 // IRQ handlers
-static inline void hal_uart_irq_handler(uint8_t port)
+static void hal_uart_irq_handler(uint8_t port)
 {
     assert(hal_UARTv[port] != NULL);
-    
+
     USART_TypeDef * USARTx = (USART_TypeDef *)hal_pUART[port];
     HAL_UART_t * control = hal_UARTv[port];
 
@@ -130,6 +94,8 @@ static inline void hal_uart_irq_handler(uint8_t port)
     }
 #endif  //  STM32
 
+    itstat &= USARTx->CR1;
+
     // Received data is ready to be read
     if(itstat & USART_CR1_RXNEIE)
     {
@@ -143,7 +109,7 @@ static inline void hal_uart_irq_handler(uint8_t port)
     }
 
     // Transmit data register empty
-    if((itstat & USART_CR1_TXEIE) && (USARTx->CR1 & USART_CR1_TXEIE))
+    if(itstat & USART_CR1_TXEIE)
     {
         if(control->tx_pos == control->tx_len)
         {
@@ -157,88 +123,86 @@ static inline void hal_uart_irq_handler(uint8_t port)
     }
 }
 
-#if (defined USART1) && (defined HAL_USE_USART1)
+#if (defined HAL_USE_USART1)
 void USART1_IRQHandler(void)
 {
-    hal_uart_irq_handler(0);
+    hal_uart_irq_handler(HAL_USE_USART1);
 }
 #endif  // USART1
 
-#if (defined USART2) && (defined HAL_USE_USART2)
+#if (defined HAL_USE_USART2)
 void USART2_IRQHandler(void)
 {
-    hal_uart_irq_handler(1);
+    hal_uart_irq_handler(HAL_USE_USART2);
 }
 #endif  //  USART2
 
-#if (defined USART3) && (defined HAL_USE_USART3)
+#if (defined HAL_USE_USART3)
 void USART3_IRQHandler(void)
 {
-    hal_uart_irq_handler(2);
+    hal_uart_irq_handler(HAL_USE_USART3);
 }
 #endif  //  USART3
 
-#if (defined UART4) && (defined HAL_USE_UART4)
+#if (defined HAL_USE_UART4)
 void UART4_IRQHandler(void)
 {
-    hal_uart_irq_handler(3);
+    hal_uart_irq_handler(HAL_USE_USART4);
 }
 #endif  //  UART4
-
-#if (defined UART5) && (defined HAL_USE_UART5)
-void UART5_IRQHandler(void)
-{
-    hal_uart_irq_handler(4);
-}
-#endif  //  UART4
-
-#if (defined USART6) && (defined HAL_USE_USART6)
-void USART6_IRQHandler(void)
-{
-    hal_uart_irq_handler(5);
-}
-#endif  //  USART3
 
 void hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx)
 {
-    switch(port)
+    if(port >= HAL_UART_NUM_PORTS)
     {
-#if (defined USART1) && (defined HAL_USE_USART1)
-        case 1:
+        *pRx = 0xFF;    // Not Exist
+        *pTx = 0xFF;
+        return;
+    }
+
+    const uint32_t pUART = (uint32_t)hal_pUART[port];
+
+    switch(pUART)
+    {
+#if (defined USART1)
+        case (uint32_t)USART1:
             *pRx = 10;      // GPIOA PIN10
             *pTx = 9;       // GPIOA PIN9
             break;
 #endif  //  USART1
-#if (defined USART2) && (defined HAL_USE_USART2)
-        case 2:
+#if (defined USART2)
+        case (uint32_t)USART2:
             *pRx = 3;       // GPIOA PIN3
             *pTx = 2;       // GPIOA PIN2
             break;
 #endif  //  USART2
-#if (defined USART3) && (defined HAL_USE_USART3)
-        case 3:
+#if (defined USART3)
+        case (uint32_t)USART3:
             *pRx = 27;      // GPIOB PIN11
             *pTx = 26;      // GPIOB PIN10
             break;
 #endif  //  USART3
-#if (defined UART4) && (defined HAL_USE_UART4)
-        case 4:
+#if (defined UART4)
+        case (uint32_t)UART4:
             *pRx = 1;       // GPIOA PIN1
             *pTx = 0;       // GPIOA PIN0
             break;
 #endif  //  UART4
         default:
-            assert(0);
+            *pRx = 0xFF;    // Not Exist
+            *pTx = 0xFF;
             break;
     }
 }
 
 void hal_uart_deinit(uint8_t port)
 {
-    switch(port)
+    const uint32_t pUART = (uint32_t)hal_pUART[port];
+
+    switch(pUART)
     {
-#if (defined USART1) && (defined HAL_USE_USART1)
-        case 1:
+#if (defined HAL_USE_USART1)
+        case (uint32_t)USART1:
             {
             USART1->CR1 &= ~USART_CR1_UE;               // Disable USART
             NVIC_DisableIRQ(USART1_IRQn);               // Disable USART IRQ
@@ -253,8 +217,8 @@ void hal_uart_deinit(uint8_t port)
             break;
 #endif  //  USART1
 
-#if (defined USART2) && (defined HAL_USE_USART2)
-        case 2:
+#if (defined HAL_USE_USART2)
+        case (uint32_t)USART2:
             {
             USART2->CR1 &= ~USART_CR1_UE;               // Disable USART
             NVIC_DisableIRQ(USART2_IRQn);               // Disable USART IRQ
@@ -269,8 +233,8 @@ void hal_uart_deinit(uint8_t port)
             break;
 #endif  //  USART2
 
-#if (defined USART3) && (defined HAL_USE_USART3)
-        case 3:
+#if (defined HAL_USE_USART3)
+        case (uint32_t)USART3:
             {
             USART3->CR1 &= ~USART_CR1_UE;               // Disable USART
             NVIC_DisableIRQ(USART3_IRQn);               // Disable USART IRQ
@@ -285,8 +249,8 @@ void hal_uart_deinit(uint8_t port)
             break;
 #endif  //  USART3
 
-#if (defined UART4) && (defined HAL_USE_UART4)
-        case 4:
+#if (defined HAL_USE_UART4)
+        case (uint32_t)UART4:
             {
             UART4->CR1 &= ~USART_CR1_UE;                // Disable USART
             NVIC_DisableIRQ(UART4_IRQn);                // Disable USART IRQ
@@ -301,15 +265,9 @@ void hal_uart_deinit(uint8_t port)
             break;
 #endif  //  UART4
 
-#if ((defined HAL_USE_UART5) || \
-     (defined HAL_USE_USART6))
-#error hal_uart_deinit, ports not implemented
-#endif
         default:
             assert(0);
     }
-    
-    port--;
 
     if(hal_UARTv[port] != NULL)
     {
@@ -321,8 +279,9 @@ void hal_uart_deinit(uint8_t port)
 // enable bit 0 - Rx, 1 - Tx
 void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 {
-    assert(nBaud < 5);
-    
+    assert((nBaud < 5) && (port < HAL_UART_NUM_PORTS));
+    USART_TypeDef * USARTx = (USART_TypeDef *)hal_pUART[port];
+
     IRQn_Type           UARTx_IRQn;
     RCC_ClocksTypeDef   RCC_ClocksStatus;
     
@@ -331,7 +290,11 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 
     RCC_GetClocksFreq(&RCC_ClocksStatus);
 
-    if((port == 1) || (port == 6))  // USART1, USART6
+    if(((uint32_t)USARTx == (uint32_t)USART1)
+#ifdef USART6
+        || ((uint32_t)USARTx == (uint32_t)USART6)
+#endif  //  USART6
+        )
     {
 #if (defined __STM32F0XX_H)
         uart_clock = RCC_ClocksStatus.USART1CLK_Frequency;
@@ -348,10 +311,10 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 #endif
     }
 
-    switch(port)
+    switch((uint32_t)USARTx)
     {
-#if (defined USART1) && (defined HAL_USE_USART1)
-        case 1:
+#if (defined HAL_USE_USART1)
+        case (uint32_t)USART1:
             {
             UARTx_IRQn = USART1_IRQn;
             RCC->APB2ENR   |= RCC_APB2ENR_USART1EN;                             // Enable UART1 Clock
@@ -365,8 +328,8 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             break;
 #endif  //  USART1
 
-#if (defined USART2) && (defined HAL_USE_USART2)
-        case 2:
+#if (defined HAL_USE_USART2)
+        case (uint32_t)USART2:
             {
             UARTx_IRQn = USART2_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_USART2EN;                             // Enable UART2 Clock
@@ -381,8 +344,8 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             break;
 #endif  //  USART2
 
-#if (defined USART3) && (defined HAL_USE_USART3)
-        case 3:
+#if (defined HAL_USE_USART3)
+        case (uint32_t)USART3:
             {
             UARTx_IRQn = USART3_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_USART3EN;                             // Enable UART3 Clock
@@ -397,9 +360,8 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             break;
 #endif  //  USART3
 
-
-#if (defined UART4) && (defined HAL_USE_UART4)
-        case 4:
+#if (defined HAL_USE_UART4)
+        case (uint32_t)UART4:
             {
             UARTx_IRQn = UART4_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_UART4EN;                              // Enable UART4 Clock
@@ -412,24 +374,15 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             break;
 #endif  //  UART4
 
-#if ((defined HAL_USE_UART5) || \
-     (defined HAL_USE_USART6))
-#error hal_uart_init_hw, ports not implemented
-#endif
-
         default:
             assert(0);
     }
-    
-    port--;
 
     if(hal_UARTv[port] == NULL)
     {
         hal_UARTv[port] = mqAlloc(sizeof(HAL_UART_t));
         assert(hal_UARTv[port] != NULL);
     }
-
-    USART_TypeDef * USARTx = (USART_TypeDef *)hal_pUART[port];
 
     if(USARTx->CR1 & USART_CR1_UE)
     {
@@ -463,16 +416,12 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 
 bool hal_uart_datardy(uint8_t port)
 {
-    port--;
-    
     assert(hal_UARTv[port] != NULL);
     return (hal_UARTv[port]->rx_head != hal_UARTv[port]->rx_tail);
 }
 
 uint8_t hal_uart_get(uint8_t port)
 {
-    port--;
-    
     assert(hal_UARTv[port] != NULL);
 
     if(hal_UARTv[port]->rx_head == hal_UARTv[port]->rx_tail)
@@ -488,13 +437,11 @@ uint8_t hal_uart_get(uint8_t port)
 // Tx free
 bool hal_uart_free(uint8_t port)
 {
-    return (hal_UARTv[port - 1]->tx_len == 0);
+    return (hal_UARTv[port]->tx_len == 0);
 }
 
 void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
 {
-    port--;
-    
     hal_UARTv[port]->tx_len = len;
     hal_UARTv[port]->tx_pos = 1;
     hal_UARTv[port]->pTxBuf = pBuf;

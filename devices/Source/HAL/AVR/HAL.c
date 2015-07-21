@@ -58,7 +58,7 @@ uint16_t halRNG()
 void SystemTick(void);
 
 static uint32_t hal_ms_counter = 0;
-static uint32_t hal_sec_counter = 0;
+static uint32_t hal_sec_counter = 0;        // Max Uptime 136 Jr.
 
 uint32_t hal_get_ms(void)
 {

@@ -56,16 +56,22 @@ extern void SystemTick(void);
 
 // IRQ handlers.
 
-static uint16_t hal_ms_counter = 0;
-static uint32_t hal_sec_counter = 0xFFFFFFF8;
+static uint32_t hal_ms_counter = 0;
+static uint32_t hal_sec_counter = 0;    // Max Uptime 136 Jr.
 
 // 1ms Ticks
 void SysTick_Handler(void)
 {
+//    PreviousMask = __get_PRIMASK();
+//    __disable_irq();
+    
     hal_ms_counter++;
-    if(hal_ms_counter > 999)
+    
+    static uint16_t ms_counter  = 0;
+    ms_counter++;
+    if(ms_counter > 999)
     {
-        hal_ms_counter = 0;
+        ms_counter = 0;
         hal_sec_counter++;
     }
     
@@ -78,17 +84,8 @@ void SysTick_Handler(void)
         SystemTick();
         ticks_counter = 1;
     }
-/*
-    uint32_t PreviousMask;
-
-    PreviousMask = __get_PRIMASK();
-    __disable_irq();
-
-    hal_ticks_counter++;
-
-    __set_PRIMASK(PreviousMask);
-*/
-
+    
+//    __set_PRIMASK(PreviousMask);
 }
 
 void HardFault_Handler( void ) __attribute__( ( naked ) );
@@ -100,15 +97,7 @@ void HardFault_Handler(void)
 
 uint32_t hal_get_ms(void)
 {
-    uint32_t val = hal_sec_counter;
-    val *= 1000;
-    val += hal_ms_counter;
-    return val;
-/*
-    uint32_t val = SysTick->VAL;
-    val /= (const uint32_t)(SystemCoreClock/1000);
-    val += hal_ticks_counter * POLL_TMR_FREQ;
-*/
+    return hal_ms_counter;
 }
 
 uint32_t hal_get_sec(void)
@@ -116,22 +105,12 @@ uint32_t hal_get_sec(void)
     return hal_sec_counter;
 }
 
-/*
-uint32_t hal_get_us(void)
-{
-    uint32_t val = SysTick->VAL;
-    val /= (const uint32_t)(SystemCoreClock/1000000);
-    val += hal_ticks_counter * (const uint32_t)(POLL_TMR_FREQ * 1000);
-    return val;
-}
-*/
-
 void _delay_ms(uint32_t ms)
 {
     if(SysTick->CTRL & SysTick_CTRL_ENABLE_Msk)
     {
-        uint32_t new_ms = hal_get_ms() + ms;
-        while(hal_get_ms() != new_ms);
+        uint32_t new_ms = hal_ms_counter + ms;
+        while(hal_ms_counter != new_ms);
     }
     else
     {

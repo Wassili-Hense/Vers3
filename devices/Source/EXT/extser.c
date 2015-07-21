@@ -35,19 +35,15 @@ typedef struct
     MQ_t      * pTxBuf;
 }EXTSER_VAR_t;
 
-static const uint8_t extser2uart[] = EXTSER_PORT2UART;
-
-#define MAX_SER_PORT    (sizeof(extser2uart)/sizeof(extser2uart[0]))
-
-static EXTSER_VAR_t * extSerV[MAX_SER_PORT] = {NULL,};
+static EXTSER_VAR_t * extSerV[EXTSER_PORTS] = {NULL,};
 
 void serInit()
 {
     uint8_t port;
     
-    for(port = 0; port < MAX_SER_PORT; port++)
+    for(port = 0; port < EXTSER_PORTS; port++)
     {
-        hal_uart_deinit(extser2uart[port]);
+        hal_uart_deinit(port);
         if(extSerV[port] != NULL)
         {
             if(extSerV[port]->pTxBuf != NULL)
@@ -66,17 +62,10 @@ bool serCheckSubidx(subidx_t * pSubidx)
     uint8_t port = pSubidx->Base/10;
     uint8_t nBaud = pSubidx->Base % 10;
 
-    if((port >= MAX_SER_PORT) ||
+    if((port >= EXTSER_PORTS) ||
        (nBaud > 4) ||
        ((type != ObjSerRx) && (type != ObjSerTx)))
         return false;
-
-    uint8_t pinRx, pinTx;
-    hal_uart_get_pins(port, &pinRx, &pinTx);
-    
-    if((dioCheckBase(pinRx) != 0) ||
-       (dioCheckBase(pinTx) != 0))
-       return false;
 
     return true;
 }
@@ -113,16 +102,14 @@ e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
     if(Len > 0)
     {
-        uint8_t uart = extser2uart[port];
-    
-        if((extSerV[port]->pTxBuf == NULL) && hal_uart_free(uart))
+        if((extSerV[port]->pTxBuf == NULL) && hal_uart_free(port))
         {
             MQ_t * pTxBuf = mqAlloc(sizeof(MQ_t));
             if(pTxBuf == NULL)
                 return MQTTSN_RET_REJ_CONG;
 
             memcpy(pTxBuf->raw, pBuf, Len);
-            hal_uart_send(uart, Len, pTxBuf->raw);
+            hal_uart_send(port, Len, pTxBuf->raw);
 
             extSerV[port]->pTxBuf = pTxBuf;
         }
@@ -156,14 +143,37 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
 {
     uint8_t port = pIdx->sidx.Base / 10;
     uint8_t nBaud = pIdx->sidx.Base % 10;
+    eObjTyp_t type = pIdx->sidx.Type;
 
     uint8_t TxPin, RxPin;
-    hal_uart_get_pins(port, &TxPin, &RxPin);
-    
+    hal_uart_get_pins(port, &RxPin, &TxPin);
+
+    if(type == ObjSerTx)
+    {
+        if(dioCheckBase(TxPin) != 0)
+            return MQTTSN_RET_REJ_INV_ID;
+    }
+    else
+    {
+        if(dioCheckBase(RxPin) == 2)
+            return MQTTSN_RET_REJ_INV_ID;
+    }
+
     if(extSerV[port] != NULL)
     {
         if(extSerV[port]->nBaud != nBaud)
             return MQTTSN_RET_REJ_INV_ID;
+        
+        if(type == ObjSerTx)
+        {
+            if(extSerV[port]->flags & EXTSER_FLAG_TXEN)
+                return MQTTSN_RET_REJ_INV_ID;
+        }
+        else
+        {
+            if(extSerV[port]->flags & EXTSER_FLAG_RXEN)
+                return MQTTSN_RET_REJ_INV_ID;
+        }
     }
     else
     {
@@ -181,23 +191,17 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
         extSerV[port]->pTxBuf = NULL;
     }
 
-    if(pIdx->sidx.Type == ObjSerTx)
+    if(type == ObjSerTx)
     {
-        if((extSerV[port]->flags & EXTSER_FLAG_TXEN) || (extSerV[port]->nBaud != nBaud))
-            return MQTTSN_RET_REJ_INV_ID;
-
         extSerV[port]->flags |= EXTSER_FLAG_TXEN;
-        
+
         pIdx->cbWrite = &serWriteOD;
-        
+
         dioTake(TxPin);
-        hal_uart_init_hw(extser2uart[port], nBaud, 2);
+        hal_uart_init_hw(port, nBaud, 2);
     }
     else // ObjSerRx
     {
-        if((extSerV[port]->flags & EXTSER_FLAG_RXEN) || (extSerV[port]->nBaud != nBaud))
-            return MQTTSN_RET_REJ_INV_ID;
-            
         if(extSerV[port]->pRxBuf == NULL)
         {
             extSerV[port]->pRxBuf = mqAlloc(sizeof(MQ_t));
@@ -211,7 +215,7 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
         pIdx->cbPoll = &serPollOD;
         
         dioTake(RxPin);
-        hal_uart_init_hw(extser2uart[port], nBaud, 1);
+        hal_uart_init_hw(port, nBaud, 1);
     }
 
     return MQTTSN_RET_ACCEPTED;
@@ -222,7 +226,7 @@ void serDeleteOD(subidx_t * pSubidx)
     uint8_t port = pSubidx->Base / 10;
     
     uint8_t TxPin, RxPin;
-    hal_uart_get_pins(port, &TxPin, &RxPin);
+    hal_uart_get_pins(port, &RxPin, &TxPin);
 
     if(extSerV[port] != NULL)
     {
@@ -243,7 +247,7 @@ void serDeleteOD(subidx_t * pSubidx)
 
         if((extSerV[port]->flags & (EXTSER_FLAG_TXEN | EXTSER_FLAG_RXEN)) == 0)
         {
-            hal_uart_deinit(extser2uart[port]);
+            hal_uart_deinit(port);
             mqFree(extSerV[port]);
             extSerV[port] = NULL;
             
@@ -257,15 +261,13 @@ void serProc(void)
 {
     uint8_t port;
 
-    for(port = 0; port < MAX_SER_PORT; port++)
+    for(port = 0; port < EXTSER_PORTS; port++)
     {
         if(extSerV[port] != NULL)
         {
-            uint8_t uart = extser2uart[port];
-            
             if(extSerV[port]->flags & EXTSER_FLAG_TXEN)
             {
-                if((extSerV[port]->pTxBuf != NULL) && (hal_uart_free(uart)))
+                if((extSerV[port]->pTxBuf != NULL) && (hal_uart_free(port)))
                 {
                     mqFree(extSerV[port]->pTxBuf);
                     extSerV[port]->pTxBuf = NULL;
@@ -274,7 +276,7 @@ void serProc(void)
             
             if(extSerV[port]->flags & EXTSER_FLAG_RXEN)
             {
-                if(hal_uart_datardy(uart))
+                if(hal_uart_datardy(port))
                 {
                     uint8_t tmphead = extSerV[port]->RxHead + 1;
                     if(tmphead >= sizeof(MQ_t))
@@ -282,7 +284,7 @@ void serProc(void)
 
                     if(tmphead != extSerV[port]->RxTail)
                     {
-                        extSerV[port]->pRxBuf[extSerV[port]->RxHead] = hal_uart_get(uart);
+                        extSerV[port]->pRxBuf[extSerV[port]->RxHead] = hal_uart_get(port);
                         extSerV[port]->RxHead = tmphead;
                         
                         uint8_t size;
