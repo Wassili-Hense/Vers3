@@ -110,13 +110,16 @@ extern "C" {
 // End Analogue Inputs
 
 // UART Section
-#define HAL_USE_USART1
-#define HAL_USE_USART2
-#define HAL_USE_USART3
-#define HAL_USE_UART4
-#define UART_PHY_PORT               2
-#define EXTSER_USED                 1
-#define EXTSER_PORT2UART            {1,3,4}
+#define HAL_UART_NUM_PORTS          4
+#define HAL_USE_USART1              0   // Mapping to logical port
+#define HAL_USE_USART2              3
+#define HAL_USE_USART3              1
+#define HAL_USE_UART4               2
+
+
+#define EXTSER_USED                 3
+
+#define UART_PHY_PORT               3   // Logical Port 0/1/2...
 // End UART Section
 
 // TWI Section
