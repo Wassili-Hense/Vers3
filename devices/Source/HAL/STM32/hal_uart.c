@@ -25,7 +25,7 @@
     #define HAL_USART1_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
     #define HAL_USART2_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
     #define HAL_USART3_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
-    #define HAL_USART4_AF           ((8<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+    #define HAL_UART4_AF            ((8<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 #else
     #error unknown uC Family
 #endif  // uC
@@ -272,11 +272,8 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 
     RCC_GetClocksFreq(&RCC_ClocksStatus);
 
-    if((port == HAL_USE_USART1)
-#ifdef HAL_USE_USART6
-        || (port == HAL_USE_USART6)
-#endif  //  USART6
-        )
+#if (defined HAL_USE_USART1)
+    if(port == HAL_USE_USART1)
     {
 #if (defined __STM32F0XX_H)
         uart_clock = RCC_ClocksStatus.USART1CLK_Frequency;
@@ -285,6 +282,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 #endif
     }
     else                            // USART2/3 UART4/5
+#endif  //  HAL_USE_USART1
     {
 #if (defined __STM32F0XX_H)
         uart_clock = RCC_ClocksStatus.PCLK_Frequency;
@@ -353,9 +351,9 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             RCC->APB1ENR   |= RCC_APB1ENR_UART4EN;                              // Enable UART4 Clock
 
             if(enable & 1) // Enable Rx
-                hal_dio_gpio_cfg(GPIOA, GPIO_Pin_1, HAL_USART4_AF);             // PA1(Rx)
+                hal_dio_gpio_cfg(GPIOA, GPIO_Pin_1, HAL_UART4_AF);              // PA1(Rx)
             if(enable & 2) // Enable Tx
-                hal_dio_gpio_cfg(GPIOA, GPIO_Pin_0, HAL_USART4_AF);             // PA0(Tx)
+                hal_dio_gpio_cfg(GPIOA, GPIO_Pin_0, HAL_UART4_AF);              // PA0(Tx)
             }
             break;
 #endif  //  UART4
