@@ -15,7 +15,10 @@
 
 #include "../../config.h"
 
-#if ((defined STM32F051R8) || (defined STM32F051K8) || (defined STM32F103R8))
+#if ((defined STM32F051R8) || \
+     (defined STM32F051C8) || \
+     (defined STM32F051K8) || \
+     (defined STM32F103R8))
 
 #define FEE_BASE_ADDRESS            (uint32_t)0x0800F000    // Base for 'EEPROM'
 #define FEE_SECTOR_SIZE             (uint32_t)0x00000400    // Size of FLASH Sectors

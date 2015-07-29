@@ -22,6 +22,9 @@ See LICENSE file for license details.
 #include "HWconfig_S2Sn12.h"    // UART
 #elif   (defined CFG_S2SR12)
 #include "HWconfig_S2SR12.h"    // UART + RFM12
+// STM32F051C8T6
+#elif   (defined CFG_S2EC13)
+#include "HWconfig_S2EC13.h"    // ENC28J60 + CC1101
 // STM32F051K8T6
 #elif   (defined CFG_S2CN13)
 #include "HWconfig_S2CN13.h"    // CC1101
