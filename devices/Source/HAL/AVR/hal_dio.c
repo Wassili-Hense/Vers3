@@ -1,12 +1,16 @@
 #include "../../config.h"
 
+#include "../../config.h"
+
 #ifdef EXTDIO_USED
 
-const uint16_t dio_portnum2port[]  = EXTDIO_PORTNUM2PORT;
+#include <avr/pgmspace.h>
+
+const const PROGMEM uint8_t hal_dio_portnum2port[]  = EXTDIO_PORTNUM2PORT;
 
 void hal_dio_configure(uint8_t PortNr, uint8_t Mask, uint16_t Mode)
 {
-    uint16_t base = dio_portnum2port[PortNr];
+    uint16_t base = pgm_read_word(&hal_dio_portnum2port[PortNr]);
 
     uint8_t *pPORT;
     pPORT = (uint8_t *)base;
@@ -32,20 +36,19 @@ void hal_dio_configure(uint8_t PortNr, uint8_t Mask, uint16_t Mode)
 
 uint8_t hal_dio_read(uint8_t PortNr)
 {
-    uint8_t *pPIN;
-    pPIN = (uint8_t *)(dio_portnum2port[PortNr] - 2);
+    uint8_t * pPIN = (uint8_t *)(pgm_read_word(&hal_dio_portnum2port[PortNr]) - 2);
     return *pPIN;
 }
 
 void hal_dio_set(uint8_t PortNr, uint8_t Mask)
 {
-    uint8_t * pPORT = (uint8_t *)dio_portnum2port[PortNr];
+    uint8_t * pPORT = (uint8_t *)(pgm_read_word(&hal_dio_portnum2port[PortNr]));
     *pPORT |= Mask;
 }
 
 void hal_dio_reset(uint8_t PortNr, uint8_t Mask)
 {
-    uint8_t * pPORT = (uint8_t *)dio_portnum2port[PortNr];
+    uint8_t * pPORT = (uint8_t *)(pgm_read_word(&hal_dio_portnum2port[PortNr]));
     *pPORT &= ~Mask;
 }
 
