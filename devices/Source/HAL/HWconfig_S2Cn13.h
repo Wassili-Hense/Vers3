@@ -97,18 +97,13 @@ extern "C" {
 #define CC11_SPI_PORT               GPIOB
 #define CC11_SPI_MISO_PIN           GPIO_Pin_4
 
-#define CC11_WAIT_LOW_MISO()          while(CC11_SPI_PORT->IDR & CC11_SPI_MISO_PIN)
+#define CC11_WAIT_LOW_MISO()        while(CC11_SPI_PORT->IDR & CC11_SPI_MISO_PIN)
 
-#define CC11_SELECT()                 CC11_NSS_PORT->BRR = CC11_NSS_PIN
-#define CC11_RELEASE()                CC11_NSS_PORT->BSRR = CC11_NSS_PIN
-
-// End CC11 Section
+#define CC11_SELECT()               CC11_NSS_PORT->BRR = CC11_NSS_PIN
+#define CC11_RELEASE()              CC11_NSS_PORT->BSRR = CC11_NSS_PIN
 
 #define CC11_PHY                    1
-
-#define PHY1_ADDR_t                 uint8_t
-#define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)0x00
-#define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)0xFF
+// End CC11 Section
 
 // Object's Dictionary Section
 #define OD_DEV_UC_TYPE              'S'
@@ -121,13 +116,6 @@ extern "C" {
 #define OD_ADDR_TYPE                objUInt8
 
 #include "../PHY/CC1101/cc11_phy.h"
-
-#define PHY1_Init                   CC11_Init
-#define PHY1_Send                   CC11_Send
-#define PHY1_Get                    CC11_Get
-#define PHY1_GetAddr                CC11_GetAddr
-#define PHY1_NodeId                 objRFNodeId
-#define PHY1_GateId                 objGateID
 
 #ifdef __cplusplus
 }

@@ -147,10 +147,6 @@ extern "C" {
 
 #define ENC28J60_PHY                1
 
-#define PHY1_ADDR_t                 uint32_t
-#define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)inet_addr(255,255,255,255)
-#define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)inet_addr(255,255,255,255)
-
 // Object's Dictionary Section
 #define OD_DEV_UC_TYPE              'S'
 #define OD_DEV_UC_SUBTYPE           '2'
@@ -159,7 +155,6 @@ extern "C" {
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '2'
 
-#define OD_ADDR_TYPE                objUInt32
 #define OD_DEV_MAC                  {0x00,0x04,0xA3,0x00,0x00,0x03}   // MAC MSB->LSB
 //#define OD_DEF_IP_ADDR              inet_addr(192,168,10,202)
 //#define OD_DEF_IP_MASK              inet_addr(255,255,255,0)
@@ -167,13 +162,6 @@ extern "C" {
 //#define OD_DEF_IP_BROKER            inet_addr(192,168,20,8)
 
 #include "../PHY/ENC28J60/enc28j60_phy.h"
-
-#define PHY1_Init                   ENC28J60_Init
-#define PHY1_Send                   ENC28J60_Send
-#define PHY1_Get                    ENC28J60_Get
-#define PHY1_GetAddr                ENC28J60_GetAddr
-#define PHY1_NodeId                 objIPAddr
-#define PHY1_GateId                 objIPBroker
 
 #ifdef __cplusplus
 }

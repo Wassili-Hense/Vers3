@@ -102,23 +102,14 @@ extern "C" {
 // End LAN Section
 
 // UART Section
+#define HAL_USE_USART0              1
+#define HAL_UART_NUM_PORTS          1
+
 #define UART_PHY_PORT               0
 // End UART Section
 
 #define ENC28J60_PHY                1
 #define UART_PHY                    2
-
-#define PHY1_ADDR_t                 uint32_t
-#define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)inet_addr(255,255,255,255)
-#define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)inet_addr(255,255,255,255)
-
-#define PHY2_ADDR_t                 uint8_t
-#define ADDR_BROADCAST_PHY2         (PHY2_ADDR_t)0x00
-#define ADDR_UNDEF_PHY2             (PHY2_ADDR_t)0xFF
-
-#define RF_ADDR_t                   uint8_t
-#define ADDR_UNDEF_RF               (RF_ADDR_t)0xFF
-#define ADDR_DEFAULT_RF             (RF_ADDR_t)2
 
 // Object's Dictionary Section
 #define OD_DEV_UC_TYPE              'A'
@@ -127,7 +118,7 @@ extern "C" {
 #define OD_DEV_PHY2                 'S'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '2'
-#define OD_ADDR_TYPE                objUInt32
+
 #define OD_DEV_MAC                  {0x00,0x04,0xA3,0x00,0x00,0x05}   // MAC MSB->LSB
 //#define OD_DEF_IP_ADDR              inet_addr(192,168,10,205)
 //#define OD_DEF_IP_MASK              inet_addr(255,255,255,0)
@@ -136,19 +127,6 @@ extern "C" {
 
 #include "../PHY/ENC28J60/enc28j60_phy.h"
 #include "../PHY/UART/uart_phy.h"
-
-#define PHY1_Init                   ENC28J60_Init
-#define PHY1_Send                   ENC28J60_Send
-#define PHY1_Get                    ENC28J60_Get
-#define PHY1_GetAddr                ENC28J60_GetAddr
-#define PHY1_NodeId                 objIPAddr
-#define PHY1_GateId                 objIPBroker
-
-#define PHY2_Init                   UART_Init
-#define PHY2_Send                   UART_Send
-#define PHY2_Get                    UART_Get
-#define PHY2_GetAddr                UART_GetAddr
-#define PHY2_NodeId                 objRFNodeId
 
 #ifdef __cplusplus
 }

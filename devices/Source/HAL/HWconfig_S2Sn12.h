@@ -117,14 +117,6 @@ extern "C" {
 
 #define UART_PHY                    1
 
-#define PHY1_ADDR_t                 uint8_t
-#define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)0x00
-#define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)0xFF
-
-#define RF_ADDR_t                   uint8_t
-#define ADDR_UNDEF_RF               (RF_ADDR_t)0xFF
-//#define ADDR_DEFAULT_RF             (RF_ADDR_t)0x04
-
 // Object's Dictionary Section
 #define OD_DEV_UC_TYPE              'S'
 #define OD_DEV_UC_SUBTYPE           '2'
@@ -133,16 +125,7 @@ extern "C" {
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '2'
 
-#define OD_ADDR_TYPE                objUInt8
-
 #include "../PHY/UART/uart_phy.h"
-
-#define PHY1_Init                   UART_Init
-#define PHY1_Send                   UART_Send
-#define PHY1_Get                    UART_Get
-#define PHY1_GetAddr                UART_GetAddr
-#define PHY1_NodeId                 objRFNodeId
-#define PHY1_GateId                 objGateID
 
 #ifdef __cplusplus
 }

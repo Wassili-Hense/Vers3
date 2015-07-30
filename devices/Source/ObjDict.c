@@ -45,10 +45,10 @@ static const indextable_t listPredefOD[] =
         objADCaverage, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteADCaverage, NULL},
 #endif  //  EXTAIN_USED
 #ifdef RF_ADDR_t
-    {{objEEMEM, OD_ADDR_TYPE, eeNodeID},
+    {{objEEMEM, RF_ADDR_TYPE, eeNodeID},
         objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
-    {{objEEMEM, OD_ADDR_TYPE, eeGateID},
-        objGateID, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+    {{objEEMEM, RF_ADDR_TYPE, eeGateID},
+        objRFGateId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #ifdef OD_DEFAULT_GROUP
     {{objEEMEM, objUInt16, eeGroupID},
         objRFGroup, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
@@ -397,7 +397,7 @@ void InitOD(void)
         RF_ADDR_t rfAddr = ADDR_DEFAULT_RF;
         WriteOD(objRFNodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfAddr);         // Node address
         RF_ADDR_t rfGw = ADDR_UNDEF_RF;
-        WriteOD(objGateID, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfGw);             // Gateway address
+        WriteOD(objRFGateId, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfGw);             // Gateway address
 #ifdef OD_DEFAULT_GROUP
         uiTmp = OD_DEFAULT_GROUP;
         WriteOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    // Group Id
