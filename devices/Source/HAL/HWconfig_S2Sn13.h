@@ -72,7 +72,7 @@ extern "C" {
 #define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB}
 #define EXTDIO_PORTNUM2MASK         {(uint16_t)0xE100, (uint16_t)0xF3FC}
 
-#define EXTDIO_MAPPING              {0,1,2,3,11,12,9,10,26,27,4,5,6,7,16,17}
+#define EXTDIO_MAPPING              {0,1,2,3,11,12,9,10,26,27,4,5,6,7,16,17}    // Mapping logical ports to physical, only for ext_dio
 // End DIO Section
 
 // PA0-PA7: 0 - 7
@@ -110,28 +110,10 @@ extern "C" {
 #define OD_DEV_HW_TYP_L             '3'
 
 // PHY Section
-
 #define UART_PHY                    1
 #define UART_PHY_PORT               1   // Logical Port 0/1/2...
 
-#define PHY1_ADDR_t                 uint8_t
-#define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)0x00
-#define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)0xFF
-
-#define RF_ADDR_t                   uint8_t
-#define ADDR_UNDEF_RF               (RF_ADDR_t)0xFF
-//#define ADDR_DEFAULT_RF             (RF_ADDR_t)0x04
-
-#define OD_ADDR_TYPE                objUInt8
-
 #include "../PHY/UART/uart_phy.h"
-
-#define PHY1_Init                   UART_Init
-#define PHY1_Send                   UART_Send
-#define PHY1_Get                    UART_Get
-#define PHY1_GetAddr                UART_GetAddr
-#define PHY1_NodeId                 objRFNodeId
-#define PHY1_GateId                 objGateID
 
 #ifdef __cplusplus
 }

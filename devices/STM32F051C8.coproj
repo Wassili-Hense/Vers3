@@ -150,8 +150,8 @@
     <File name="Source/HAL/STM32/hal_rfm12.c" path="Source/HAL/STM32/hal_rfm12.c" type="1"/>
     <File name="Source/HAL/HW_Common.h" path="Source/HAL/HW_Common.h" type="1"/>
     <File name="Source/PHY/ENC28J60" path="" type="2"/>
-    <File name="stm32_lib/src/stm32f0xx_flash.c" path="stm32_lib/src/stm32f0xx_flash.c" type="1"/>
     <File name="cmsis_boot/system_stm32f0xx_temp.c" path="cmsis_boot/system_stm32f0xx_temp.c" type="1"/>
+    <File name="stm32_lib/src/stm32f0xx_flash.c" path="stm32_lib/src/stm32f0xx_flash.c" type="1"/>
     <File name="Source/mqttsn.c" path="Source/mqttsn.c" type="1"/>
     <File name="cmsis_boot" path="" type="2"/>
     <File name="Source/mqMEM.c" path="Source/mqMEM.c" type="1"/>
@@ -180,10 +180,10 @@
     <File name="stm32_lib/inc/stm32f0xx_flash.h" path="stm32_lib/inc/stm32f0xx_flash.h" type="1"/>
     <File name="Source/PHY/RFM12" path="" type="2"/>
     <File name="Source/EXT" path="" type="2"/>
-    <File name="cmsis_boot/stm32f0xx_conf.h" path="cmsis_boot/stm32f0xx_conf.h" type="1"/>
-    <File name="cmsis_boot/startup/startup_stm32f0xx.s" path="cmsis_boot/startup/startup_stm32f0xx.s" type="1"/>
-    <File name="Source/PHY/CC1101" path="" type="2"/>
     <File name="cmsis/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
+    <File name="cmsis_boot/stm32f0xx_conf.h" path="cmsis_boot/stm32f0xx_conf.h" type="1"/>
+    <File name="Source/PHY/CC1101" path="" type="2"/>
+    <File name="cmsis_boot/startup/startup_stm32f0xx.s" path="cmsis_boot/startup/startup_stm32f0xx.s" type="1"/>
     <File name="Source/HAL/STM32/hal_enc28j60.c" path="Source/HAL/STM32/hal_enc28j60.c" type="1"/>
     <File name="Source/EXT/extdio.c" path="Source/EXT/extdio.c" type="1"/>
     <File name="Source/mqTypes.h" path="Source/mqTypes.h" type="1"/>
@@ -192,8 +192,8 @@
     <File name="Source/diag.h" path="Source/diag.h" type="1"/>
     <File name="Source/PHY/CC1101/cc11_reg.h" path="Source/PHY/CC1101/cc11_reg.h" type="1"/>
     <File name="Source/PHY/CC1101/cc11_phy.h" path="Source/PHY/CC1101/cc11_phy.h" type="1"/>
-    <File name="Source/PHY/ENC28J60/enc28j60_net.c" path="Source/PHY/ENC28J60/enc28j60_net.c" type="1"/>
     <File name="Source/EXT/extser.h" path="Source/EXT/extser.h" type="1"/>
+    <File name="Source/PHY/ENC28J60/enc28j60_net.c" path="Source/PHY/ENC28J60/enc28j60_net.c" type="1"/>
     <File name="Source/PHY/UART/uart_phy.c" path="Source/PHY/UART/uart_phy.c" type="1"/>
     <File name="Source/PHY/RFM12/rfm12_reg.h" path="Source/PHY/RFM12/rfm12_reg.h" type="1"/>
     <File name="Source/ObjDict.h" path="Source/ObjDict.h" type="1"/>
@@ -209,13 +209,13 @@
     <File name="Source/mqttsn.h" path="Source/mqttsn.h" type="1"/>
     <File name="Source/HAL/HWconfig_S2EC13.h" path="Source/HAL/HWconfig_S2EC13.h" type="1"/>
     <File name="stm32_lib/inc/stm32f0xx_rcc.h" path="stm32_lib/inc/stm32f0xx_rcc.h" type="1"/>
+    <File name="Source/PHY/ENC28J60/enc28j60_def.h" path="Source/PHY/ENC28J60/enc28j60_def.h" type="1"/>
     <File name="Source/EXT/extser.c" path="Source/EXT/extser.c" type="1"/>
     <File name="Source/main.c" path="Source/main.c" type="1"/>
-    <File name="Source/PHY/ENC28J60/enc28j60_def.h" path="Source/PHY/ENC28J60/enc28j60_def.h" type="1"/>
-    <File name="Source/HAL/STM32/hal_twi.c" path="Source/HAL/STM32/hal_twi.c" type="1"/>
     <File name="Source/HAL/STM32/hal_dio.c" path="Source/HAL/STM32/hal_dio.c" type="1"/>
-    <File name="cmsis_boot/system_stm32f0xx.h" path="cmsis_boot/system_stm32f0xx.h" type="1"/>
+    <File name="Source/HAL/STM32/hal_twi.c" path="Source/HAL/STM32/hal_twi.c" type="1"/>
     <File name="Source/HAL/HW_STM32F0.h" path="Source/HAL/HW_STM32F0.h" type="1"/>
+    <File name="cmsis_boot/system_stm32f0xx.h" path="cmsis_boot/system_stm32f0xx.h" type="1"/>
     <File name="Source/ObjDict.c" path="Source/ObjDict.c" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_hw.h" path="Source/PHY/ENC28J60/enc28j60_hw.h" type="1"/>
     <File name="Source/PHY/RFM12/rfm12_phy.h" path="Source/PHY/RFM12/rfm12_phy.h" type="1"/>

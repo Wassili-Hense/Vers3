@@ -87,6 +87,9 @@ extern "C" {
 #define LEDsInit()                  {DDRB |= (1<<PB1); PORTB |= (1<<PB1);}
 
 // UART Section
+#define HAL_USE_USART0              1
+#define HAL_UART_NUM_PORTS          1
+
 #define UART_PHY_PORT               0
 // End UART Section
 
@@ -106,14 +109,6 @@ extern "C" {
 #define UART_PHY                    1
 #define RFM12_PHY                   2
 
-#define PHY1_ADDR_t                 uint8_t
-#define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)0x00
-#define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)0xFF
-
-#define PHY2_ADDR_t                 uint8_t
-#define ADDR_BROADCAST_PHY2         (PHY2_ADDR_t)0x00
-#define ADDR_UNDEF_PHY2             (PHY2_ADDR_t)0xFF
-
 // Object's Dictionary Section
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '1'
@@ -122,23 +117,8 @@ extern "C" {
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '1'
 
-#define OD_ADDR_TYPE                objUInt8
-
 #include "../PHY/UART/uart_phy.h"
 #include "../PHY/RFM12/rfm12_phy.h"
-
-#define PHY1_Init                   UART_Init
-#define PHY1_Send                   UART_Send
-#define PHY1_Get                    UART_Get
-#define PHY1_GetAddr                UART_GetAddr
-#define PHY1_NodeId                 objRFNodeId
-#define PHY1_GateId                 objGateID
-
-#define PHY2_Init                   RFM12_Init
-#define PHY2_Send                   RFM12_Send
-#define PHY2_Get                    RFM12_Get
-#define PHY2_GetAddr                RFM12_GetAddr
-#define PHY2_NodeId                 objRFNodeId
 
 #ifdef __cplusplus
 }

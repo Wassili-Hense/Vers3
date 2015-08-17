@@ -12,8 +12,6 @@
 #define RFM12_RELEASE()    RFM12_PORT |= (1<<RFM12_PIN_SS);
 
 // HAL section
-void        hal_rfm12_enable_irq(void);
-
 void hal_rfm12_init_hw(void)
 {
     // ToDo IRQ only for UNode.

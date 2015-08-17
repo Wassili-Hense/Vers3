@@ -19,6 +19,36 @@ extern "C" {
 
 #define LAN_NODE
 
+#if (ENC28J60_PHY == 1)
+
+#define PHY1_ADDR_t                 uint32_t
+#define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)inet_addr(255,255,255,255)
+#define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)inet_addr(255,255,255,255)
+
+#define PHY1_Init                   ENC28J60_Init
+#define PHY1_Send                   ENC28J60_Send
+#define PHY1_Get                    ENC28J60_Get
+#define PHY1_GetAddr                ENC28J60_GetAddr
+#define PHY1_NodeId                 objIPAddr
+#define PHY1_GateId                 objIPBroker
+
+#elif (ENC28J60_PHY == 2)
+
+#define PHY2_ADDR_t                 uint32_t
+#define ADDR_BROADCAST_PHY2         (PHY1_ADDR_t)inet_addr(255,255,255,255)
+#define ADDR_UNDEF_PHY2             (PHY1_ADDR_t)inet_addr(255,255,255,255)
+
+#define PHY2_Init                   ENC28J60_Init
+#define PHY2_Send                   ENC28J60_Send
+#define PHY2_Get                    ENC28J60_Get
+#define PHY2_GetAddr                ENC28J60_GetAddr
+#define PHY2_NodeId                 objIPAddr
+
+#else
+#error ENC28J60_PHY unknown inteface
+#endif
+
+
 #define inet_addr(d,c,b,a)          (((uint32_t)a<<24) | ((uint32_t)b << 16) | ((uint32_t)c<<8)  | ((uint32_t)d))
 
 // API Section
