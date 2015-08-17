@@ -1,6 +1,7 @@
 #include "../../config.h"
 
 #if ((defined HAL_USE_USART1) || \
+     (defined HAL_USE_ALT_USART1) || \
      (defined HAL_USE_USART2) || \
      (defined HAL_USE_USART3) || \
      (defined HAL_USE_UART4))
@@ -16,7 +17,13 @@
 #endif  //  STM32
 
 #if (defined __STM32F0XX_H)
+// STM32F051
+#if (defined HAL_USE_ALT_USART1)
+    #define HAL_USE_USART1          HAL_USE_ALT_USART1
+    #define HAL_USART1_ALT_AF       DIO_MODE_AF_PP
+#else
     #define HAL_USART1_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+#endif  //  HAL_USE_ALT_USART1
     #define HAL_USART2_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 #elif (defined __STM32F10x_H)
     #define HAL_USART1_AF           DIO_MODE_AF_PP
@@ -154,9 +161,14 @@ void hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx)
     {
 #if (defined HAL_USE_USART1)
         case HAL_USE_USART1:
+#if (defined HAL_USE_ALT_USART1)
+            *pRx = 23;      // GPIOB PIN7
+            *pTx = 22;      // GPIOB PIN6
+#else
             *pRx = 10;      // GPIOA PIN10
             *pTx = 9;       // GPIOA PIN9
             break;
+#endif  //  HAL_USE_ALT_USART1
 #endif  //  USART1
 #if (defined HAL_USE_USART2)
         case HAL_USE_USART2:
@@ -197,8 +209,11 @@ void hal_uart_deinit(uint8_t port)
             RCC->APB2RSTR &= ~RCC_APB2RSTR_USART1RST;
 
             RCC->APB2ENR  &= ~RCC_APB2ENR_USART1EN;     // Disable UART1 Clock
-
+#if (defined HAL_USE_ALT_USART1)
+            hal_dio_gpio_cfg(GPIOB, GPIO_Pin_6 | GPIO_Pin_7, DIO_MODE_IN_FLOAT);
+#else
             hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9 | GPIO_Pin_10, DIO_MODE_IN_FLOAT);
+#endif  //  HAL_USE_ALT_USART1
             }
             break;
 #endif  //  USART1
@@ -301,10 +316,18 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             RCC->APB2ENR   |= RCC_APB2ENR_USART1EN;                             // Enable UART1 Clock
 #ifndef __STM32F10x_H
             if(enable & 1) // Enable Rx
+#if (defined HAL_USE_ALT_USART1)
+                hal_dio_gpio_cfg(GPIOB, GPIO_Pin_7, HAL_USART1_ALT_AF);         // PB7(Rx)
+#else
                 hal_dio_gpio_cfg(GPIOA, GPIO_Pin_10, HAL_USART1_AF);            // PA10(Rx)
+#endif  //  HAL_USE_ALT_USART1
 #endif  //  __STM32F10x_H
             if(enable & 2) // Enable Tx
-                hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9, HAL_USART1_AF);             // PA9(Tx) - AF1
+#if (defined HAL_USE_ALT_USART1)
+                hal_dio_gpio_cfg(GPIOB, GPIO_Pin_6, HAL_USART1_ALT_AF);         // PB6(Tx)
+#else
+                hal_dio_gpio_cfg(GPIOA, GPIO_Pin_9, HAL_USART1_AF);             // PA9(Tx)
+#endif  //  HAL_USE_ALT_USART1
             }
             break;
 #endif  //  USART1

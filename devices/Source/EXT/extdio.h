@@ -23,7 +23,7 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx);
 void dioDeleteOD(subidx_t * pSubidx);
 void dioProc(void);
 
-uint8_t dioCheckBase(uint16_t base);
+uint8_t dioCheckBase(uint8_t base);
 void dioTake(uint8_t base);
 void dioRelease(uint8_t base);
 

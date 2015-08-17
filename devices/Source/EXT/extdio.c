@@ -21,7 +21,10 @@ See LICENSE file for license details.
 // DIO Variables
 
 // Local Variables
-static const DIO_PORT_TYPE dio_portnum2mask[EXTDIO_MAXPORT_NR] = EXTDIO_PORTNUM2MASK;
+static const DIO_PORT_TYPE  dio_portnum2mask[EXTDIO_MAXPORT_NR] = EXTDIO_PORTNUM2MASK;
+#ifdef EXTDIO_MAPPING
+static const uint8_t        dio_sBase2Base[] = EXTDIO_MAPPING;
+#endif
 
 static DIO_PORT_TYPE dio_write_mask[EXTDIO_MAXPORT_NR];
 static DIO_PORT_TYPE dio_read_mask[EXTDIO_MAXPORT_NR];
@@ -32,7 +35,7 @@ static DIO_PORT_TYPE dio_status[EXTDIO_MAXPORT_NR];
 // DIO local subroutines
 
 // Convert base to port & mask
-static void dioBase2hw(uint16_t base, uint8_t * pPort, DIO_PORT_TYPE * pMask)
+static void dioBase2hw(uint8_t base, uint8_t * pPort, DIO_PORT_TYPE * pMask)
 {
     // Convert Base to Port Number
     uint8_t port;
@@ -62,9 +65,15 @@ static void dioBase2hw(uint16_t base, uint8_t * pPort, DIO_PORT_TYPE * pMask)
 // Write DIO Object's
 static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
+#ifdef EXTDIO_MAPPING
+    uint8_t base = dio_sBase2Base[pSubidx->Base];
+#else
+    uint8_t base = pSubidx->Base;
+#endif  //  EXTDIO_MAPPING
+
     uint8_t port;
     DIO_PORT_TYPE mask;
-    dioBase2hw(pSubidx->Base, &port, &mask);
+    dioBase2hw(base, &port, &mask);
 
     uint8_t state = *pBuf;
     dio_change_flag[port] &= ~mask;
@@ -83,9 +92,15 @@ static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *p
 // Read digital Inputs
 static e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
+#ifdef EXTDIO_MAPPING
+    uint8_t base = dio_sBase2Base[pSubidx->Base];
+#else
+    uint8_t base = pSubidx->Base;
+#endif  //  EXTDIO_MAPPING
+
     uint8_t port;
     DIO_PORT_TYPE mask;
-    dioBase2hw(pSubidx->Base, &port, &mask);
+    dioBase2hw(base, &port, &mask);
 
     DIO_PORT_TYPE state = dio_status[port];
     dio_change_flag[port] &= ~mask;
@@ -100,9 +115,15 @@ static e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
 // Poll Procedure
 static uint8_t dioPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
+#ifdef EXTDIO_MAPPING
+    uint8_t base = dio_sBase2Base[pSubidx->Base];
+#else
+    uint8_t base = pSubidx->Base;
+#endif  //  EXTDIO_MAPPING
+    
     uint8_t port;
     DIO_PORT_TYPE mask;
-    dioBase2hw(pSubidx->Base, &port, &mask);
+    dioBase2hw(base, &port, &mask);
 
     return ((dio_change_flag[port] & mask) != 0);
 }
@@ -125,7 +146,7 @@ void dioInit()
 }
 
 // Is Pin free ? Check with base
-uint8_t dioCheckBase(uint16_t base)
+uint8_t dioCheckBase(uint8_t base)
 {
     uint8_t port;
     DIO_PORT_TYPE mask;
@@ -143,14 +164,28 @@ uint8_t dioCheckBase(uint16_t base)
 // Check Subindex digital input/output
 bool dioCheckSubidx(subidx_t * pSubidx)
 {
+#ifdef EXTDIO_MAPPING
+    if(pSubidx->Base >= sizeof(dio_sBase2Base))
+        return false;
+
+    uint8_t base = dio_sBase2Base[pSubidx->Base];
+#else
+    uint8_t base = pSubidx->Base;
+#endif  //  EXTDIO_MAPPING
+
     return (((pSubidx->Type == objPinNPN) || (pSubidx->Type == objPinPNP)) &&
-            (dioCheckBase(pSubidx->Base) != 2));
+            (dioCheckBase(base) != 2));
 }
 
 // Register digital inp/out Object
 e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
 {
-    uint16_t base = pIdx->sidx.Base;
+#ifdef EXTDIO_MAPPING
+    uint8_t base = dio_sBase2Base[pIdx->sidx.Base];
+#else
+    uint8_t base = pSubidx->Base;
+#endif  //  EXTDIO_MAPPING
+
     if(dioCheckBase(base) != 0)
         return MQTTSN_RET_REJ_INV_ID;
 
@@ -203,9 +238,15 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
 
 void dioDeleteOD(subidx_t * pSubidx)
 {
+#ifdef EXTDIO_MAPPING
+    uint8_t base = dio_sBase2Base[pSubidx->Base];
+#else
+    uint8_t base = pSubidx->Base;
+#endif  //  EXTDIO_MAPPING
+    
     uint8_t port;
     DIO_PORT_TYPE mask;
-    dioBase2hw(pSubidx->Base, &port, &mask);
+    dioBase2hw(base, &port, &mask);
   
     dio_write_mask[port] &= ~mask;
     dio_read_mask[port] &= ~mask;
@@ -288,6 +329,10 @@ void dioRelease(uint8_t base)
 #ifdef EXTPLC_USED
 bool dioGet(uint16_t base)
 {
+#ifdef EXTDIO_MAPPING
+    base = dio_sBase2Base[base];
+#endif  //  EXTDIO_MAPPING
+
     uint8_t port;
     DIO_PORT_TYPE mask;
     dioBase2hw(base, &port, &mask);
@@ -297,6 +342,10 @@ bool dioGet(uint16_t base)
 
 void dioSet(uint16_t base)
 {
+#ifdef EXTDIO_MAPPING
+    base = dio_sBase2Base[base];
+#endif  //  EXTDIO_MAPPING
+    
     uint8_t port;
     DIO_PORT_TYPE mask;
     dioBase2hw(base, &port, &mask);
@@ -306,6 +355,10 @@ void dioSet(uint16_t base)
 
 void dioReset(uint16_t base)
 {
+#ifdef EXTDIO_MAPPING
+    base = dio_sBase2Base[base];
+#endif  //  EXTDIO_MAPPING
+
     uint8_t port;
     DIO_PORT_TYPE mask;
     dioBase2hw(base, &port, &mask);

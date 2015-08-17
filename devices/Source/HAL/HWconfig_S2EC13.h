@@ -44,7 +44,7 @@ See LICENSE file for license details.
 //  20  PB4         ENC_MISO
 //  21  PB5         ENC_MOSI
 //  22  PB6         ENC_SEL
-//  23  PB7
+//  23  PB7         ENC_RST
 //  24  PB8
 //  25  PB9
 //  26  PB10    13  SCL2
