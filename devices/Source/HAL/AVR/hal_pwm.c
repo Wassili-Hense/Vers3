@@ -2,6 +2,19 @@
 
 #if (defined EXTDIO_USED) && (defined EXTPWM_USED)
 
+#include <avr/pgmspace.h>
+
+static const PROGMEM uint8_t  hal_pwm_port2dio[] = EXTPWM_PORT2DIO;
+
+uint8_t hal_pwm_base2dio(uint16_t base)
+{
+    if(base >= (const uint16_t)(sizeof(hal_pwm_port2dio)))
+        return 0xFF;
+
+    return pgm_read_byte(&hal_pwm_port2dio[base]);
+}
+
+/*
 void hal_pwm_write(uint8_t Config, uint16_t value)
 {
     uint8_t channel = Config & 0x07;
@@ -107,5 +120,6 @@ void hal_pwm_write(uint8_t Config, uint16_t value)
         *(pTIM + 1) = (3<<WGM12) | (1<<CS00);   // Clock = Fosc
     }
 }
+*/
 
 #endif  //  (defined EXTDIO_USED) && (defined EXTPWM_USED)

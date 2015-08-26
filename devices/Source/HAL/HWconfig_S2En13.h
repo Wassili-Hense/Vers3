@@ -10,13 +10,12 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_S2EC13_H
-#define HWCONFIG_S2EC13_H
+#ifndef HWCONFIG_S2EN13_H
+#define HWCONFIG_S2EN13_H
 
 // Board: S2EC13
 // uC: STM32F051C8T6
 // PHY1: ENC28J60
-// PHY2: CC1101
 
 // GPIOA
 // Pin  Port    CN  Func
@@ -49,10 +48,10 @@ See LICENSE file for license details.
 //  25  PB9
 //  26  PB10    13  SCL2
 //  27  PB11    14  SDA2
-//  28  PB12        CC11_SEL
-//  29  PB13        CC11_SCK
-//  30  PB14        CC11_MISO
-//  31  PB15        CC11_MOSI
+//  28  PB12
+//  29  PB13
+//  30  PB14
+//  31  PB15
 
 
 #ifdef __cplusplus
@@ -96,8 +95,8 @@ extern "C" {
 // End TWI Section
 
 // LEDs
-#define LED2_On()                   GPIOB->BSRR = GPIO_BSRR_BS_2
-#define LED2_Off()                  GPIOB->BSRR = GPIO_BSRR_BR_2
+#define LED1_On()                   GPIOB->BSRR = GPIO_BSRR_BS_2
+#define LED1_Off()                  GPIOB->BSRR = GPIO_BSRR_BR_2
 #define LEDsInit()                  hal_dio_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
 
 // ENC Section
@@ -112,30 +111,11 @@ extern "C" {
 #define ENC28J60_PHY                1
 // End ENC Section
 
-// CC11 Section
-#define HAL_USE_SPI2                1
-
-#define CC11_USE_SPI                2
-
-#define CC11_NSS_PORT               GPIOB
-#define CC11_NSS_PIN                GPIO_Pin_12
-
-#define CC11_SPI_PORT               GPIOB
-#define CC11_SPI_MISO_PIN           GPIO_Pin_14
-
-#define CC11_WAIT_LOW_MISO()        while(CC11_SPI_PORT->IDR & CC11_SPI_MISO_PIN)
-
-#define CC11_SELECT()               CC11_NSS_PORT->BRR = CC11_NSS_PIN
-#define CC11_RELEASE()              CC11_NSS_PORT->BSRR = CC11_NSS_PIN
-
-#define CC11_PHY                    2
-// End CC11 Section
-
 // Object's Dictionary Section
 #define OD_DEV_UC_TYPE              'S'
 #define OD_DEV_UC_SUBTYPE           '2'
 #define OD_DEV_PHY1                 'E'
-#define OD_DEV_PHY2                 'C'
+#define OD_DEV_PHY2                 'n'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '3'
 
@@ -146,7 +126,6 @@ extern "C" {
 //#define OD_DEF_IP_BROKER            inet_addr(192,168,20,8)
 
 #include "../PHY/ENC28J60/enc28j60_phy.h"
-#include "../PHY/CC1101/cc11_phy.h"
 
 #ifdef __cplusplus
 }

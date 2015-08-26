@@ -116,12 +116,11 @@ extern "C" {
 #define HAL_USE_SPI1                1
 
 #define ENC_USE_SPI                 1   // SPI1 PA5-PA7
-#define SPIe                        SPI1
 #define ENC_NSS_PORT                GPIOB
 #define ENC_NSS_PIN                 GPIO_Pin_5
 
 #define ENC_SELECT()                ENC_NSS_PORT->BRR = ENC_NSS_PIN
-#define ENC_RELEASE()               {while(SPIe->SR & SPI_SR_BSY); ENC_NSS_PORT->BSRR = ENC_NSS_PIN;}
+#define ENC_RELEASE()               {while(SPI1->SR & SPI_SR_BSY); ENC_NSS_PORT->BSRR = ENC_NSS_PIN;}
 // End ENC Section
 
 #define ENC28J60_PHY                1

@@ -119,10 +119,9 @@ extern "C" {
 #define ENC_USE_SPI                 13      // SPI3 PC10-PC12
 #define ENC_NSS_PORT                GPIOD
 #define ENC_NSS_PIN                 GPIO_Pin_2
-#define SPIe                        SPI3
 
 #define ENC_SELECT()                ENC_NSS_PORT->BSRRH = ENC_NSS_PIN
-#define ENC_RELEASE()               {while(SPIe->SR & SPI_SR_BSY); ENC_NSS_PORT->BSRRL = ENC_NSS_PIN;}
+#define ENC_RELEASE()               {while(SPI3->SR & SPI_SR_BSY); ENC_NSS_PORT->BSRRL = ENC_NSS_PIN;}
 // End ENC Section
 
 #define ENC28J60_PHY                1

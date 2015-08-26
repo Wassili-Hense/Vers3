@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2014 <comparator@gmx.de>
+Copyright (c) 2011-2015 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -15,11 +15,25 @@ See LICENSE file for license details.
 #include "../config.h"
 
 #if ((defined EXTDIO_USED) && (defined EXTPWM_USED))
-
+    
+#include "extdio.h"
 #include "extpwm.h"
 
 /////////////////////////////////////////////////////
 // PWM Section ,   depended from extdio.c
+
+bool pwmCheckSubidx(subidx_t * pSubidx)
+{
+    eObjTyp_t type = pSubidx->Type;
+    
+    if(((type != objPinNPN) && (type != objPinPNP)) || 
+        (hal_pwm_base2dio(pSubidx->Base) == 0xFF))
+        return false;
+
+    return true;
+}
+
+/*
 
 // Local Variables
 static const uint8_t pwm_port2cfg[EXTPWM_MAXPORT_NR] = EXTPWM_PORT2CFG;
@@ -100,6 +114,8 @@ void pwmDeleteOD(subidx_t * pSubidx)
     // Release PIN
     dioConfigure(base, DIO_MODE_IN_FLOAT);
 }
+*/
+
 
 #endif  // ((defined EXTDIO_USED) && (defined EXTPWM_USED))
 

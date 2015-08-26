@@ -128,7 +128,7 @@ extern "C" {
 #define ENC_NSS_PORT                GPIOA
 #define ENC_NSS_PIN                 GPIO_Pin_4
 
-#define SPIe                        SPI1
+#define ENC_SPI                     SPI1
 
 #elif (ENC_USE_SPI == 2)
     
@@ -137,12 +137,12 @@ extern "C" {
 #define ENC_NSS_PORT                GPIOB
 #define ENC_NSS_PIN                 GPIO_Pin_12
 
-#define SPIe                        SPI2
+#define ENC_SPI                     SPI2
 
 #endif  //  ENC_USE_SPI
 
 #define ENC_SELECT()                ENC_NSS_PORT->BRR = ENC_NSS_PIN
-#define ENC_RELEASE()               {while(SPIe->SR & SPI_SR_BSY); ENC_NSS_PORT->BSRR = ENC_NSS_PIN;}
+#define ENC_RELEASE()               {while(ENC_SPI->SR & SPI_SR_BSY); ENC_NSS_PORT->BSRR = ENC_NSS_PIN;}
 // End ENC Section
 
 #define ENC28J60_PHY                1

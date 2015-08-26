@@ -183,7 +183,7 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
 #ifdef EXTDIO_MAPPING
     uint8_t base = dio_sBase2Base[pIdx->sidx.Base];
 #else
-    uint8_t base = pSubidx->Base;
+    uint8_t base = pIdx->sidx.Base;
 #endif  //  EXTDIO_MAPPING
 
     if(dioCheckBase(base) != 0)

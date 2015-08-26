@@ -25,6 +25,8 @@ See LICENSE file for license details.
 // STM32F051C8T6
 #elif   (defined CFG_S2EC13)
 #include "HWconfig_S2EC13.h"    // ENC28J60 + CC1101
+#elif   (defined CFG_S2En13)
+#include "HWconfig_S2En13.h"    // ENC28J60
 #elif   (defined CFG_S2Sn13)
 #include "HWconfig_S2Sn13.h"    // UART
 // STM32F051K8T6
