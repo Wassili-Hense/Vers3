@@ -83,7 +83,7 @@ extern "C" {
 // End TWI Section
 
 // UART Section
-#define HAL_USE_USART0              1
+#define HAL_USE_USART0              0
 #define HAL_UART_NUM_PORTS          1
 
 #define EXTSER_USED                 1

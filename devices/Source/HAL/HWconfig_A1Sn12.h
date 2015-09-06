@@ -87,10 +87,10 @@ extern "C" {
 #define LEDsInit()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // UART Section
-#define HAL_USE_USART0              1
+#define HAL_USE_USART0              0       // Logical Port Number 0,1,2,...
 #define HAL_UART_NUM_PORTS          1
 
-#define UART_PHY_PORT               0
+#define UART_PHY_PORT               0       // Logical Port Number 0,1,2,...
 // End UART Section
 
 #define UART_PHY                    1

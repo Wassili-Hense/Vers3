@@ -278,8 +278,6 @@ void hal_uart_deinit(uint8_t port)
 
 void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 {
-    assert((nBaud <= 4) && (port < HAL_UART_NUM_PORTS));
-
     volatile uint8_t * pPort;
 
     switch(port)

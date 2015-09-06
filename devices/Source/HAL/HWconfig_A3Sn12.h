@@ -13,6 +13,8 @@ See LICENSE file for license details.
 #ifndef HWCONFIG_A3SN12_H
 #define HWCONFIG_A3SN12_H
 
+#error old format
+
 // Busware CSM V2.0
 // uc ATMega1284p
 // Phy1: UART
